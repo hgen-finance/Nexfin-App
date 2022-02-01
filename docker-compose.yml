@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+  server:
+    container_name: server
+    restart: always
+    build: ./backend
+    links:
+      - mongo-nexfin:mongo-nexfin
+    depends_on:
+      - mongo-nexfin
+    ports:
+      - 1355:3000
+    # volumes:
+    #   - ~/app/server:/app/server/
+      # - ./logs:/root/.npm/_logs
+  
+  client:
+    container_name: client
+    build: ./frontend
+    expose:
+      - 5000   
+    ports:
+      - 5000:5000
+    # volumes:
+    #   - ~/app/client:/app/client/
+    stdin_open: true
+    command: npm run start
+
+  mongo-nexfin:
+    container_name:  mongo-nexfin
+    image: mongo
+    restart: always
+    ports:
+        - "27017:27017"
+    volumes:
+      - ~/mongo/data:/data/db
