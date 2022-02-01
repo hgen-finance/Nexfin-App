@@ -89,6 +89,5 @@
   },
   "engines": {
     "node": "16.x"
-  },
-  "proxy":"http://server:3000"
+  }
 }

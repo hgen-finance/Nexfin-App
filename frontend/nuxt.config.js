@@ -40,6 +40,8 @@ export default {
     "@modules/amberlib",
     // https://typed-vuex.roe.dev
     "nuxt-typed-vuex",
+    // proxy for nuxt
+    "@nuxtjs/proxy",
   ],
 
   // nuxt scroll behaviour for anchoring
@@ -98,12 +100,12 @@ export default {
   },
 
   axios: {
-    baseUrl: process.env.baseUrl || "http://localhost:1355",
+    // baseUrl: process.env.baseUrl || "http://server:1355",
   },
 
   //   ENV
   env: {
-    baseUrl: process.env.BASE_URL || "http://localhost:1355",
+    baseUrl: process.env.BASE_URL || "http://server:1355",
     mint: "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe",
     mintAuthority: process.env.MINT_AUTHORITY,
   },
@@ -116,6 +118,13 @@ export default {
       };
     },
   },
+  // for cors
+  proxy: {
+    "/": {
+      target: "http://server-side:3000",
+    },
+  },
+
   dev: process.env.NODE_ENV !== "production",
   server: {
     host: "0.0.0.0",
