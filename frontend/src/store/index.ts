@@ -99,7 +99,8 @@ export const actions = actionTree(
                 commit("setLightMode", data.totalLiquidationMode || false);
                 commit("setDebtRatio", data.debtRatio || 0);
                 commit("setToken", data.token || "0");
-            });
+            }).catch((err) => console.log(err));
+
             await this.$axios
                 .get(
                     "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
@@ -108,7 +109,7 @@ export const actions = actionTree(
                     if (data.solana) {
                         commit("setUsd", data.solana.usd);
                     }
-                });
+                }).catch(err => console.log(err));
         },
         copy(_vuexContext, text: string) {
             (this as any)._vm

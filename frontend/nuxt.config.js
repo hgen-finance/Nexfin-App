@@ -122,8 +122,8 @@ export default {
   // for cors
   proxy: {
     "/api/": {
-      target: "http://server:3000",
-      pathRewrte: { "^/api/": "" },
+      target: "http://server:3000/",
+      pathRewrite: { "^/api/": "/" },
     },
   },
 
