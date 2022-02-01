@@ -101,6 +101,7 @@ export default {
 
   axios: {
     // baseUrl: process.env.baseUrl || "http://server:3000",
+    proxy: true,
   },
 
   //   ENV
