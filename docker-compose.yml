@@ -34,3 +34,7 @@ services:
         - "27017:27017"
     volumes:
       - ~/mongo/data:/data/db
+volumes:
+  server:
+  client:
+  mongo:
