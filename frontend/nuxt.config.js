@@ -100,12 +100,12 @@ export default {
   },
 
   axios: {
-    // baseUrl: process.env.baseUrl || "http://server:1355",
+    // baseUrl: process.env.baseUrl || "http://server:3000",
   },
 
   //   ENV
   env: {
-    baseUrl: process.env.BASE_URL || "http://server:1355",
+    baseUrl: process.env.BASE_URL || "http://server:3000",
     mint: "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe",
     mintAuthority: process.env.MINT_AUTHORITY,
   },
@@ -121,7 +121,7 @@ export default {
   // for cors
   proxy: {
     "/": {
-      target: "http://server-side:3000",
+      target: "http://server:3000",
     },
   },
 
