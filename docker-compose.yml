@@ -10,9 +10,8 @@ services:
       - mongo-nexfin
     ports:
       - 1355:3000
-    # volumes:
-    #   - ~/app/server:/app/server/
-      # - ./logs:/root/.npm/_logs
+    volumes:
+      - server:/app/server/
   
   client:
     container_name: client
@@ -25,8 +24,8 @@ services:
       - 5000   
     ports:
       - 5000:5000
-    # volumes:
-    #   - ~/app/client:/app/client/
+    volumes:
+      - client:/app/client/
     stdin_open: true
     command: npm run start
 
@@ -37,8 +36,8 @@ services:
     ports:
         - "27017:27017"
     volumes:
-      - ~/mongo/data:/data/db
+      - mongodb:/data/db
 volumes:
   server:
   client:
-  mongo:
+  mongodb:
