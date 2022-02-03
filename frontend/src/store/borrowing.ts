@@ -194,7 +194,7 @@ export const actions = actionTree(
             if (
                 !state.troveId &&
                 Number(value.from > 0) &&
-                Number(value.to) > 1599 &&
+                Number(value.to) > 99 &&
                 cr > 109
             ) {
                 commit("setLoading", true);
