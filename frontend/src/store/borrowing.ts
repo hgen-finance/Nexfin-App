@@ -291,13 +291,13 @@ export const actions = actionTree(
                             .then((res) => {
                                 console.log(res, "newTrove Backend");
                             });
-                        commit("setTrove", {});
+                        dispatch("clearTrove", null, { root: true })
                         this.$accessor.wallet.getBalance();
                         this.$accessor.wallet.getGENSBalance();
                         this.$accessor.dashboard.setBorrow(false);
                     }
                     commit("setLoading", false);
-                    dispatch("clearTrove", null, { root: true })
+
                     await this.$axios
                         .post("/api/reward/addReward", {
                             amount: value.amount,
