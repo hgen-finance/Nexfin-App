@@ -297,6 +297,7 @@ export const actions = actionTree(
                         this.$accessor.dashboard.setBorrow(false);
                     }
                     commit("setLoading", false);
+                    dispatch("clearTrove", null, { root: true })
                     await this.$axios
                         .post("/api/reward/addReward", {
                             amount: value.amount,
