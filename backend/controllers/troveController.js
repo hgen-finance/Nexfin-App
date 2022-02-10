@@ -41,8 +41,8 @@ class troveController {
             let model = await troveModel.findOrCreateByAddress(user, trove);
             let lamports = 0;
 
-            //   let sentAmount = Number(amount) - depositorFee - teamFee;
-            let sentAmount = Number(amount); // collateral ratio is calculated based only on the raw amount
+            let sentAmount = Number(amount) - depositorFee - teamFee;
+            // let sentAmount = Number(amount); // collateral ratio is calculated based only on the raw amount
 
             if (!model.amountSent) {
                 model.amountSent = sentAmount;
@@ -153,7 +153,7 @@ class troveController {
                 return {
                     ...entity,
                     debtRatio: `${getCollateral(
-                        Math.floor(entity.borrowAmount),
+                        Math.floor(Number(entity.borrowAmount)).toString(),
                         entity.lamports,
                         "112"
                     )}%`, // TODO fix it here for the USD PRICE is set to 125
