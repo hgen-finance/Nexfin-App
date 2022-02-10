@@ -153,7 +153,7 @@ class troveController {
                 return {
                     ...entity,
                     debtRatio: `${getCollateral(
-                        entity.borrowAmount,
+                        Math.floor(entity.borrowAmount),
                         entity.lamports,
                         "112"
                     )}%`, // TODO fix it here for the USD PRICE is set to 125
