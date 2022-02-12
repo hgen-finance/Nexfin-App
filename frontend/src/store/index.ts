@@ -17,8 +17,8 @@ import * as swap from "./swap";
 import * as pool from "./pool";
 import * as risky from "./risky";
 import * as admin from "./admin";
+import * as notification from "./notification";
 
-import Vue from "vue";
 // State
 export const state = () => ({
     modal: "",
@@ -89,7 +89,7 @@ export const actions = actionTree(
             commit("setNewToken", value);
         },
         async getInfo({ commit }) {
-            await this.$axios.get("/api/info").then(({ data }) => {
+            await this.$axios.get("info").then(({ data }) => {
                 commit("setTotalDeposit", data.depositTotal || 0);
                 commit("setGasFee", data.gasFee || 0);
                 commit("setGovernanceReward", data.governanceReward || 0);
@@ -99,8 +99,7 @@ export const actions = actionTree(
                 commit("setLightMode", data.totalLiquidationMode || false);
                 commit("setDebtRatio", data.debtRatio || 0);
                 commit("setToken", data.token || "0");
-            }).catch((err) => console.log(err));
-
+            });
             await this.$axios
                 .get(
                     "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
@@ -109,7 +108,7 @@ export const actions = actionTree(
                     if (data.solana) {
                         commit("setUsd", data.solana.usd);
                     }
-                }).catch(err => console.log(err));
+                });
         },
         copy(_vuexContext, text: string) {
             (this as any)._vm
@@ -145,5 +144,6 @@ export const accessorType = getAccessorType({
         risky,
         admin,
         url,
+        notification,
     },
 });

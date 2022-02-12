@@ -4,21 +4,12 @@
   >
     <div class="w-100" :class="{ 'op-0': getLoading }">
       <div
-        class="w-100 fs-8-S fs-25-XS fw-600 f-white-200 pb-4-S pb-15-XS ta-c-XS ai-c jc-sb"
+        class="w-100 fs-8-S fs-25-XS fw-600 f-white-200 pb-4-S pb-15-XS ta-c-XS"
       >
         Borrow
-        <span class="info f-white-200">
-          <label
-            class="w-fix-s-12-S h-fix-s-12-S w-fix-s-42-XS h-fix-s-42-XS fd-r jc-c ai-c mcolor-100 rad-fix-2 fs-6-S fs-17-XS fw-600 ml-2-S ml-6-XS p-r"
-            >?</label
-          >
-          <span
-            class="popup w-fix-100min w-100max-S w-a-XS shadow-purple-100 p-2-S p-10-XS p-a l-0 t-100 fs-5-S fs-20-XS mcolor-500 rad-fix-3 fw-400 f-lh-13-S f-lh-43-XS z-15"
-          >
-            User are only able to withdraw their deposited SOL after their debt
-            is fully repaid.
-          </span>
-        </span>
+      </div>
+      <div class="w-100" v-if="getTotalNotifications > 0">
+        <NotificaitonsTx />
       </div>
       <div class="w-100 fs-5-S fs-20-XS f-gray-500 pb-1-S pb-5-XS ta-c-XS">
         Your Current Debt
@@ -81,17 +72,6 @@
         </div>
       </div>
 
-      <!-- <div class="w-100 mb-4 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS" v-if="getIsBorrow">
-        <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
-          New amount (+200 GENS fee)
-        </div>
-        <div class="w-100 fd-r ai-c">
-          <span class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0">GENS</span>
-          <input type="text" class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300" v-model="to" />
-        </div>
-      </div> -->
-
-      <!-- This section is for the borrow  -->
       <div
         class="w-100 mt-4 mb-2 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
         v-if="getBorrowOrPay"
@@ -212,16 +192,6 @@
           </AmButton>
         </div>
       </div>
-      <!-- <div class="w-100 mt-4" v-if="getIsBorrow">
-        <AmButton color="mcolor-100" bColor="mcolor-100" opacityEffect full @click="payTroveFunc">
-          update trove
-        </AmButton>
-      </div>
-      <div class="w-100 mt-4" v-if="getIsBorrow">
-        <AmButton color="mcolor-100" bColor="mcolor-100" opacityEffect full @click="closeTroveFunc">
-          Close trove
-        </AmButton>
-      </div> -->
     </div>
     <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
       <Loading />
@@ -232,12 +202,12 @@
 <script>
 import Loading from "@/components/Loading";
 import { getCollateral } from "@/utils/layout";
-import Hint from "@/components/Hint";
+import NotificaitonsTx from "@/components/NotificationTx.vue";
 
 export default {
   components: {
     Loading,
-    Hint,
+    NotificaitonsTx,
   },
   data() {
     return {
@@ -249,6 +219,7 @@ export default {
       depositAmount: 0,
       debtAmout: 0,
       borrowVal: 0,
+      TotalNotificationTx: 0,
     };
   },
   computed: {
@@ -287,6 +258,9 @@ export default {
             parseInt(this.$accessor.usd).toString()
           )
         : 0;
+    },
+    getTotalNotifications() {
+      return this.$accessor.notification.totalNotificaitons;
     },
   },
   watch: {
@@ -334,22 +308,6 @@ export default {
       this.repayTo = null;
     },
     confirmFunc() {
-      //   if (
-      //     Number(this.from) > 0 &&
-      //     Number(this.to) > 1599 &&
-      //     this.mint &&
-      //     Number(this.getDebt) > 109
-      //   ) {
-      //     this.$accessor.borrowing.confirmBorrow({
-      //       from: this.from,
-      //       to: this.to,
-      //       mint: this.mint
-      //     });
-      //     this.from = null;
-      //     this.to = this.getBorrowAmount;
-      //     this.mint = null;
-      //     this.depositAmount = this.from * this.getUsd;
-      //   }
       if (Number(this.from) > 0) {
         this.$accessor.borrowing.confirmBorrow({
           from: this.from,
@@ -389,23 +347,6 @@ export default {
       );
     },
   },
-  mounted() {
-    //   uncomment later
-    // if (this.getIsBorrow) {
-    //   this.repayTo = this.$accessor.borrowing.trove.amountToClose;
-    // }
-  },
+  mounted() {},
 };
 </script>
-
-<style lang="scss" scoped>
-.info {
-  .popup {
-    transform: translate(-50%, 1rem);
-    display: none;
-  }
-  &:hover label + .popup {
-    display: block;
-  }
-}
-</style>
