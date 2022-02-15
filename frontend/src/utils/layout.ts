@@ -1,4 +1,6 @@
 import * as BufferLayout from "buffer-layout";
+import * as borsh from "@project-serum/borsh";
+
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 
@@ -32,6 +34,7 @@ const u8Array = (property = "data") => {
     return BufferLayout.seq(BufferLayout.u8(), 96, property);
 };
 
+// TODO: use borsh for buffer
 export const TROVE_ACCOUNT_DATA_LAYOUT = BufferLayout.struct([
     BufferLayout.u8("isInitialized"),
     BufferLayout.u8("isLiquidated"),

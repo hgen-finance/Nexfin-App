@@ -1,6 +1,8 @@
 // Import Typed
 import { getterTree, mutationTree, actionTree } from "typed-vuex";
 
+// TODO: Make sure the testnet amount isnt shown up in the testnet account
+
 // Import Utils
 import { borrowUtil } from "@/utils/borrow";
 import { closeBorrowUtil } from "@/utils/closeBorrow";
@@ -67,17 +69,24 @@ export const actions = actionTree(
     { state, getters, mutations },
     {
         async setTroveById({ commit }, value) {
-            const encodedTroveState = (await this.$web3.getAccountInfo(
-                value,
-                "singleGossip"
-            ))!.data;
+            let encodedTroveState;
+
+            try {
+                encodedTroveState = (await this.$web3.getAccountInfo(
+                    value,
+                    "singleGossip"
+                ))!.data;
+            } catch (err) {
+                console.error("Error while fetching data: ", err)
+            }
+
             const decodedTroveState = TROVE_ACCOUNT_DATA_LAYOUT.decode(
                 encodedTroveState
             ) as TroveLayout;
 
             console.log({ decodedTroveState });
             commit("setTrove", {
-                troveAccountPubkey: value.toBase58(),
+                troveAccountPubkey: value.troveAccountPubkey.toBase58(),
                 isInitialized: !!decodedTroveState.isInitialized,
                 isLiquidated: !!decodedTroveState.isLiquidated,
                 isReceived: !!decodedTroveState.isReceived,
@@ -367,7 +376,7 @@ export const actions = actionTree(
 
                     await this.$axios
                         .post("/api/trove/pay", {
-                            trove: state.trove.troveAccountPubkey,
+                            trove: data.troveAccountPubkey,
                             amount: value.amount,
                         })
                         .then((res) => {
@@ -375,7 +384,8 @@ export const actions = actionTree(
                         });
 
                     this.$accessor.wallet.getGENSBalance();
-                    dispatch("borrowing/setTroveById", state.trove.troveAccountPubkey, { root: true })
+                    // TODO: retry on trying to fetch the information if it doesnt get retrived
+                    dispatch("borrowing/setTroveById", data.troveAccountPubkey, { root: true })
                     commit("setLoading", false);
 
                     // TODO: fix issue for ``block has not found on rewards``. Check the time for the block to expire
