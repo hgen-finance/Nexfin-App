@@ -6,6 +6,13 @@
       <span class="fs-8-S fs-7-M" style="align-self: center"
         >Add Liquidity</span
       >
+      <span
+        class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-red-500 ts-3 hv d-n-XS fsh-0"
+        style="align-self: center"
+        v-if="true"
+      >
+        Remove Liquidity
+      </span>
     </div>
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
@@ -80,33 +87,46 @@
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-        Liquidity Pool
-        <Hint> Total Amount of liquidity in the Pool </Hint>
-      </div>
-    </div>
-    <div class="w-100 fd-r py-1-S py-5-XS">
-      <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-        HGEN
-        <Hint> HGEN liquidity in the pool </Hint>
+        Slippage Tolerance
+        <Hint>
+          Difference on price of 2 different coins you are using in transaction
+          during time it takes to complete transaction.
+        </Hint>
       </div>
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
       >
-        10000 <span class="f-white-200 pl-1">HGEN</span>
+        1 <span class="f-white-200 pl-1">%</span>
       </div>
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-        GENS
-        <Hint> GENS liquidity in the pool </Hint>
+        Minimum Received
+        <Hint>
+          Your transaction will revert if there is a large, unfavourable price
+          movement before it is confirmed.
+        </Hint>
       </div>
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
       >
-        1000 <span class="f-white-200 pl-1">GENS</span>
+        0.0983070000 <span class="f-white-200 pl-1">SOL</span>
       </div>
     </div>
-
+    <div class="w-100 fd-r py-1-S py-5-XS">
+      <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+        Price Impact
+        <Hint>
+          If the pool is $1,000 and you sell $1 worth, thay will "impact" the
+          pool 0.1%.
+        </Hint>
+      </div>
+      <div
+        class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+      >
+        0.00 <span class="f-white-200 pl-1">%</span>
+      </div>
+    </div>
     <div class="w-100 pt-6-S pt-20-XS fd-r jc-c">
       <AmButton
         color="mcolor-100"
@@ -174,7 +194,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["wallet", "addLiqui", "url"]),
+    ...mapState(["wallet", "addLiquidity", "url"]),
   },
   watch: {
     currencyFrom: {

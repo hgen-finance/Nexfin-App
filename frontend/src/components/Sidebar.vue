@@ -132,7 +132,7 @@ export default {
         { id: 2, name: "Borrow", to: "/my/borrowing", class: "my-borrowing" },
         {
           id: 8,
-          name: "Add Liquidity",
+          name: "Liquidity",
           to: "/my/addLiquidity",
           class: "my-addLiquidity",
         },

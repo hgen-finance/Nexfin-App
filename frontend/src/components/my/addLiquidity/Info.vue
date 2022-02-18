@@ -5,15 +5,112 @@
     >
       <Balance />
     </div>
+    <div
+      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+    >
+      <div class="w-100">
+        <div class="w-100 fd-r py-10-XS">
+          <div
+            class="w-100 fs-7-L fs-7-M fs-6-S fs-40-XS fw-600 f-white-200 pb-5-M pb-6-S pb-30-XS ta-l-S ta-c-XS fd-r"
+          >
+            Liquidity Pool
+            <Hint>
+              Total Amount of liquidity in the Pool for the selected pair
+            </Hint>
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            TOTAL HGEN
+            <Hint> HGEN liquidity in the pool </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            10000 <span class="f-white-200 pl-1">HGEN</span>
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            TOTAL GENS
+            <Hint> GENS liquidity in the pool </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            1000 <span class="f-white-200 pl-1">GENS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+    >
+      <div class="w-100">
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div
+            class="w-100 fs-7-L fs-7-M fs-6-S fs-40-XS fw-600 f-white-200 pb-5-M pb-6-S pb-30-XS ta-l-S ta-c-XS"
+          >
+            Your Liquidity Pool
+          </div>
+        </div>
+        <div class="w-100 fd-r pb-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Your HGENS in Pool
+            <Hint> Your share of HGENS in pool </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            ≈ 100 <span class="f-white-200 pl-1">HGEN</span>
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            GENS in Pool
+            <Hint> Your share of GENS in pool </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            ≈ 10<span class="f-white-200 pl-1">GENS</span>
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            LP Tokens
+            <Hint> Your LP Tokens for the provided liquidity in the pool </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            10
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Pool Share
+            <Hint> Your pool share percentage </Hint>
+          </div>
+          <div
+            class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+          >
+            10<span class="f-white-200 pl-1">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import Balance from "@/components/my/swap/Balance.vue";
+import Hint from "@/components/Hint";
 
 export default {
   components: {
     Balance,
+    Hint,
   },
   layout: "my",
 };
