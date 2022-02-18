@@ -101,20 +101,6 @@
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-        Minimum Received
-        <Hint>
-          Your transaction will revert if there is a large, unfavourable price
-          movement before it is confirmed.
-        </Hint>
-      </div>
-      <div
-        class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
-      >
-        0.0983070000 <span class="f-white-200 pl-1">SOL</span>
-      </div>
-    </div>
-    <div class="w-100 fd-r py-1-S py-5-XS">
-      <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
         Price Impact
         <Hint>
           If the pool is $1,000 and you sell $1 worth, thay will "impact" the

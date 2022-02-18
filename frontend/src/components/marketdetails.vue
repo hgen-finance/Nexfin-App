@@ -32,7 +32,7 @@
       <div class="fs-4 fw-400 f-gray-600">24hr Volume</div>
       <div class="fs-4 fw-600 f-white-200">${{ volume }}</div>
     </div>
-    <DailyHighAndLow :high="260" :low="140" :latest="getPrice" />
+    <DailyHighAndLow :high="150" :low="70" :latest="getPrice" />
   </div>
 </template>
 
