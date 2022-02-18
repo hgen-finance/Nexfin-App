@@ -65,6 +65,14 @@
             class="w-fix-10-S w-80-XS"
             v-if="item.id === 7 && getActive(item)"
           />
+          <CoinsSvg
+            class="w-fix-10-S w-80-XS"
+            v-if="item.id === 8 && !getActive(item)"
+          />
+          <CoinsActiveSvg
+            class="w-fix-10-S w-80-XS"
+            v-if="item.id === 8 && getActive(item)"
+          />
         </div>
         <span
           class="fs-5-S fs-4-XS ts-3 pt-0-M pt-0-S pt-2-XS d-f-S d-n-XS"
@@ -122,6 +130,12 @@ export default {
         { id: 1, name: "Dashboard", to: "/my", class: "my" },
         { id: 3, name: "Swap", to: "/my/swap", class: "my-swap" },
         { id: 2, name: "Borrow", to: "/my/borrowing", class: "my-borrowing" },
+        {
+          id: 8,
+          name: "Add Liquidity",
+          to: "/my/addLiquidity",
+          class: "my-addLiquidity",
+        },
         { id: 4, name: "Stake", to: "/my/pool", class: "my-pool" },
         { id: 6, name: "Farm", to: "/my/farming", class: "my-farming" },
         {

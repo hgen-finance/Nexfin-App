@@ -139,7 +139,7 @@ export const CHAINLINK_SOL_USD_PUBKEY = new PublicKey(
     "FmAmfoyPXiA8Vhhe6MZTr3U6rZfEZ1ctEHay1ysqCqcf"
 );
 
-export const CLUSTER = process.env.CLUSTER || 'testnet';
+export const CLUSTER = process.env.CLUSTER || 'devnet';
 
 // export const pda_account_for_mint = new PublicKey("");
 

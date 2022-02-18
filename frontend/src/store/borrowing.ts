@@ -1,7 +1,7 @@
 // Import Typed
 import { getterTree, mutationTree, actionTree } from "typed-vuex";
 
-// TODO: Make sure the devnet amount isnt shown up in the testnet account
+// TODO: Make sure the devnet amount isnt shown up in the devnet account
 
 // Import Utils
 import { borrowUtil } from "@/utils/borrow";
