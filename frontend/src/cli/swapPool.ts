@@ -7,7 +7,7 @@ import {
     withdrawAllTokenTypes,
     depositSingleTokenTypeExactAmountIn,
     withdrawSingleTokenTypeExactAmountOut,
-} from '../utils/swapPool'
+} from '@/utils/swapPool'
 import { CurveType, Numberu64 } from '../utils/tokenSwap';
 
 

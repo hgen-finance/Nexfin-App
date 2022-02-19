@@ -9,11 +9,11 @@ import {
 } from '@solana/web3.js';
 
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from './tokenSwap';
-import { sendAndConfirmTransaction } from './tokenSwap/util/send-and-confirm-transaction';
-import { newAccountWithLamports } from './tokenSwap/util/new-account-with-lamports';
-import { url } from './tokenSwap/util/url';
-import { sleep } from './tokenSwap/util/sleep';
+import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from '@/utils/tokenSwap';
+import { sendAndConfirmTransaction } from '@/utils/tokenSwap/util/send-and-confirm-transaction';
+import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-lamports';
+import { url } from '@/utils/tokenSwap/util/url';
+import { sleep } from '@/utils/tokenSwap/util/sleep';
 
 // The following globals are created by `createTokenSwap` and used by subsequent tests
 // Token swap
@@ -71,7 +71,7 @@ const POOL_TOKEN_AMOUNT = 10000000;
 
 function assert(condition: boolean, message?: string) {
     if (!condition) {
-        console.log(Error().stack + ':token-test.js');
+        console.log(Error().stack + ':../cli/swapPool.ts');
         throw message || 'Assertion failed';
     }
 }
