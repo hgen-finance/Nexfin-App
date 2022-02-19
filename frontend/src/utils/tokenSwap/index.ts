@@ -14,6 +14,7 @@ import {
 import * as Layout from "./layout";
 import { sendAndConfirmTransaction } from './util/send-and-confirm-transaction';
 import { loadAccount } from './util/account';
+import Wallet from '@project-serum/sol-wallet-adapter';
 
 // TODO: set it up for testnet later, the below swap program id is for the devnet
 export const TOKEN_SWAP_PROGRAM_ID: PublicKey = new PublicKey(
@@ -133,7 +134,7 @@ export class TokenSwap {
         public hostFeeNumerator: Numberu64,
         public hostFeeDenominator: Numberu64,
         public curveType: number,
-        public payer: Account,
+        public payer: PublicKey,
     ) {
         this.connection = connection;
         this.tokenSwap = tokenSwap;
@@ -253,7 +254,7 @@ export class TokenSwap {
         connection: Connection,
         address: PublicKey,
         programId: PublicKey,
-        payer: Account,
+        payer: PublicKey,
     ): Promise<TokenSwap> {
         const data = await loadAccount(connection, address, programId);
         const tokenSwapData = TokenSwapLayout.decode(data);
@@ -344,7 +345,7 @@ export class TokenSwap {
      */
     static async createTokenSwap(
         connection: Connection,
-        payer: Account,
+        payer: PublicKey,
         tokenSwapAccount: Account,
         authority: PublicKey,
         tokenAccountA: PublicKey,
@@ -399,7 +400,7 @@ export class TokenSwap {
         transaction = new Transaction();
         transaction.add(
             SystemProgram.createAccount({
-                fromPubkey: payer.publicKey,
+                fromPubkey: payer,
                 newAccountPubkey: tokenSwapAccount.publicKey,
                 lamports: balanceNeeded,
                 space: TokenSwapLayout.span,

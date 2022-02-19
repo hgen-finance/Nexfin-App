@@ -11,7 +11,15 @@
         style="align-self: center"
         v-if="true"
       >
-        Remove Liquidity
+        - Remove Liquidity
+      </span>
+      <span
+        class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
+        style="align-self: center"
+        v-if="true"
+        @click="createSwapPool"
+      >
+        + Create Pool
       </span>
     </div>
     <div
@@ -20,7 +28,7 @@
       <div
         class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS"
       >
-        From
+        Set amount you want to add
       </div>
       <div class="w-100 pb-3-S pb-0 fd-r">
         <input
@@ -51,7 +59,7 @@
       <div
         class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS fd-r jc-sb z-4"
       >
-        <span> To </span>
+        <span> Set amount you want to add </span>
       </div>
       <div class="w-100 pb-3-S pb-0 fd-r jc-sb ai-c">
         <div
@@ -139,8 +147,8 @@ const TOKENS = [
 ];
 
 // TODO: Fetch these value from the pool, currently the values are hardcoded
-const CONVERT_HGEN = 0.1;
-const CONVERT_GENS = 10;
+const CONVERT_HGEN = 1;
+const CONVERT_GENS = 1;
 
 export default {
   components: {
@@ -234,8 +242,12 @@ export default {
       }
     },
     confirm() {
+      this.$accessor.swapPool.depositAllToken();
       if (Number(this.from) > 0) {
       }
+    },
+    createSwapPool() {
+      this.$accessor.swapPool.createTokenSwapPool();
     },
   },
 };

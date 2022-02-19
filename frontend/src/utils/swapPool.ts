@@ -15,6 +15,9 @@ import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-
 import { url } from '@/utils/tokenSwap/util/url';
 import { sleep } from '@/utils/tokenSwap/util/sleep';
 
+import Wallet from "@project-serum/sol-wallet-adapter";
+
+
 // The following globals are created by `createTokenSwap` and used by subsequent tests
 // Token swap
 let tokenSwap: TokenSwap;
@@ -89,6 +92,7 @@ async function getConnection(): Promise<Connection> {
 
 export async function createTokenSwap(
     curveType: number,
+    wallet: Wallet,
     curveParameters?: Numberu64,
 ): Promise<void> {
     const connection = await getConnection();
@@ -96,10 +100,18 @@ export async function createTokenSwap(
     owner = await newAccountWithLamports(connection, 1000000000);
     const tokenSwapAccount = new Account();
 
+    console.log(tokenSwapAccount.publicKey.toBase58(), "token swap account ");
+    console.log(tokenSwapAccount.secretKey, "token swap account secret key");
+
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
         [tokenSwapAccount.publicKey.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
+
+    console.log(authority.toBase58(), "pda Authority pubkey");
+    console.log(owner.publicKey.toBase58(), "Owner of the token account pool");
+    console.log(owner.secretKey, "owner secret key for the mint token")
+    console.log(payer.publicKey.toBase58(), "the payer for the account");
 
     console.log('creating pool mint');
     tokenPool = await Token.createMint(
@@ -110,11 +122,14 @@ export async function createTokenSwap(
         2,
         TOKEN_PROGRAM_ID,
     );
+    console.log(tokenPool.publicKey.toBase58(), "Pool token mint addr")
 
     console.log('creating pool account');
     tokenAccountPool = await tokenPool.createAccount(owner.publicKey);
     const ownerKey = SWAP_PROGRAM_OWNER_FEE_ADDRESS || owner.publicKey.toString();
     feeAccount = await tokenPool.createAccount(new PublicKey(ownerKey));
+
+    console.log(feeAccount.toBase58(), "fee account");
 
     console.log('creating token GENS');
     GENS = await Token.createMint(
@@ -125,9 +140,14 @@ export async function createTokenSwap(
         2,
         TOKEN_PROGRAM_ID,
     );
+    console.log(GENS.publicKey.toBase58(), 'gens mint addr')
+
 
     console.log('creating token GENS account');
     tokenAccountGENS = await GENS.createAccount(authority);
+    console.log(tokenAccountGENS.toBase58(), "pda GENS token account")
+
+    console.log('gens account')
     console.log('minting token GENS to swap');
     await GENS.mintTo(tokenAccountGENS, owner, [], currentSwapTokenA);
 
@@ -140,14 +160,17 @@ export async function createTokenSwap(
         2,
         TOKEN_PROGRAM_ID,
     );
+    console.log(HGEN.publicKey.toBase58(), 'hgen mint addr')
 
     console.log('creating token HGEN account');
     tokenAccountHGEN = await HGEN.createAccount(authority);
+    console.log(tokenAccountHGEN.toBase58(), "pda HGEN token account")
     console.log('minting token HGEN to swap');
     await HGEN.mintTo(tokenAccountHGEN, owner, [], currentSwapTokenB);
 
     console.log('creating token swap');
-    const swapPayer = await newAccountWithLamports(connection, 10000000000);
+    const swapPayer = wallet.publicKey;
+    console.log(swapPayer.toBase58(), "payer for the token of swap pool")
     tokenSwap = await TokenSwap.createTokenSwap(
         connection,
         swapPayer,
@@ -181,6 +204,8 @@ export async function createTokenSwap(
         TOKEN_SWAP_PROGRAM_ID,
         swapPayer,
     );
+
+    console.log(fetchedTokenSwap, "Token swap info")
 
     assert(fetchedTokenSwap.tokenProgramId.equals(TOKEN_PROGRAM_ID));
     assert(fetchedTokenSwap.tokenAccountA.equals(tokenAccountGENS));
@@ -218,7 +243,9 @@ export async function createTokenSwap(
     assert(curveType == fetchedTokenSwap.curveType);
 }
 
-export async function depositAllTokenTypes(): Promise<void> {
+export async function depositAllTokenTypes(
+    wallet: Wallet
+): Promise<void> {
     const poolMintInfo = await tokenPool.getMintInfo();
     const supply = poolMintInfo.supply.toNumber();
     const swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
@@ -232,27 +259,27 @@ export async function depositAllTokenTypes(): Promise<void> {
 
     const userTransferAuthority = new Account();
     console.log('Creating depositor token GENS account');
-    const userAccountGENS = await GENS.createAccount(owner.publicKey);
-    await GENS.mintTo(userAccountGENS, owner, [], tokenA);
+    const userAccountGENS = await GENS.createAccount(wallet.publicKey);
+    await GENS.mintTo(userAccountGENS, wallet.publicKey, [], tokenA);
     await GENS.approve(
         userAccountGENS,
         userTransferAuthority.publicKey,
-        owner,
+        wallet.publicKey,
         [],
         tokenA,
     );
     console.log('Creating depositor token HGEN account');
-    const userAccountHGEN = await HGEN.createAccount(owner.publicKey);
-    await HGEN.mintTo(userAccountHGEN, owner, [], tokenB);
+    const userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+    await HGEN.mintTo(userAccountHGEN, wallet.publicKey, [], tokenB);
     await HGEN.approve(
         userAccountHGEN,
         userTransferAuthority.publicKey,
-        owner,
+        wallet.publicKey,
         [],
         tokenB,
     );
     console.log('Creating depositor pool token account');
-    const newAccountPool = await tokenPool.createAccount(owner.publicKey);
+    const newAccountPool = await tokenPool.createAccount(wallet.publicKey);
 
     console.log('Depositing into swap');
     await tokenSwap.depositAllTokenTypes(

@@ -18,6 +18,7 @@ import * as pool from "./pool";
 import * as risky from "./risky";
 import * as admin from "./admin";
 import * as notification from "./notification";
+import * as swapPool from "./swapPool";
 
 // State
 export const state = () => ({
@@ -145,5 +146,6 @@ export const accessorType = getAccessorType({
         admin,
         url,
         notification,
+        swapPool
     },
 });

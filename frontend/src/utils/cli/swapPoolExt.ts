@@ -7,8 +7,8 @@ import {
     withdrawAllTokenTypes,
     depositSingleTokenTypeExactAmountIn,
     withdrawSingleTokenTypeExactAmountOut,
-} from '@/utils/swapPool'
-import { CurveType, Numberu64 } from '../utils/tokenSwap';
+} from '../swapPool'
+import { CurveType, Numberu64 } from '../tokenSwap';
 
 
 async function main() {
