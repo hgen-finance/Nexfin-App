@@ -345,7 +345,7 @@ export class TokenSwap {
      */
     static async createTokenSwap(
         connection: Connection,
-        payer: PublicKey,
+        payer: Wallet,
         tokenSwapAccount: Account,
         authority: PublicKey,
         tokenAccountA: PublicKey,
@@ -390,7 +390,7 @@ export class TokenSwap {
             new Numberu64(hostFeeNumerator),
             new Numberu64(hostFeeDenominator),
             curveType,
-            payer,
+            payer.publicKey,
         );
 
         // Allocate memory for the account
@@ -400,7 +400,7 @@ export class TokenSwap {
         transaction = new Transaction();
         transaction.add(
             SystemProgram.createAccount({
-                fromPubkey: payer,
+                fromPubkey: payer.publicKey,
                 newAccountPubkey: tokenSwapAccount.publicKey,
                 lamports: balanceNeeded,
                 space: TokenSwapLayout.span,
@@ -433,6 +433,7 @@ export class TokenSwap {
         transaction.add(instruction);
         await sendAndConfirmTransaction(
             'createAccount and InitializeSwap',
+            payer,
             connection,
             transaction,
             payer,
@@ -455,6 +456,7 @@ export class TokenSwap {
      * @param minimumAmountOut Minimum amount of tokens the user will receive
      */
     async swap(
+        payer: Wallet,
         userSource: PublicKey,
         poolSource: PublicKey,
         poolDestination: PublicKey,
@@ -466,6 +468,7 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'swap',
+            payer,
             this.connection,
             new Transaction().add(
                 TokenSwap.swapInstruction(
@@ -555,6 +558,7 @@ export class TokenSwap {
      * @param maximumTokenB The maximum amount of token B to deposit
      */
     async depositAllTokenTypes(
+        payer: Wallet,
         userAccountA: PublicKey,
         userAccountB: PublicKey,
         poolAccount: PublicKey,
@@ -565,6 +569,7 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'depositAllTokenTypes',
+            payer,
             this.connection,
             new Transaction().add(
                 TokenSwap.depositAllTokenTypesInstruction(
@@ -654,6 +659,7 @@ export class TokenSwap {
      * @param minimumTokenB The minimum amount of token B to withdraw
      */
     async withdrawAllTokenTypes(
+        payer: Wallet,
         userAccountA: PublicKey,
         userAccountB: PublicKey,
         poolAccount: PublicKey,
@@ -664,6 +670,7 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'withdraw',
+            payer,
             this.connection,
             new Transaction().add(
                 TokenSwap.withdrawAllTokenTypesInstruction(
@@ -753,6 +760,7 @@ export class TokenSwap {
      * @param minimumPoolTokenAmount Minimum amount of pool tokens to mint
      */
     async depositSingleTokenTypeExactAmountIn(
+        payer: Wallet,
         userAccount: PublicKey,
         poolAccount: PublicKey,
         userTransferAuthority: Account,
@@ -761,6 +769,7 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'depositSingleTokenTypeExactAmountIn',
+            payer,
             this.connection,
             new Transaction().add(
                 TokenSwap.depositSingleTokenTypeExactAmountInInstruction(
@@ -843,6 +852,7 @@ export class TokenSwap {
      * @param maximumPoolTokenAmount Maximum amount of pool tokens to burn
      */
     async withdrawSingleTokenTypeExactAmountOut(
+        payer: Wallet,
         userAccount: PublicKey,
         poolAccount: PublicKey,
         userTransferAuthority: Account,
@@ -851,6 +861,7 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'withdrawSingleTokenTypeExactAmountOut',
+            payer,
             this.connection,
             new Transaction().add(
                 TokenSwap.withdrawSingleTokenTypeExactAmountOutInstruction(

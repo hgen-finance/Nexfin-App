@@ -169,8 +169,8 @@ export async function createTokenSwap(
     await HGEN.mintTo(tokenAccountHGEN, owner, [], currentSwapTokenB);
 
     console.log('creating token swap');
-    const swapPayer = wallet.publicKey;
-    console.log(swapPayer.toBase58(), "payer for the token of swap pool")
+    const swapPayer = wallet;
+    console.log(swapPayer.publicKey.toBase58(), "payer for the token of swap pool")
     tokenSwap = await TokenSwap.createTokenSwap(
         connection,
         swapPayer,
@@ -202,7 +202,7 @@ export async function createTokenSwap(
         connection,
         tokenSwapAccount.publicKey,
         TOKEN_SWAP_PROGRAM_ID,
-        swapPayer,
+        swapPayer.publicKey,
     );
 
     console.log(fetchedTokenSwap, "Token swap info")
@@ -283,6 +283,7 @@ export async function depositAllTokenTypes(
 
     console.log('Depositing into swap');
     await tokenSwap.depositAllTokenTypes(
+        wallet,
         userAccountGENS,
         userAccountHGEN,
         newAccountPool,
@@ -307,7 +308,9 @@ export async function depositAllTokenTypes(
     assert(info.amount.toNumber() == POOL_TOKEN_AMOUNT);
 }
 
-export async function withdrawAllTokenTypes(): Promise<void> {
+export async function withdrawAllTokenTypes(
+    wallet: Wallet
+): Promise<void> {
     const poolMintInfo = await tokenPool.getMintInfo();
     const supply = poolMintInfo.supply.toNumber();
     let swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
@@ -344,6 +347,7 @@ export async function withdrawAllTokenTypes(): Promise<void> {
 
     console.log('Withdrawing pool tokens for A and B tokens');
     await tokenSwap.withdrawAllTokenTypes(
+        wallet,
         userAccountGENS,
         userAccountHGEN,
         tokenAccountPool,
@@ -374,7 +378,9 @@ export async function withdrawAllTokenTypes(): Promise<void> {
     currentFeeAmount = feeAmount;
 }
 
-export async function createAccountAndSwapAtomic(): Promise<void> {
+export async function createAccountAndSwapAtomic(
+    wallet: Wallet
+): Promise<void> {
     console.log('Creating swap token GENS account');
     let userAccountGENS = await GENS.createAccount(owner.publicKey);
     await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
@@ -439,6 +445,7 @@ export async function createAccountAndSwapAtomic(): Promise<void> {
     console.log('sending big instruction');
     await sendAndConfirmTransaction(
         'create account, approve transfer, swap',
+        wallet,
         connection,
         transaction,
         owner,
@@ -453,7 +460,9 @@ export async function createAccountAndSwapAtomic(): Promise<void> {
     currentSwapTokenB = info.amount.toNumber();
 }
 
-export async function swap(): Promise<void> {
+export async function swap(
+    wallet: Wallet
+): Promise<void> {
     console.log('Creating swap token GENS account');
     let userAccountGENS = await GENS.createAccount(owner.publicKey);
     await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
@@ -473,6 +482,7 @@ export async function swap(): Promise<void> {
 
     console.log('Swapping');
     await tokenSwap.swap(
+        wallet,
         userAccountGENS,
         tokenAccountGENS,
         tokenAccountHGEN,
@@ -526,7 +536,9 @@ function tradingTokensToPoolTokens(
     return Math.floor(poolAmount * (root - 1));
 }
 
-export async function depositSingleTokenTypeExactAmountIn(): Promise<void> {
+export async function depositSingleTokenTypeExactAmountIn(
+    wallet: Wallet
+): Promise<void> {
     // Pool token amount to deposit on one side
     const depositAmount = 10000;
 
@@ -571,6 +583,7 @@ export async function depositSingleTokenTypeExactAmountIn(): Promise<void> {
 
     console.log('Depositing token GENS into swap');
     await tokenSwap.depositSingleTokenTypeExactAmountIn(
+        wallet,
         userAccountGENS,
         newAccountPool,
         userTransferAuthority,
@@ -587,6 +600,7 @@ export async function depositSingleTokenTypeExactAmountIn(): Promise<void> {
 
     console.log('Depositing token HGEN into swap');
     await tokenSwap.depositSingleTokenTypeExactAmountIn(
+        wallet,
         userAccountHGEN,
         newAccountPool,
         userTransferAuthority,
@@ -603,7 +617,9 @@ export async function depositSingleTokenTypeExactAmountIn(): Promise<void> {
     assert(info.amount.toNumber() >= poolTokenA + poolTokenB);
 }
 
-export async function withdrawSingleTokenTypeExactAmountOut(): Promise<void> {
+export async function withdrawSingleTokenTypeExactAmountOut(
+    payer: Wallet
+): Promise<void> {
     // Pool token amount to withdraw on one side
     const withdrawAmount = 50000;
     const roundingAmount = 1.0001; // make math a little easier
@@ -655,6 +671,7 @@ export async function withdrawSingleTokenTypeExactAmountOut(): Promise<void> {
 
     console.log('Withdrawing token A only');
     await tokenSwap.withdrawSingleTokenTypeExactAmountOut(
+        payer,
         userAccountGENS,
         tokenAccountPool,
         userTransferAuthority,
@@ -673,6 +690,7 @@ export async function withdrawSingleTokenTypeExactAmountOut(): Promise<void> {
 
     console.log('Withdrawing token B only');
     await tokenSwap.withdrawSingleTokenTypeExactAmountOut(
+        payer,
         userAccountHGEN,
         tokenAccountPool,
         userTransferAuthority,
