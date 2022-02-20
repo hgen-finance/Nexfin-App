@@ -21,6 +21,14 @@
       >
         + Create Pool
       </span>
+      <span
+        class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
+        style="align-self: center"
+        v-if="true"
+        @click="addToken"
+      >
+        + Add Tokens
+      </span>
     </div>
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
@@ -241,9 +249,15 @@ export default {
         this.to = CONVERT_GENS * Number(this.from);
       }
     },
+    addToken() {
+      this.$accessor.swapPool.addToken();
+    },
     confirm() {
-      this.$accessor.swapPool.depositAllToken();
       if (Number(this.from) > 0) {
+        this.$accessor.swapPool.depositAllToken({
+          from: Number(this.from),
+          to: Number(this.to),
+        });
       }
     },
     createSwapPool() {

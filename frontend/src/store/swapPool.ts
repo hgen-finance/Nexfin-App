@@ -3,6 +3,7 @@ import { getterTree, mutationTree, actionTree } from "typed-vuex";
 import { ManagerAppDepInstallRequired } from '@ledgerhq/errors';
 import {
     createAccountAndSwapAtomic,
+    addToken,
     createTokenSwap,
     swap,
     depositAllTokenTypes,
@@ -38,15 +39,21 @@ export const actions = actionTree(
         },
 
         // Add liquidity
-        async depositAllToken({ commit, state }) {
+        async depositAllToken({ commit, state }, value) {
             console.log('add liquidity for all token types');
-            await depositAllTokenTypes(this.$wallet);
+            await depositAllTokenTypes(this.$wallet, value.tokenA, value.tokenB);
         },
 
         // swap tokens for the pool
         async swap() {
             console.log('swapping');
             await swap(this.$wallet);
+        },
+
+        // for adding gens and hgen tokens
+        async addToken() {
+            console.log("Adding GENS and HGENS")
+            await addToken(this.$wallet)
         }
 
     }

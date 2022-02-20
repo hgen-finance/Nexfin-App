@@ -556,24 +556,26 @@ export class TokenSwap {
      * @param maximumTokenB The maximum amount of token B to deposit
      */
     async depositAllTokenTypes(
-        payer: Wallet,
+        wallet: Wallet,
         userAccountA: PublicKey,
         userAccountB: PublicKey,
         poolAccount: PublicKey,
-        userTransferAuthority: Account,
+        userTransferAuthority: PublicKey, // TODO: change to account type when testing
         poolTokenAmount: number | Numberu64,
         maximumTokenA: number | Numberu64,
         maximumTokenB: number | Numberu64,
     ): Promise<TransactionSignature> {
+        // TODO: Only replace this inside  TokenSwap.depositAllTokenTypesInstruction for testing with wallet.publicKey
+        //  userTransferAuthority.publicKey,
         return await sendAndConfirmTransaction(
             'depositAllTokenTypes',
-            payer,
+            wallet,
             this.connection,
             new Transaction().add(
                 TokenSwap.depositAllTokenTypesInstruction(
                     this.tokenSwap,
                     this.authority,
-                    userTransferAuthority.publicKey,
+                    userTransferAuthority,
                     userAccountA,
                     userAccountB,
                     this.tokenAccountA,
@@ -587,7 +589,8 @@ export class TokenSwap {
                     maximumTokenB,
                 ),
             ),
-            userTransferAuthority,
+            // TODO: Only for testing
+            // userTransferAuthority,
         );
     }
 

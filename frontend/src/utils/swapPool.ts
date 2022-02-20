@@ -37,6 +37,10 @@ let HGEN: Token; // HGEN TOKEN
 let tokenAccountGENS: PublicKey;
 let tokenAccountHGEN: PublicKey;
 
+// user tokens account
+let userAccountGENS: PublicKey;
+let userAccountHGEN: PublicKey;
+
 // Hard-coded fee address, for testing production mode
 const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
     process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS;
@@ -88,6 +92,27 @@ async function getConnection(): Promise<Connection> {
 
     console.log('Connection to cluster established:', url, version);
     return connection;
+}
+
+export async function addToken(wallet: Wallet) {
+    let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: GENS.publicKey,
+    });
+    let genATA = check_gens.value[0] ? check_gens.value[0].pubkey.toBase58() : "";
+
+    let check_hgen = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: HGEN.publicKey,
+    });
+    let hgenATA = check_hgen.value[0] ? check_hgen.value[0].pubkey.toBase58() : "";
+
+    // check if there is already an gens and hgen account for the user
+    if (genATA == "")
+        userAccountGENS = await GENS.createAccount(wallet.publicKey);
+    await GENS.mintTo(userAccountGENS, owner, [], 10000);
+
+    if (hgenATA == "")
+        userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+    await HGEN.mintTo(userAccountHGEN, owner, [], 10000);
 }
 
 export async function createTokenSwap(
@@ -244,10 +269,14 @@ export async function createTokenSwap(
 }
 
 export async function depositAllTokenTypes(
-    wallet: Wallet
+    wallet: Wallet,
+    tokenAmountA: Number,
+    tokenAmountB: Number,
 ): Promise<void> {
     const poolMintInfo = await tokenPool.getMintInfo();
+    console.log(poolMintInfo, "poolmintinfo")
     const supply = poolMintInfo.supply.toNumber();
+    console.log(supply, "supply");
     const swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
     const tokenA = Math.floor(
         (swapTokenA.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
@@ -257,31 +286,36 @@ export async function depositAllTokenTypes(
         (swapTokenB.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
     );
 
-    const userTransferAuthority = new Account();
+    //TODO only for testing
+    // const userTransferAuthority = new Account();
+    const userTransferAuthority = wallet.publicKey
     console.log('Creating depositor token GENS account');
-    const userAccountGENS = await GENS.createAccount(wallet.publicKey);
-    await GENS.mintTo(userAccountGENS, wallet.publicKey, [], tokenA);
-    await GENS.approve(
-        userAccountGENS,
-        userTransferAuthority.publicKey,
-        wallet.publicKey,
-        [],
-        tokenA,
-    );
+    // const userAccountGENS = await GENS.createAccount(wallet.publicKey);
+    // TODO only for testing
+    // await GENS.mintTo(userAccountGENS, owner, [], tokenA);
+    // await GENS.approve(
+    //     userAccountGENS,
+    //     userTransferAuthority.publicKey,
+    //     wallet.publicKey,
+    //     [],
+    //     tokenA,
+    // );
     console.log('Creating depositor token HGEN account');
-    const userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
-    await HGEN.mintTo(userAccountHGEN, wallet.publicKey, [], tokenB);
-    await HGEN.approve(
-        userAccountHGEN,
-        userTransferAuthority.publicKey,
-        wallet.publicKey,
-        [],
-        tokenB,
-    );
+    // TODO only for testing
+    // const userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+    // await HGEN.mintTo(userAccountHGEN, owner, [], tokenB);
+    // await HGEN.approve(
+    //     userAccountHGEN,
+    //     userTransferAuthority.publicKey,
+    //     wallet.publicKey,
+    //     [],
+    //     tokenB,
+    // );
     console.log('Creating depositor pool token account');
     const newAccountPool = await tokenPool.createAccount(wallet.publicKey);
 
     console.log('Depositing into swap');
+    // TODO uncomment for test only
     await tokenSwap.depositAllTokenTypes(
         wallet,
         userAccountGENS,
