@@ -436,7 +436,6 @@ export class TokenSwap {
             payer,
             connection,
             transaction,
-            payer,
             tokenSwapAccount,
         );
 
@@ -488,7 +487,6 @@ export class TokenSwap {
                     minimumAmountOut,
                 ),
             ),
-            this.payer,
             userTransferAuthority,
         );
     }
@@ -589,7 +587,6 @@ export class TokenSwap {
                     maximumTokenB,
                 ),
             ),
-            this.payer,
             userTransferAuthority,
         );
     }
@@ -691,7 +688,6 @@ export class TokenSwap {
                     minimumTokenB,
                 ),
             ),
-            this.payer,
             userTransferAuthority,
         );
     }
@@ -787,7 +783,6 @@ export class TokenSwap {
                     minimumPoolTokenAmount,
                 ),
             ),
-            this.payer,
             userTransferAuthority,
         );
     }
@@ -880,7 +875,6 @@ export class TokenSwap {
                     maximumPoolTokenAmount,
                 ),
             ),
-            this.payer,
             userTransferAuthority,
         );
     }

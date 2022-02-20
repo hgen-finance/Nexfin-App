@@ -15,7 +15,7 @@ async function main() {
     console.log(
         'CreateTokenSwap (constant product)',
     );
-    await createTokenSwap(CurveType.ConstantProduct);
+    await createTokenSwap(CurveType.ConstantProduct, this.$wallet);
 }
 
 // run through cli

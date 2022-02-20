@@ -12,18 +12,26 @@ export async function sendAndConfirmTransaction(
     wallet: Wallet,
     connection: Connection,
     transaction: Transaction,
-    ...signers: Array<any>
+    ...signers: Array<Account>
 ): Promise<TransactionSignature> {
 
     let { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = wallet.publicKey;
 
+    console.log("Reached here for the confirmation")
+
     //sign transaction
     let signedTx = await wallet.signTransaction(transaction)
 
-    let txId = await connection.sendRawTransaction(signedTx.serialize());
-    await connection.confirmTransaction(txId);
+    // to write without signer for new accounts
+    signedTx.partialSign(...signers);
+
+    let txId = await connection.sendRawTransaction(signedTx.serialize(), {
+        skipPreflight: false,
+        preflightCommitment: 'recent',
+    });
+    await connection.confirmTransaction(txId, 'recent');
     return txId
 
     // For only test

@@ -46,7 +46,7 @@ export const actions = actionTree(
         // swap tokens for the pool
         async swap() {
             console.log('swapping');
-            await swap();
+            await swap(this.$wallet);
         }
 
     }
