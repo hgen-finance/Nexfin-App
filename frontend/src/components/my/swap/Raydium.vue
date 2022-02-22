@@ -172,7 +172,8 @@
       </div>
     </div>
     <div class="w-100 pt-6-S pt-20-XS fd-r jc-c">
-      <AmButton
+      <!-- TODO for raydium -->
+      <!-- <AmButton
         color="mcolor-100"
         bColor="mcolor-100"
         opacityEffect
@@ -180,6 +181,15 @@
         :full="true"
       >
         CREATE RAY aCCOUNT
+      </AmButton> -->
+      <AmButton
+        color="mcolor-100"
+        bColor="mcolor-100"
+        opacityEffect
+        @click="confirm"
+        :full="true"
+      >
+        SWAP
       </AmButton>
     </div>
   </div>
@@ -290,13 +300,15 @@ export default {
       }
     },
     confirm() {
-      if (Number(this.from) > 0) {
-        this.$accessor.swap.swap({
-          from: this.from,
-          mintFrom: this.currencyFrom.value,
-          mintTo: this.currencyTo.value,
-        });
-      }
+      //   if (Number(this.from) > 0) {
+      this.$accessor.swap.swap();
+      // TODO for raydium swap
+      // this.$accessor.swap.swap({
+      //   from: this.from,
+      //   mintFrom: this.currencyFrom.value,
+      //   mintTo: this.currencyTo.value,
+      // });
+      //   }
     },
   },
 };

@@ -15,6 +15,7 @@ import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-
 import { url } from '@/utils/tokenSwap/util/url';
 import { sleep } from '@/utils/tokenSwap/util/sleep';
 
+import { Pool } from '@/store/interfaces/poolInterface';
 import Wallet from "@project-serum/sol-wallet-adapter";
 
 
@@ -41,9 +42,12 @@ let tokenAccountHGEN: PublicKey;
 let userAccountGENS: PublicKey;
 let userAccountHGEN: PublicKey;
 
+// pool info
+let poolInfo: Pool;
+
 // Hard-coded fee address, for testing production mode
 const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
-    process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS;
+    process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS || "54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t";
 
 // Pool fees
 const TRADING_FEE_NUMERATOR = 25;
@@ -58,14 +62,19 @@ const HOST_FEE_DENOMINATOR = 100;
 // Initial amount in each swap token
 let currentSwapTokenA = 1000000;
 let currentSwapTokenB = 1000000;
+// TODO: use it when tokenAccount is finalized
+// let currentFeeAmount = await tokenPool.getAccountInfo(feeAccount);
+// only for testing
 let currentFeeAmount = 0;
 
 // Swap instruction constants
 // Because there is no withdraw fee in the production version, these numbers
 // need to get slightly tweaked in the two cases.
-const SWAP_AMOUNT_IN = 100000;
-const SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 90661 : 90674;
-const SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 22273 : 22277;
+let SWAP_AMOUNT_IN = 10000;
+// 90661 : 90674;
+let SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 8061 : 8067;
+// 22273 : 22277;
+const SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 30000 : 30000;
 const HOST_SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS
     ? Math.floor((SWAP_FEE * HOST_FEE_NUMERATOR) / HOST_FEE_DENOMINATOR)
     : 0;
@@ -119,7 +128,7 @@ export async function createTokenSwap(
     curveType: number,
     wallet: Wallet,
     curveParameters?: Numberu64,
-): Promise<void> {
+): Promise<any> {
     const connection = await getConnection();
     const payer = await newAccountWithLamports(connection, 1000000000);
     owner = await newAccountWithLamports(connection, 1000000000);
@@ -266,6 +275,24 @@ export async function createTokenSwap(
         HOST_FEE_DENOMINATOR == fetchedTokenSwap.hostFeeDenominator.toNumber(),
     );
     assert(curveType == fetchedTokenSwap.curveType);
+
+
+    let gens_info = (await GENS.getAccountInfo(tokenAccountGENS)).amount;
+    let hgen_info = (await HGEN.getAccountInfo(tokenAccountHGEN)).amount;
+
+    poolInfo = {
+        authority,
+        owner: owner.publicKey,
+        payer: payer.publicKey,
+        tokenAccountPool,
+        feeAccount,
+        gensMintAddr: GENS.publicKey,
+        hgenMintAddr: HGEN.publicKey,
+        tokenAccountA: gens_info.toNumber(), // pool gen account
+        tokenAccountB: hgen_info.toNumber(), // pool hgen account
+    }
+    return poolInfo;
+
 }
 
 export async function depositAllTokenTypes(
@@ -497,22 +524,50 @@ export async function createAccountAndSwapAtomic(
 export async function swap(
     wallet: Wallet
 ): Promise<void> {
+    let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: GENS.publicKey,
+    });
+    let genATA = check_gens.value[0] ? check_gens.value[0].pubkey.toBase58() : "";
+
+    let check_hgen = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: HGEN.publicKey,
+    });
+    let hgenATA = check_hgen.value[0] ? check_hgen.value[0].pubkey.toBase58() : "";
+
     console.log('Creating swap token GENS account');
-    let userAccountGENS = await GENS.createAccount(owner.publicKey);
-    await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
-    const userTransferAuthority = new Account();
-    await GENS.approve(
-        userAccountGENS,
-        userTransferAuthority.publicKey,
-        owner,
-        [],
-        SWAP_AMOUNT_IN,
-    );
+    // TODO only for testing
+    if (hgenATA == "")
+        userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+    // change it for testing
+    // let userAccountGENS = await GENS.createAccount(wallet.publicKey);
+    // await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
+    const userTransferAuthority = wallet.publicKey;   // new Account();
+
+    // TODO only for testing
+    // await GENS.approve(
+    //     userAccountGENS,
+    //     userTransferAuthority,
+    //     owner,
+    //     [],
+    //     SWAP_AMOUNT_IN,
+    // );
     console.log('Creating swap token HGEN account');
-    let userAccountHGEN = await HGEN.createAccount(owner.publicKey);
-    let poolAccount = SWAP_PROGRAM_OWNER_FEE_ADDRESS
+
+    if (genATA == "")
+        userAccountGENS = await GENS.createAccount(wallet.publicKey);
+    //TODO: only for testing
+    // let userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+
+    let check_pool_token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: tokenPool.publicKey,
+    });
+    let poolATA = check_pool_token.value[0] ? check_pool_token.value[0].pubkey.toBase58() : "";
+
+
+    let poolAccount = SWAP_PROGRAM_OWNER_FEE_ADDRESS && !poolATA
         ? await tokenPool.createAccount(owner.publicKey)
-        : null;
+        : tokenAccountPool
+    // : null; only for testing 
 
     console.log('Swapping');
     await tokenSwap.swap(

@@ -461,7 +461,7 @@ export class TokenSwap {
         poolDestination: PublicKey,
         userDestination: PublicKey,
         hostFeeAccount: PublicKey | null,
-        userTransferAuthority: Account,
+        userTransferAuthority: PublicKey, // TODO Change it to account for the testing
         amountIn: number | Numberu64,
         minimumAmountOut: number | Numberu64,
     ): Promise<TransactionSignature> {
@@ -473,7 +473,7 @@ export class TokenSwap {
                 TokenSwap.swapInstruction(
                     this.tokenSwap,
                     this.authority,
-                    userTransferAuthority.publicKey,
+                    userTransferAuthority,
                     userSource,
                     poolSource,
                     poolDestination,
@@ -487,7 +487,8 @@ export class TokenSwap {
                     minimumAmountOut,
                 ),
             ),
-            userTransferAuthority,
+            // TODO: Uncomment only for testing
+            // userTransferAuthority,
         );
     }
 
