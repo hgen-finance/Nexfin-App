@@ -91,3 +91,6 @@ sw.*
 
 # husky init files
 .husky
+
+#test validator ledger
+test-ledger/

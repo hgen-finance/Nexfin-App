@@ -32,7 +32,7 @@ export default class farmingUtil {
     provider: any;
     constructor() {
         this.connection = new Connection(
-            "https://api.testnet.solana.com",
+            "https://api.devnet.solana.com",
             "confirmed"
         );
         this.provider = (window as any).solana;
@@ -80,7 +80,7 @@ export default class farmingUtil {
     }
     async getFarmingAccount(): Promise<any> {
         this.connection = new Connection(
-            "https://api.testnet.solana.com",
+            "https://api.devnet.solana.com",
             "confirmed"
         );
         this.provider = (window as any).solana;
@@ -123,7 +123,7 @@ export default class farmingUtil {
     ): Promise<boolean> {
         console.log("it reaches here first");
         this.connection = new Connection(
-            "https://api.testnet.solana.com",
+            "https://api.devnet.solana.com",
             "confirmed"
         );
         this.provider = (window as any).solana;
@@ -289,7 +289,7 @@ export default class farmingUtil {
     async initializeAccount(): Promise<boolean> {
         console.log("initializing");
         this.connection = new Connection(
-            "https://api.testnet.solana.com",
+            "https://api.devnet.solana.com",
             "confirmed"
         );
         this.provider = (window as any).solana;
@@ -319,7 +319,7 @@ export default class farmingUtil {
     }
     async getMBalance() {
         this.connection = new Connection(
-            "https://api.testnet.solana.com",
+            "https://api.devnet.solana.com",
             "confirmed"
         );
         this.provider = (window as any).solana;
@@ -337,7 +337,7 @@ export default class farmingUtil {
     }
     getTokenBalance = async (walletAddress, tokenMintAddress) => {
         const response = await axios({
-            url: "https://api.testnet.solana.com",
+            url: "https://api.devnet.solana.com",
             method: "post",
             headers: { "Content-Type": "application/json" },
             data: {

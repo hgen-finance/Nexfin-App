@@ -3,9 +3,14 @@
     class="w-100 br-6 gradient-2000 rad-fix-8 p-8-S p-20-XS shadow-purple-100"
   >
     <div class="w-100 fw-600 f-white-200 fd-r jc-sb">
-      <span class="fs-8-S fs-7-M" style="align-self: center">Raydium Swap</span>
+      <span v-if="raySwap" class="fs-8-S fs-7-M" style="align-self: center"
+        >Raydium Swap</span
+      >
+      <span v-if="!raySwap" class="fs-8-S fs-7-M" style="align-self: center"
+        >Swap</span
+      >
       <div class="fd-r buttons">
-        <Tooltip placement="bottomright">
+        <!-- <Tooltip placement="bottomright">
           <Progress
             type="circle"
             :width="20"
@@ -13,7 +18,7 @@
             :percent="50"
             :show-info="false"
           />
-        </Tooltip>
+        </Tooltip> -->
         <Tooltip placement="bottomRight">
           <!-- <template slot="title">
             <div
@@ -49,11 +54,33 @@
               </div>
             </div>
           </template> -->
-          <Icon type="info-circle" />
+          <Icon
+            type="info-circle"
+            :style="{ width: '40px', height: '40px' }"
+            class="fd-r jc-c ai-c"
+          />
         </Tooltip>
-        <Icon type="setting" />
-        <Tooltip placement="bottomRight">
-          <Icon type="search" />
+        <Tooltip>
+          <Icon
+            type="setting"
+            :style="{ width: '40px', height: '40px' }"
+            class="fd-r jc-c ai-c"
+          />
+        </Tooltip>
+        <!-- <Tooltip>
+          <Icon
+            type="search"
+            :style="{ width: '40px', height: '40px' }"
+            class="fd-r jc-c ai-c"
+          />
+        </Tooltip> -->
+        <Tooltip>
+          <Icon
+            type="switcher"
+            @click="toggleSwap"
+            :style="{ width: '40px', height: '40px' }"
+            class="fd-r jc-c ai-c"
+          />
         </Tooltip>
       </div>
     </div>
@@ -85,7 +112,7 @@
     </div>
     <div class="cside-L cside-M cside-S cside-XS fd-r jc-c mt-8-XS mt-2-S">
       <div class="fd-r jc-c f-white-200 ai-c micon-L micon-M micon-S micon-XS">
-        <Icon type="swap" :rotate="90" />
+        <Icon type="swap" :rotate="90" @click="convert" />
       </div>
     </div>
     <div
@@ -121,13 +148,13 @@
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
       v-if="currencyFrom.value === tokens[0].value"
     >
-      1 RAY ≈ {{ convertRay }} SOL
+      1 GENS ≈ {{ convertRay }} HGEN
     </div>
     <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
       v-if="currencyFrom.value === tokens[1].value"
     >
-      1 SOL ≈ {{ convertSOL }} RAY
+      1 HGEN ≈ {{ convertSOL }} GENS
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
@@ -153,8 +180,17 @@
       </div>
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+        v-if="currencyFrom.value === tokens[0].value"
       >
-        0.0983070000 <span class="f-white-200 pl-1">SOL</span>
+        0.0983070000
+        <span class="f-white-200 pl-1">GENS</span>
+      </div>
+      <div
+        class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+        v-if="currencyFrom.value === tokens[1].value"
+      >
+        0.0983070000
+        <span class="f-white-200 pl-1">HGEN</span>
       </div>
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
@@ -178,8 +214,19 @@
         opacityEffect
         @click="confirm"
         :full="true"
+        v-if="raySwap"
       >
-        CREATE RAY aCCOUNT
+        RAYDIUM SWAP
+      </AmButton>
+      <AmButton
+        color="mcolor-100"
+        bColor="mcolor-100"
+        opacityEffect
+        @click="confirm"
+        :full="true"
+        v-if="!raySwap"
+      >
+        SWAP
       </AmButton>
     </div>
   </div>
@@ -187,16 +234,22 @@
 
 <script>
 import { mapState } from "vuex";
+import BN from "bn.js";
 
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
+
+const POOL_TOKENS = [
+  { label: "HGEN", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
+  { label: "GENS", value: "So11111111111111111111111111111111111111112" },
+];
 
 const TOKENS = [
   { label: "RAY", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
   { label: "SOL", value: "So11111111111111111111111111111111111111112" },
 ];
-const CONVERT_RAY = 0.10104800982233;
-const CONVERT_SOL = 9.896285951185709;
+const CONVERT_GENS = 0.10104800982233;
+const CONVERT_HGEN = 9.896285951185709;
 
 export default {
   components: {
@@ -210,14 +263,15 @@ export default {
   },
   data() {
     return {
-      tokens: TOKENS,
-      convertRay: CONVERT_RAY,
-      convertSOL: CONVERT_SOL,
+      raySwap: false,
+      tokens: POOL_TOKENS,
+      convertRay: CONVERT_GENS,
+      convertSOL: CONVERT_HGEN,
       from: null,
       currencyFrom: {
         theme: "default",
-        value: TOKENS[0].value,
-        items: TOKENS,
+        value: POOL_TOKENS[0].value,
+        items: POOL_TOKENS,
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
@@ -226,8 +280,8 @@ export default {
       to: 0,
       currencyTo: {
         theme: "default",
-        value: TOKENS[1].value,
-        items: TOKENS,
+        value: POOL_TOKENS[1].value,
+        items: POOL_TOKENS,
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
@@ -275,6 +329,9 @@ export default {
     },
   },
   methods: {
+    toggleSwap() {
+      this.raySwap = !this.raySwap;
+    },
     setModalFunc(value) {
       if (this.loaderConnect) {
         this.$accessor.wallet.setLoaderConnect(false);
@@ -282,14 +339,91 @@ export default {
         this.$accessor.setModal(value);
       }
     },
+    calculateTokenGensToHgen() {
+      let swapTokenBWithFees;
+      if (this.from > 0) {
+        const TRADE_FEE_NUMBERATOR = 25;
+        const TRADE_FEE_DENOMINATOR = 10000;
+        const OWNER_FEE_NUMBERATOR = 5;
+        const OWNER_FEE_DENOMINATOR = 10000;
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
+          new BN(100)
+        );
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
+          new BN(100)
+        );
+        console.log(tokenA, "tokenA");
+        console.log(tokenB, "tokenB");
+        let invariant = tokenA.mul(new BN(tokenB));
+        let numerator = invariant;
+        let denominator = tokenA.add(new BN(this.from).mul(new BN(100)));
+        console.log(numerator.toString(), "numerator");
+        console.log(denominator.toString(), "denominator");
+
+        // new swap price for the token A->B
+        let swapTokenB = numerator.div(denominator);
+        swapTokenB = tokenB.sub(swapTokenB);
+        console.log(swapTokenB.toString(), "swap value for token B");
+
+        // swaptokenB with fees
+        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(TRADE_FEE_DENOMINATOR));
+        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(OWNER_FEE_DENOMINATOR));
+        let swap_fees = trade_fees.add(owner_fees);
+        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+        console.log(swapTokenBWithFees.toString(), "swap token B with fees");
+      }
+
+      return swapTokenBWithFees / 100 || 0; // 2 decimal
+    },
+    calculateTokenHgenToGens() {
+      const TRADE_FEE_NUMBERATOR = 25;
+      const TRADE_FEE_DENOMINATOR = 10000;
+      const OWNER_FEE_NUMBERATOR = 5;
+      const OWNER_FEE_DENOMINATOR = 10000;
+      let tokenA = this.$accessor.swapPool.tokenAmountA * 100;
+      let tokenB = this.$accessor.swapPool.tokenAmountB * 100;
+      let invariant = new BN(tokenA).mul(new BN(tokenB));
+      let numerator = invariant;
+      let denominator = new BN(tokenB).add(new BN(100));
+
+      // new swap price for the token A->B
+      let swapTokenA = new BN(tokenA).sub(numerator).div(denominator);
+      console.log(swapTokenA.toString(), "swap value for token B");
+
+      // swaptokenB with fees
+      let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(TRADE_FEE_DENOMINATOR));
+      let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(OWNER_FEE_DENOMINATOR));
+      let swap_fees = trade_fees.add(owner_fees);
+      console.log(swap_fees, "swapfee");
+      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      console.log(swapTokenAWithFees.toString(), "swap token B with fees");
+      return swapTokenAWithFees; // 2 decimal
+    },
     convert() {
       if (this.currencyFrom.value === this.tokens[0].value) {
-        this.to = CONVERT_RAY * Number(this.from);
+        // this.to = CONVERT_GENS * Number(this.from);
+        this.to = this.calculateTokenGensToHgen() || 0;
       } else {
-        this.to = CONVERT_SOL * Number(this.from);
+        // this.to = CONVERT_HGEN * Number(this.from);
+        this.to = this.calculateTokenHgenToGens() || 0;
       }
     },
     confirm() {
+      if (this.from > 0) {
+        this.$accessor.swapPool.swap(Number(this.from) * 100); // 2 decimal
+      }
+      this.to = null;
+      this.from = null;
+    },
+    rayConfirm() {
       if (Number(this.from) > 0) {
         this.$accessor.swap.swap({
           from: this.from,

@@ -444,33 +444,33 @@ html {
   mask-size: contain;
 }
 
-// button for the ant icons scss
-.buttons {
-  display: flex;
+// // button for the ant icons scss
+// .buttons {
+//   display: flex;
 
-  .anticon {
-    font-size: 20px;
-  }
+//   .anticon {
+//     font-size: 20px;
+//   }
 
-  .ant-progress {
-    line-height: 1;
-  }
+//   .ant-progress {
+//     line-height: 1;
+//   }
 
-  .ant-progress.disabled {
-    cursor: not-allowed;
-  }
+//   .ant-progress.disabled {
+//     cursor: not-allowed;
+//   }
 
-  .anticon,
-  .ant-progress {
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
+//   .anticon,
+//   .ant-progress {
+//     padding: 10px;
+//     border-radius: 4px;
+//     cursor: pointer;
 
-    // &:hover {
-    //   background: #170646d5;
-    // }
-  }
-}
+//     // &:hover {
+//     //   background: #170646d5;
+//     // }
+//   }
+// }
 
 // for different screen size on icons
 
@@ -651,9 +651,9 @@ html {
 .buttons {
   display: flex;
 
-  .anticon {
-    font-size: 20px;
-  }
+  //   .anticon {
+  //     font-size: 20px;
+  //   }
 
   .ant-progress {
     line-height: 1;

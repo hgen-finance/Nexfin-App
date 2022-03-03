@@ -2,8 +2,7 @@
 import { getterTree, mutationTree, actionTree } from "typed-vuex";
 
 // Import Utils
-import { swapUtil } from "@/utils/swap";
-import { swap } from "@/utils/swapPool";
+import { addLiquidityUtil } from "@/utils/addLiquidity";
 
 // State
 export const state = () => ({});
@@ -18,12 +17,10 @@ export const mutations = mutationTree(state, {});
 export const actions = actionTree(
     { state, getters, mutations },
     {
-        // Swap
-        async swap({ commit }, value) {
+        // Addliquidity
+        async addLiquidity({ commit }, value) {
             if (value && value.from) {
-                // await swap(this.$wallet, value.amount)
-                // TODO: for raydium swap
-                await swapUtil(
+                await addLiquidityUtil(
                     this.$wallet,
                     Number(value.from),
                     value.mintFrom,
