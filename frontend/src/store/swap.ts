@@ -20,17 +20,17 @@ export const actions = actionTree(
     {
         // Swap
         async swap({ commit }, value) {
-            // if (value && value.from) {
-            await swap(this.$wallet)
-            // TODO: for raydium swap
-            // await swapUtil(
-            //   this.$wallet,
-            //   Number(value.from),
-            //   value.mintFrom,
-            //   value.mintTo,
-            //   this.$web3
-            // );
-            // }
+            if (value && value.from) {
+                // await swap(this.$wallet, value.amount)
+                // TODO: for raydium swap
+                await swapUtil(
+                    this.$wallet,
+                    Number(value.from),
+                    value.mintFrom,
+                    value.mintTo,
+                    this.$web3
+                );
+            }
         },
     }
 );

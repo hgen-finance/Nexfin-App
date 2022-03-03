@@ -1,89 +1,96 @@
 <template>
-  <div class="w-75 p-5-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all">
-    <div class="w-a-S w-100-XS fsh-0 pt-6-XS">
-      <AmButton
-        :height="false"
-        color="mcolor-100"
-        bColor="mcolor-100"
-        opacityEffect
-        class="py-2"
-        @click="test"
-      >
-        REFRESH
-      </AmButton>
-    </div>
-    <div class="w-100 fd-r ai-s">
-      <div class="w-100 fd-r ai-s">
-        <div
-          class="d-i fs-5 f-white-200 ta-c px-1 py-2 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100"
-          v-for="(header, h) in headers"
-          :key="h"
-        >
-          <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600">
-            {{ header }}
-          </div>
+  <div class="w-90 p-5-S p-10-XS mcolor-500 rad-fix-8 bs-sb-all ft-h inner">
+    <div class="w-100">
+      <div class="w-100 fd-r jc-sb ai-c my-3-S">
+        <div class="fs-4-S f-white-200 ai-s br-mcolor-400 rad-fix-5">
+          <span class="hv d-n-XS fsh-0" @click="showPoolUI"> Pools </span>
+          |
+          <span class="hv d-n-XS fsh-0" @click="showMyPoolUI"> My pool </span>
+        </div>
+        <div class="fd-r buttons">
+          <Tooltip>
+            <Icon
+              type="search"
+              :style="{ width: '40px', height: '40px' }"
+              class="fd-r jc-c ai-c f-white-200"
+            />
+          </Tooltip>
+          <Tooltip>
+            <Icon
+              type="sync"
+              :style="{ width: '40px', height: '40px' }"
+              class="fd-r jc-c ai-c f-white-200"
+              :rotate="135"
+            />
+          </Tooltip>
         </div>
       </div>
     </div>
-    <div
-      class="w-100 fd-r ai-s br-t-4 br-mcolor-400"
-      v-for="(pool, p) in getPoolInfo"
-      :key="p"
-    >
-      <div
-        class="d-i fs-5 ta-c px-1 py-4 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
-      >
-        <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">HGEN-GENS</div>
-      </div>
-      <div
-        class="d-i fs-5 ta-c px-1 py-4 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-mcolor-300"
-      >
-        <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">
-          {{ pool.tokenAccountA || 0 }}
-        </div>
-      </div>
-      <div
-        class="d-i fs-5 ta-c px-1 py-4 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
-      >
-        <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">
-          {{ pool.tokenAccountA || 0 }}
-        </div>
-      </div>
-      <div
-        class="d-i fs-5 ta-c px-1 py-4 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
-      >
-        <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">
-          {{ pool.tokenAccountA + pool.tokenAccountB || 0 }}
-        </div>
-      </div>
-    </div>
+    <ListPool v-if="poolUI" />
+    <MyPool v-if="!poolUI" />
   </div>
 </template>
 <script>
 import Loading from "@/components/Loading";
-import { mapState } from "vuex";
+import ListPool from "@/components/my/liquidityPool/ListPool.vue";
+import MyPool from "@/components/my/liquidityPool/MyPool.vue";
+
+import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
 
 export default {
   components: {
     Loading,
+    Tooltip,
+    Icon,
+    ListPool,
+    MyPool,
   },
   layout: "my",
   computed: {
     getPoolInfo() {
-      return [this.$accessor.swapPool.poolInfo];
+      console.log({
+        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
+        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
+      });
+      return {
+        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
+        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
+      };
     },
   },
   data() {
     return {
       headers: ["Pool name", "Token A", "Token B", "Liquidity"],
+      pools: ["GENS-HGEN"],
+      poolUI: true,
     };
   },
   watch: {},
   methods: {
-    test() {
-      console.log(this.getPoolInfo, "Pool info");
+    createSwapPool() {
+      this.$accessor.swapPool.createTokenSwapPool();
+    },
+    showPoolUI() {
+      this.poolUI = true;
+    },
+    showMyPoolUI() {
+      this.poolUI = false;
     },
   },
   mounted() {},
 };
 </script>
+<style scoped>
+.ft-h {
+  height: fit-content;
+}
+
+.inner {
+  border: 3px solid #151441;
+}
+
+.select-pool:hover {
+  background: rgba(18, 17, 45, 1);
+  transition: ease-in 300ms;
+}
+</style>

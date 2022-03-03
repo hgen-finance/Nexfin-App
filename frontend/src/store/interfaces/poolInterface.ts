@@ -9,8 +9,10 @@ export interface Pool {
     payer: PublicKey;
     tokenAccountPool: PublicKey;
     feeAccount: PublicKey;
-    gensMintAddr: PublicKey;
-    hgenMintAddr: PublicKey;
-    tokenAccountA: Number; // pool gen account amount 
-    tokenAccountB: Number; // pool hgen account amount
+    tokenAMintAddr: PublicKey;
+    tokenBMintAddr: PublicKey;
+    tokenAccountA: PublicKey;
+    tokenAccountB: PublicKey;
+    tokenAmountA: number; // pool gen account amount 
+    tokenAmountB: number; // pool hgen account amount
 }

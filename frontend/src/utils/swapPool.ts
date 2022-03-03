@@ -8,7 +8,7 @@ import {
     Keypair
 } from '@solana/web3.js';
 
-import { AccountLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { AccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from '@solana/spl-token';
 import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from '@/utils/tokenSwap';
 import { sendAndConfirmTransaction } from '@/utils/tokenSwap/util/send-and-confirm-transaction';
 import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-lamports';
@@ -17,6 +17,8 @@ import { sleep } from '@/utils/tokenSwap/util/sleep';
 
 import { Pool } from '@/store/interfaces/poolInterface';
 import Wallet from "@project-serum/sol-wallet-adapter";
+
+import BN from 'bn.js';
 
 
 // The following globals are created by `createTokenSwap` and used by subsequent tests
@@ -50,13 +52,13 @@ const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
     process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS || "54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t";
 
 // Pool fees
-const TRADING_FEE_NUMERATOR = 25;
+const TRADING_FEE_NUMERATOR = 0;
 const TRADING_FEE_DENOMINATOR = 10000;
-const OWNER_TRADING_FEE_NUMERATOR = 5;
+const OWNER_TRADING_FEE_NUMERATOR = 0;
 const OWNER_TRADING_FEE_DENOMINATOR = 10000;
 const OWNER_WITHDRAW_FEE_NUMERATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 1;
 const OWNER_WITHDRAW_FEE_DENOMINATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 6;
-const HOST_FEE_NUMERATOR = 20;
+const HOST_FEE_NUMERATOR = 0;
 const HOST_FEE_DENOMINATOR = 100;
 
 // Initial amount in each swap token
@@ -70,11 +72,11 @@ let currentFeeAmount = 0;
 // Swap instruction constants
 // Because there is no withdraw fee in the production version, these numbers
 // need to get slightly tweaked in the two cases.
-let SWAP_AMOUNT_IN = 10000;
+let SWAP_AMOUNT_IN = 100000;
 // 90661 : 90674;
-let SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 8061 : 8067;
+let SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 5 * SWAP_AMOUNT_IN / 100 : 1 * SWAP_AMOUNT_IN / 100;
 // 22273 : 22277;
-const SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 30000 : 30000;
+const SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 22273 : 22277;
 const HOST_SWAP_FEE = SWAP_PROGRAM_OWNER_FEE_ADDRESS
     ? Math.floor((SWAP_FEE * HOST_FEE_NUMERATOR) / HOST_FEE_DENOMINATOR)
     : 0;
@@ -83,7 +85,8 @@ const OWNER_SWAP_FEE = SWAP_FEE - HOST_SWAP_FEE;
 // Pool token amount minted on init
 const DEFAULT_POOL_TOKEN_AMOUNT = 1000000000;
 // Pool token amount to withdraw / deposit
-const POOL_TOKEN_AMOUNT = 10000000;
+//10000000
+let POOL_TOKEN_AMOUNT = 100000;
 
 function assert(condition: boolean, message?: string) {
     if (!condition) {
@@ -117,11 +120,11 @@ export async function addToken(wallet: Wallet) {
     // check if there is already an gens and hgen account for the user
     if (genATA == "")
         userAccountGENS = await GENS.createAccount(wallet.publicKey);
-    await GENS.mintTo(userAccountGENS, owner, [], 10000);
+    await GENS.mintTo(userAccountGENS, owner, [], 100000);
 
     if (hgenATA == "")
         userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
-    await HGEN.mintTo(userAccountHGEN, owner, [], 10000);
+    await HGEN.mintTo(userAccountHGEN, owner, [], 100000);
 }
 
 export async function createTokenSwap(
@@ -276,7 +279,6 @@ export async function createTokenSwap(
     );
     assert(curveType == fetchedTokenSwap.curveType);
 
-
     let gens_info = (await GENS.getAccountInfo(tokenAccountGENS)).amount;
     let hgen_info = (await HGEN.getAccountInfo(tokenAccountHGEN)).amount;
 
@@ -286,10 +288,12 @@ export async function createTokenSwap(
         payer: payer.publicKey,
         tokenAccountPool,
         feeAccount,
-        gensMintAddr: GENS.publicKey,
-        hgenMintAddr: HGEN.publicKey,
-        tokenAccountA: gens_info.toNumber(), // pool gen account
-        tokenAccountB: hgen_info.toNumber(), // pool hgen account
+        tokenAMintAddr: GENS.publicKey,
+        tokenBMintAddr: HGEN.publicKey,
+        tokenAmountA: gens_info.toNumber(),
+        tokenAmountB: hgen_info.toNumber(),
+        tokenAccountA: tokenAccountGENS, // pool gen account pubkey
+        tokenAccountB: tokenAccountHGEN // pool hgen account pubkey
     }
     return poolInfo;
 
@@ -297,21 +301,32 @@ export async function createTokenSwap(
 
 export async function depositAllTokenTypes(
     wallet: Wallet,
-    tokenAmountA: Number,
-    tokenAmountB: Number,
+    tokenAmountA: number,
+    tokenAmountB: number,
 ): Promise<void> {
     const poolMintInfo = await tokenPool.getMintInfo();
     console.log(poolMintInfo, "poolmintinfo")
     const supply = poolMintInfo.supply.toNumber();
     console.log(supply, "supply");
     const swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
-    const tokenA = Math.floor(
-        (swapTokenA.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
-    );
+    console.log(swapTokenA.amount.toNumber(), "swap token a in the pool");
+    // TODO only for testing
+    // const tokenA = Math.floor(
+    //     (swapTokenA.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
+    // );
+    // console.log(tokenA, "pool token for swap amount a")
     const swapTokenB = await HGEN.getAccountInfo(tokenAccountHGEN);
-    const tokenB = Math.floor(
-        (swapTokenB.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
-    );
+    console.log(swapTokenB.amount.toNumber(), "swap token b in the pool");
+
+    // TODO only for testing
+    // const tokenB = Math.floor(
+    //     (swapTokenB.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
+    // );
+    // console.log(tokenB, "pool token for swap amount B");
+
+    // liqidity for the pool token
+    POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * 100 * supply / swapTokenA.amount.toNumber(), tokenAmountB * 100 * supply / swapTokenB.amount.toNumber());
+    console.log(POOL_TOKEN_AMOUNT, "liquidity")
 
     //TODO only for testing
     // const userTransferAuthority = new Account();
@@ -350,23 +365,24 @@ export async function depositAllTokenTypes(
         newAccountPool,
         userTransferAuthority,
         POOL_TOKEN_AMOUNT,
-        tokenA,
-        tokenB,
+        tokenAmountA * 100,
+        tokenAmountB * 100,
     );
 
-    let info;
-    info = await GENS.getAccountInfo(userAccountGENS);
-    assert(info.amount.toNumber() == 0);
-    info = await HGEN.getAccountInfo(userAccountHGEN);
-    assert(info.amount.toNumber() == 0);
-    info = await GENS.getAccountInfo(tokenAccountGENS);
-    assert(info.amount.toNumber() == currentSwapTokenA + tokenA);
-    currentSwapTokenA += tokenA;
-    info = await HGEN.getAccountInfo(tokenAccountHGEN);
-    assert(info.amount.toNumber() == currentSwapTokenB + tokenB);
-    currentSwapTokenB += tokenB;
-    info = await tokenPool.getAccountInfo(newAccountPool);
-    assert(info.amount.toNumber() == POOL_TOKEN_AMOUNT);
+    // TODO only for testing
+    // let info;
+    // info = await GENS.getAccountInfo(userAccountGENS);
+    // assert(info.amount.toNumber() == 0);
+    // info = await HGEN.getAccountInfo(userAccountHGEN);
+    // assert(info.amount.toNumber() == 0);
+    // info = await GENS.getAccountInfo(tokenAccountGENS);
+    // assert(info.amount.toNumber() == currentSwapTokenA + tokenA);
+    // currentSwapTokenA += tokenA;
+    // info = await HGEN.getAccountInfo(tokenAccountHGEN);
+    // assert(info.amount.toNumber() == currentSwapTokenB + tokenB);
+    // currentSwapTokenB += tokenB;
+    // info = await tokenPool.getAccountInfo(newAccountPool);
+    // assert(info.amount.toNumber() == POOL_TOKEN_AMOUNT);
 }
 
 export async function withdrawAllTokenTypes(
@@ -522,8 +538,13 @@ export async function createAccountAndSwapAtomic(
 }
 
 export async function swap(
-    wallet: Wallet
+    wallet: Wallet,
+    amount: number
 ): Promise<void> {
+    SWAP_AMOUNT_IN = amount;
+    // SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 5 * amount / 100 : 1 * amount / 100;
+    SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 20 : 10;
+
     let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
         mint: GENS.publicKey,
     });
@@ -558,7 +579,7 @@ export async function swap(
     //TODO: only for testing
     // let userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
 
-    let check_pool_token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+    let check_pool_token = await connection.getParsedTokenAccountsByOwner(owner.publicKey, {
         mint: tokenPool.publicKey,
     });
     let poolATA = check_pool_token.value[0] ? check_pool_token.value[0].pubkey.toBase58() : "";
@@ -569,7 +590,28 @@ export async function swap(
         : tokenAccountPool
     // : null; only for testing 
 
+    // Get token swap amount value at this moment
+    // Calculating for constant product curve x * y = k(variant)
+    // For swap A->B, (token_a_amount + swap_a_amount) * (token_b_amount - swap_b_amount) = invariant
+    let swapAmountA = await (await GENS.getAccountInfo(tokenAccountGENS)).amount;
+    let swapAmountB = await (await HGEN.getAccountInfo(tokenAccountHGEN)).amount;
+    let invariant = new BN(swapAmountA).mul(new BN(swapAmountB));
+    let numerator = invariant;
+    let denominator = new BN(swapAmountA).add(new BN(SWAP_AMOUNT_IN));
+
+    // new swap price for the token A->B
+    let swapTokenB = new BN(swapAmountB).sub(numerator.div(denominator));
+    console.log(swapTokenB.toString(), 'swap value for token B');
+
+    // swaptokenB with fees
+    let trade_fees = new BN(25).mul(new BN(swapTokenB)).div(new BN(10000));
+    let owner_fees = new BN(5).mul(new BN(swapTokenB)).div(new BN(10000));
+    let swap_fees = trade_fees.add(owner_fees);
+    let swapTokenBWithFees = swapTokenB.sub(swap_fees);
+    console.log(swapTokenBWithFees.toString(), "swap token B with fees")
+
     console.log('Swapping');
+    console.log(SWAP_AMOUNT_IN, "swap amount in")
     await tokenSwap.swap(
         wallet,
         userAccountGENS,

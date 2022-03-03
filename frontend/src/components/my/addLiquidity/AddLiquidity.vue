@@ -93,14 +93,17 @@
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
       v-if="currencyFrom.value === tokens[0].value"
     >
-      1 HGEN ≈ {{ convertHgen }} GENS
+      <span> 1 HGEN ≈ {{ convertTokenA }} GENS </span>
+      <Icon type="sync" class="f-white-200 ts-3 hv d-n-XS fsh-0 jc-r px-1-S" />
     </div>
     <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
       v-if="currencyFrom.value === tokens[1].value"
     >
-      1 GENS ≈ {{ convertgens }} HGEN
+      1 GENS ≈ {{ convertTokenB }} HGEN
+      <Icon type="sync" class="f-white-200 ts-3 hv d-n-XS fsh-0 px-1-S jc-r" />
     </div>
+
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
         Slippage Tolerance
@@ -145,6 +148,7 @@
 
 <script>
 import { mapState } from "vuex";
+import BN from "bn.js";
 
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
@@ -158,6 +162,7 @@ const TOKENS = [
 const CONVERT_HGEN = 1;
 const CONVERT_GENS = 1;
 
+// TODO: add liquidity when choosed hgen/gens or gens/hgen
 export default {
   components: {
     Hint,
@@ -171,8 +176,6 @@ export default {
   data() {
     return {
       tokens: TOKENS,
-      convertHgen: CONVERT_HGEN,
-      convertgens: CONVERT_GENS,
       from: null,
       currencyFrom: {
         theme: "default",
@@ -197,6 +200,20 @@ export default {
   },
   computed: {
     ...mapState(["wallet", "addLiquidity", "url"]),
+    convertTokenB() {
+      let tokenA = this.$accessor.swapPool.tokenAmountA;
+      let tokenB = this.$accessor.swapPool.tokenAmountB;
+
+      if (tokenA > tokenB) return tokenB / tokenA || 0;
+      else return tokenA / tokenB || 0;
+    },
+    convertTokenA() {
+      let tokenA = this.$accessor.swapPool.tokenAmountA;
+      let tokenB = this.$accessor.swapPool.tokenAmountB;
+
+      if (tokenB > tokenA) return tokenB / tokenA || 0;
+      else return tokenA / tokenB || 0;
+    },
   },
   watch: {
     currencyFrom: {
@@ -235,6 +252,25 @@ export default {
     },
   },
   methods: {
+    calculateTokenRatio() {
+      let tokenRatio;
+
+      if (this.from < 0) {
+        return 0;
+      }
+
+      let tokenA = this.$accessor.swapPool.tokenAmountA;
+      let tokenB = this.$accessor.swapPool.tokenAmountB;
+
+      if (tokenA > tokenB) {
+        tokenRatio = tokenA / tokenB;
+      } else {
+        tokenRatio = tokenB / tokenA;
+      }
+
+      return tokenRatio || 0;
+    },
+
     setModalFunc(value) {
       if (this.loaderConnect) {
         this.$accessor.wallet.setLoaderConnect(false);
@@ -243,10 +279,13 @@ export default {
       }
     },
     convert() {
-      if (this.currencyFrom.value === this.tokens[0].value) {
-        this.to = CONVERT_HGEN * Number(this.from);
+      let tokenA = this.$accessor.swapPool.tokenAmountA;
+      let tokenB = this.$accessor.swapPool.tokenAmountB;
+
+      if (this.currencyFrom.value === this.tokens[1].value && tokenA > tokenB) {
+        this.to = Number(this.from) / this.calculateTokenRatio() || 0;
       } else {
-        this.to = CONVERT_GENS * Number(this.from);
+        this.to = this.calculateTokenRatio() * Number(this.from) || 0;
       }
     },
     addToken() {
