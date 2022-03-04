@@ -4,8 +4,11 @@
       <Balance />
     </div>
     <div class="w-100 fd-r-S fd-c-XS jc-se">
-      <div class="w-35-S w-100-XS pt-0-S pt-30-XS">
+      <div class="w-35-S w-100-XS pt-0-S pt-30-XS" v-if="getLiquidityState">
         <AddLiquidity />
+      </div>
+      <div class="w-35-S w-100-XS pt-0-S pt-30-XS" v-if="!getLiquidityState">
+        <RemoveLiquidity />
       </div>
       <div class="w-25-S w-100-XS pt-30-XS">
         <Info />
@@ -16,8 +19,9 @@
 
 <script>
 import Balance from "@/components/my/Balance.vue";
-import AddLiquidity from "@/components/my/addLiquidity/AddLiquidity.vue";
-import Info from "@/components/my/addLiquidity/Info.vue";
+import AddLiquidity from "@/components/my/liquidity/AddLiquidity.vue";
+import RemoveLiquidity from "@/components/my/liquidity/RemoveLiquidity.vue";
+import Info from "@/components/my/liquidity/Info.vue";
 
 export default {
   layout: "my",
@@ -30,8 +34,14 @@ export default {
   },
   components: {
     AddLiquidity,
+    RemoveLiquidity,
     Balance,
     Info,
+  },
+  computed: {
+    getLiquidityState() {
+      return this.$accessor.swapPool.withdrawOrDeposit;
+    },
   },
   methods: {
     AddFunc() {},
