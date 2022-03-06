@@ -21,6 +21,7 @@ export const state = () => ({
     poolInfo: {},
     tokenAmountA: 0,
     tokenAmountB: 0,
+    withdrawOrDeposit: true,
 });
 
 // Getters
@@ -36,13 +37,21 @@ export const mutations = mutationTree(state, {
     },
     setTokenAmountB(state, newValue: number) {
         state.tokenAmountB = newValue;
-    }
+    },
+    setLiquidityState(state, newValue: boolean) {
+        state.withdrawOrDeposit = newValue;
+    },
 });
 
 // Actions
 export const actions = actionTree(
     { state, getters, mutations },
     {
+        // change liquiditity state
+        async changeLiquidityState({ commit, dispatch, state }, value) {
+            commit('setLiquidityState', value);
+        },
+
         // Create token pool
         async createTokenSwapPool({ commit, dispatch, state }) {
             console.log(
@@ -61,6 +70,11 @@ export const actions = actionTree(
             console.log('add liquidity for all token types');
             console.log(value.tokenA, value.tokenB, "token A and B")
             await depositAllTokenTypes(this.$wallet, value.from, value.to);
+        },
+
+        // Remove Liquidity
+        async withdrawToken({ commit, state }, value) {
+            await withdrawAllTokenTypes(this.$wallet, value);
         },
 
         // swap tokens for the pool

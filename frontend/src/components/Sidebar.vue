@@ -147,8 +147,8 @@ export default {
         {
           id: 8,
           name: "Liquidity",
-          to: "/my/addLiquidity",
-          class: "my-addLiquidity",
+          to: "/my/liquidity",
+          class: "my-liquidity",
         },
         { id: 4, name: "Stake", to: "/my/pool", class: "my-pool" },
         { id: 6, name: "Farm", to: "/my/farming", class: "my-farming" },

@@ -664,7 +664,7 @@ export class TokenSwap {
         userAccountA: PublicKey,
         userAccountB: PublicKey,
         poolAccount: PublicKey,
-        userTransferAuthority: Account,
+        userTransferAuthority: PublicKey,
         poolTokenAmount: number | Numberu64,
         minimumTokenA: number | Numberu64,
         minimumTokenB: number | Numberu64,
@@ -677,7 +677,7 @@ export class TokenSwap {
                 TokenSwap.withdrawAllTokenTypesInstruction(
                     this.tokenSwap,
                     this.authority,
-                    userTransferAuthority.publicKey,
+                    userTransferAuthority,
                     this.poolToken,
                     this.feeAccount,
                     poolAccount,
@@ -692,7 +692,8 @@ export class TokenSwap {
                     minimumTokenB,
                 ),
             ),
-            userTransferAuthority,
+            // TODO: for later
+            // userTransferAuthority,
         );
     }
 

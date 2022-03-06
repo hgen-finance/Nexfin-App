@@ -386,7 +386,9 @@ export async function depositAllTokenTypes(
 }
 
 export async function withdrawAllTokenTypes(
-    wallet: Wallet
+    wallet: Wallet,
+    LP_POOL_TOKEN_AMOUNT: number,
+
 ): Promise<void> {
     const poolMintInfo = await tokenPool.getMintInfo();
     const supply = poolMintInfo.supply.toNumber();
@@ -395,11 +397,11 @@ export async function withdrawAllTokenTypes(
     let feeAmount = 0;
     if (OWNER_WITHDRAW_FEE_NUMERATOR !== 0) {
         feeAmount = Math.floor(
-            (POOL_TOKEN_AMOUNT * OWNER_WITHDRAW_FEE_NUMERATOR) /
+            (LP_POOL_TOKEN_AMOUNT * OWNER_WITHDRAW_FEE_NUMERATOR) /
             OWNER_WITHDRAW_FEE_DENOMINATOR,
         );
     }
-    const poolTokenAmount = POOL_TOKEN_AMOUNT - feeAmount;
+    const poolTokenAmount = LP_POOL_TOKEN_AMOUNT - feeAmount;
     const tokenA = Math.floor(
         (swapTokenA.amount.toNumber() * poolTokenAmount) / supply,
     );
@@ -412,15 +414,19 @@ export async function withdrawAllTokenTypes(
     console.log('Creating withdraw token B account');
     let userAccountHGEN = await HGEN.createAccount(owner.publicKey);
 
-    const userTransferAuthority = new Account();
-    console.log('Approving withdrawal from pool account');
-    await tokenPool.approve(
-        tokenAccountPool,
-        userTransferAuthority.publicKey,
-        owner,
-        [],
-        POOL_TOKEN_AMOUNT,
-    );
+    // Only for testing
+    // const userTransferAuthority = new Account();
+
+    // console.log('Approving withdrawal from pool account');
+    // await tokenPool.approve(
+    //     tokenAccountPool,
+    //     userTransferAuthority.publicKey,
+    //     owner,
+    //     [],
+    //     POOL_TOKEN_AMOUNT,
+    // );
+    const userTransferAuthority = wallet.publicKey;
+
 
     console.log('Withdrawing pool tokens for A and B tokens');
     await tokenSwap.withdrawAllTokenTypes(
@@ -429,7 +435,7 @@ export async function withdrawAllTokenTypes(
         userAccountHGEN,
         tokenAccountPool,
         userTransferAuthority,
-        POOL_TOKEN_AMOUNT,
+        LP_POOL_TOKEN_AMOUNT,
         tokenA,
         tokenB,
     );
