@@ -33,14 +33,18 @@
       <div class="fs-4 fw-600 f-white-200">${{ volume }}</div>
     </div>
     <DailyHighAndLow :high="150" :low="70" :latest="getPrice" />
+    <Connection />
   </div>
 </template>
 
 <script>
 import DailyHighAndLow from "@/components/dailyhighandlow.vue";
+import Connection from "@/components/connection.vue";
+
 export default {
   components: {
     DailyHighAndLow,
+    Connection,
   },
   data() {
     return {

@@ -4,6 +4,7 @@ import type {
     Connection,
     Transaction,
     TransactionSignature,
+    Keypair
 } from '@solana/web3.js';
 import Wallet from '@project-serum/sol-wallet-adapter';
 

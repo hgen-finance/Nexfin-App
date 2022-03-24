@@ -19,7 +19,7 @@ export const cluster = chooseCluster();
 
 export const url =
     process.env.RPC_URL ||
-    (process.env.LIVE ? clusterApiUrl(cluster, false) : 'http://localhost:8899');
+    (process.env.LIVE ? clusterApiUrl(cluster, false) : 'https://api.devnet.solana.com');
 
 
 const web3Plugin: Plugin = async (ctx, inject) => {

@@ -1,4 +1,3 @@
-
 import {
     Account,
     Connection,
@@ -8,7 +7,9 @@ import {
     Keypair
 } from '@solana/web3.js';
 
-import { AccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from '@solana/spl-token';
+import { AccountLayout, Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B } from '@/utils/layout';
+
 import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from '@/utils/tokenSwap';
 import { sendAndConfirmTransaction } from '@/utils/tokenSwap/util/send-and-confirm-transaction';
 import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-lamports';
@@ -19,6 +20,9 @@ import { Pool } from '@/store/interfaces/poolInterface';
 import Wallet from "@project-serum/sol-wallet-adapter";
 
 import BN from 'bn.js';
+import * as bs58 from "bs58";
+
+import { connect } from 'http2';
 
 
 // The following globals are created by `createTokenSwap` and used by subsequent tests
@@ -30,6 +34,9 @@ let authority: PublicKey;
 let bumpSeed: number;
 // owner of the user accounts
 let owner: Account;
+// payer
+let payer: Account;
+
 // Token pool
 let tokenPool: Token;
 let tokenAccountPool: PublicKey;
@@ -88,6 +95,10 @@ const DEFAULT_POOL_TOKEN_AMOUNT = 1000000000;
 //10000000
 let POOL_TOKEN_AMOUNT = 100000;
 
+// TODO: Add it to backend
+payer = new Account(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
+owner = new Account(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
+
 function assert(condition: boolean, message?: string) {
     if (!condition) {
         console.log(Error().stack + ':../cli/swapPool.ts');
@@ -99,32 +110,97 @@ let connection: Connection;
 async function getConnection(): Promise<Connection> {
     if (connection) return connection;
 
-    connection = new Connection(url, 'recent');
+    connection = new Connection("https://api.devnet.solana.com");
     const version = await connection.getVersion();
 
     console.log('Connection to cluster established:', url, version);
     return connection;
 }
 
-export async function addToken(wallet: Wallet) {
-    let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+// check if the wallet user has the mint addr token account
+async function checkATA(wallet: Wallet, mintAcc: PublicKey) {
+    let check_token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
         mint: GENS.publicKey,
+    });
+    let tokenATA = check_token.value[0] ? check_token.value[0].pubkey.toBase58() : "";
+    return tokenATA == "" ? true : false;
+}
+
+export async function addToken(wallet: Wallet) {
+    console.log(owner.publicKey.toBase58())
+    const connection = await getConnection();
+    let hgenMintAddr = TOKEN_B_MINT_ADDR;
+    let gensMintAddr = TOKEN_A_MINT_ADDR;
+
+    let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: gensMintAddr,
     });
     let genATA = check_gens.value[0] ? check_gens.value[0].pubkey.toBase58() : "";
 
     let check_hgen = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-        mint: HGEN.publicKey,
+        mint: hgenMintAddr,
     });
     let hgenATA = check_hgen.value[0] ? check_hgen.value[0].pubkey.toBase58() : "";
 
     // check if there is already an gens and hgen account for the user
-    if (genATA == "")
-        userAccountGENS = await GENS.createAccount(wallet.publicKey);
-    await GENS.mintTo(userAccountGENS, owner, [], 100000);
+    let ataGens;
+    let tx = new Transaction();
 
-    if (hgenATA == "")
-        userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
-    await HGEN.mintTo(userAccountHGEN, owner, [], 100000);
+    // await GENS.mintTo(userAccountGENS, owner, [], 100000);
+    let mintTokenAIx;
+
+    if (genATA == "") {
+        // userAccountGENS = await GENS.createAccount(wallet.publicKey);
+        ataGens = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            gensMintAddr, // mint
+            wallet.publicKey // owner
+        );
+        const ataGensAccountTx = Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            gensMintAddr, // mint
+            ataGens, // ata
+            wallet.publicKey, // owner of token account
+            wallet.publicKey // fee payer
+        )
+        mintTokenAIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, TOKEN_A_MINT_ADDR, ataGens, owner.publicKey, [], 100000);
+        tx.add(ataGensAccountTx, mintTokenAIx);
+    } else {
+        mintTokenAIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, TOKEN_A_MINT_ADDR, check_gens.value[0].pubkey, owner.publicKey, [], 100000);
+        tx.add(mintTokenAIx);
+    }
+
+    let ataHgen;
+
+    // await HGEN.mintTo(userAccountHGEN, owner, [], 100000);
+    let mintTokenBIx;
+    if (hgenATA == "") {
+        // userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
+        ataHgen = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            hgenMintAddr, // mint
+            wallet.publicKey // owner
+        );
+        const ataHgenAccountTx = Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            hgenMintAddr, // mint
+            ataHgen, // ata
+            wallet.publicKey, // owner of token account
+            wallet.publicKey // fee payer
+        )
+        mintTokenBIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, TOKEN_B_MINT_ADDR, ataHgen, owner.publicKey, [], 100000);
+        tx.add(ataHgenAccountTx, mintTokenBIx);
+
+    } else {
+        mintTokenBIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, TOKEN_B_MINT_ADDR, check_hgen.value[0].pubkey, owner.publicKey, [], 100000);
+        tx.add(mintTokenBIx);
+    }
+
+    await sendAndConfirmTransaction("Add tokens", wallet, connection, tx, owner);
 }
 
 export async function createTokenSwap(
@@ -133,8 +209,10 @@ export async function createTokenSwap(
     curveParameters?: Numberu64,
 ): Promise<any> {
     const connection = await getConnection();
-    const payer = await newAccountWithLamports(connection, 1000000000);
-    owner = await newAccountWithLamports(connection, 1000000000);
+    // payer = await newAccountWithLamports(connection, 1000000000);
+    // payer = Keypair.fromSecretKey(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
+    // owner = Keypair.fromSecretKey(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
+    // owner = await newAccountWithLamports(connection, 1000000000);
     const tokenSwapAccount = new Account();
 
     console.log(tokenSwapAccount.publicKey.toBase58(), "token swap account ");
@@ -148,7 +226,8 @@ export async function createTokenSwap(
     console.log(authority.toBase58(), "pda Authority pubkey");
     console.log(owner.publicKey.toBase58(), "Owner of the token account pool");
     console.log(owner.secretKey, "owner secret key for the mint token")
-    console.log(payer.publicKey.toBase58(), "the payer for the account");
+    // console.log(payer.publicKey.toBase58(), "the payer for the account");
+    // console.log(payer.secretKey, "payer secret key");
 
     console.log('creating pool mint');
     tokenPool = await Token.createMint(
@@ -296,7 +375,6 @@ export async function createTokenSwap(
         tokenAccountB: tokenAccountHGEN // pool hgen account pubkey
     }
     return poolInfo;
-
 }
 
 export async function depositAllTokenTypes(
@@ -461,87 +539,87 @@ export async function withdrawAllTokenTypes(
     currentFeeAmount = feeAmount;
 }
 
-export async function createAccountAndSwapAtomic(
-    wallet: Wallet
-): Promise<void> {
-    console.log('Creating swap token GENS account');
-    let userAccountGENS = await GENS.createAccount(owner.publicKey);
-    await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
+// export async function createAccountAndSwapAtomic(
+//     wallet: Wallet
+// ): Promise<void> {
+//     console.log('Creating swap token GENS account');
+//     let userAccountGENS = await GENS.createAccount(owner.publicKey);
+//     await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
 
-    // @ts-ignore
-    const balanceNeeded = await Token.getMinBalanceRentForExemptAccount(
-        connection,
-    );
-    const newAccount = new Account();
-    const transaction = new Transaction();
-    transaction.add(
-        SystemProgram.createAccount({
-            fromPubkey: owner.publicKey,
-            newAccountPubkey: newAccount.publicKey,
-            lamports: balanceNeeded,
-            space: AccountLayout.span,
-            programId: HGEN.programId,
-        }),
-    );
+//     // @ts-ignore
+//     const balanceNeeded = await Token.getMinBalanceRentForExemptAccount(
+//         connection,
+//     );
+//     const newAccount = new Account();
+//     const transaction = new Transaction();
+//     transaction.add(
+//         SystemProgram.createAccount({
+//             fromPubkey: owner.publicKey,
+//             newAccountPubkey: newAccount.publicKey,
+//             lamports: balanceNeeded,
+//             space: AccountLayout.span,
+//             programId: HGEN.programId,
+//         }),
+//     );
 
-    transaction.add(
-        Token.createInitAccountInstruction(
-            HGEN.programId,
-            HGEN.publicKey,
-            newAccount.publicKey,
-            owner.publicKey,
-        ),
-    );
+//     transaction.add(
+//         Token.createInitAccountInstruction(
+//             HGEN.programId,
+//             HGEN.publicKey,
+//             newAccount.publicKey,
+//             owner.publicKey,
+//         ),
+//     );
 
-    const userTransferAuthority = new Account();
-    transaction.add(
-        Token.createApproveInstruction(
-            GENS.programId,
-            userAccountGENS,
-            userTransferAuthority.publicKey,
-            owner.publicKey,
-            [owner],
-            SWAP_AMOUNT_IN,
-        ),
-    );
+//     const userTransferAuthority = new Account();
+//     transaction.add(
+//         Token.createApproveInstruction(
+//             GENS.programId,
+//             userAccountGENS,
+//             userTransferAuthority.publicKey,
+//             owner.publicKey,
+//             [owner],
+//             SWAP_AMOUNT_IN,
+//         ),
+//     );
 
-    transaction.add(
-        TokenSwap.swapInstruction(
-            tokenSwap.tokenSwap,
-            tokenSwap.authority,
-            userTransferAuthority.publicKey,
-            userAccountGENS,
-            tokenSwap.tokenAccountA,
-            tokenSwap.tokenAccountB,
-            newAccount.publicKey,
-            tokenSwap.poolToken,
-            tokenSwap.feeAccount,
-            null,
-            tokenSwap.swapProgramId,
-            tokenSwap.tokenProgramId,
-            SWAP_AMOUNT_IN,
-            0,
-        ),
-    );
+//     transaction.add(
+//         TokenSwap.swapInstruction(
+//             tokenSwap.tokenSwap,
+//             tokenSwap.authority,
+//             userTransferAuthority.publicKey,
+//             userAccountGENS,
+//             tokenSwap.tokenAccountA,
+//             tokenSwap.tokenAccountB,
+//             newAccount.publicKey,
+//             tokenSwap.poolToken,
+//             tokenSwap.feeAccount,
+//             null,
+//             tokenSwap.swapProgramId,
+//             tokenSwap.tokenProgramId,
+//             SWAP_AMOUNT_IN,
+//             0,
+//         ),
+//     );
 
-    // Send the instructions
-    console.log('sending big instruction');
-    await sendAndConfirmTransaction(
-        'create account, approve transfer, swap',
-        wallet,
-        connection,
-        transaction,
-        owner,
-        newAccount,
-        userTransferAuthority,
-    );
+//     // Send the instructions
+//     console.log('sending big instruction');
+//     await sendAndConfirmTransaction(
+//         'create account, approve transfer, swap',
+//         wallet,
+//         connection,
+//         transaction,
+//         owner,
+//         newAccount,
+//         userTransferAuthority,
+//     );
 
-    let info;
-    info = await GENS.getAccountInfo(tokenAccountGENS);
-    currentSwapTokenA = info.amount.toNumber();
-    info = await HGEN.getAccountInfo(tokenAccountHGEN);
-    currentSwapTokenB = info.amount.toNumber();
-}
+//     let info;
+//     info = await GENS.getAccountInfo(tokenAccountGENS);
+//     currentSwapTokenA = info.amount.toNumber();
+//     info = await HGEN.getAccountInfo(tokenAccountHGEN);
+//     currentSwapTokenB = info.amount.toNumber();
+// }
 
 export async function swap(
     wallet: Wallet,

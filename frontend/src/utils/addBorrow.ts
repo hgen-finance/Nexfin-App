@@ -1,16 +1,12 @@
 import {
     Account,
     PublicKey,
-    SystemProgram,
     SYSVAR_RENT_PUBKEY,
     Transaction,
     Connection,
-    TransactionInstruction,
-    SystemInstruction,
-    Keypair,
 } from "@solana/web3.js";
 import BN from "bn.js";
-import * as bs58 from "bs58";
+
 import {
     TroveLayout,
     TROVE_ACCOUNT_DATA_LAYOUT,
@@ -19,27 +15,43 @@ import {
     TOKEN_GENS_ACC,
     SYS_ACCOUNT,
     TOKEN_GENS,
+    PYTH_SOL_USD_PUBKEY
 } from "./layout";
 import { TOKEN_PROGRAM_ID, Token, AuthorityType } from "@solana/spl-token";
 import Wallet from "@project-serum/sol-wallet-adapter";
+
+// anchor
+const anchor = require("@project-serum/anchor");
+const { SystemProgram } = anchor.web3;
 
 export const addBorrowUtil = async (
     wallet: Wallet,
     troveId: string,
     borrowAmount: number,
     lamportAmount: number,
-    connection: Connection
+    connection: Connection,
+    escrowProgram: any,
 ) => {
+    console.log("Add borrow in process")
+
     // setup pda for minting
     // TODO set the seed to be wallet as well
     const [pda_mint, bump_mint] = await PublicKey.findProgramAddress(
-        [Buffer.from("test")],
+        [anchor.utils.bytes.utf8.encode("mint-authority")],
         new PublicKey(EscrowProgramIdString)
     );
     console.log(`bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`);
 
-    const troveAccount = new PublicKey(troveId);
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
+
+    // finding a program address for the trove pda
+    let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("borrowertrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+    console.log(`trove_bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`)
+
+    const troveAccount = troveAccountPDA;
 
     const transferIx = SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
@@ -47,49 +59,37 @@ export const addBorrowUtil = async (
         lamports: lamportAmount,
     });
 
+    let mintPubkey = new PublicKey(TOKEN_GENS);
+
     const GENS = await connection.getParsedTokenAccountsByOwner(
         wallet.publicKey,
         { mint: new PublicKey(TOKEN_GENS) }
     );
     const tokenADA = GENS.value[0] ? GENS.value[0].pubkey.toBase58() : "";
 
-    const addBorrowIx = new TransactionInstruction({
-        programId: escrowProgramId,
-        keys: [
-            { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
-            { pubkey: troveAccount, isSigner: false, isWritable: false },
-            { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-            { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-            { pubkey: new PublicKey(TOKEN_GENS), isSigner: false, isWritable: true },
-            { pubkey: new PublicKey(tokenADA), isSigner: false, isWritable: true },
-            { pubkey: pda_mint, isSigner: false, isWritable: true },
-        ],
-        data: Buffer.from(
-            Uint8Array.of(
-                12,
-                ...new BN(borrowAmount).toArray("le", 8),
-                ...new BN(lamportAmount).toArray("le", 8),
-                bump_mint
-            )
-        ),
-    });
-
-    // let mint_type: AuthorityType = "MintTokens"
-    // let pda_account_mint = pda_mint
-
-    // change mint authority
-    // const changeMintIx = Token.createSetAuthorityInstruction(
-    //     TOKEN_PROGRAM_ID,
-    //     new PublicKey(TOKEN_GENS),
-    //     pda_account_mint,
-    //     mint_type,
-    //     wallet.publicKey,
-    //     []
-    // )
+    let addBorrowIx;
+    try {
+        addBorrowIx = escrowProgram.instruction.addBorrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_mint),
+            {
+                accounts: {
+                    authority: wallet.publicKey,
+                    trove: troveAccount,
+                    tokenAuthority: pda_mint,
+                    stableCoin: mintPubkey,
+                    userToken: tokenADA,
+                    pythSolAccount: PYTH_SOL_USD_PUBKEY,
+                    systemProgram: SystemProgram.programId,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    rent: SYSVAR_RENT_PUBKEY,
+                },
+            },
+        );
+    } catch (err) {
+        console.error(err, "anchor error");
+    }
 
     // add instruction to the transaction
     const tx = new Transaction().add(transferIx, addBorrowIx);
-    console.log("the tx is working", tx);
 
     // add data for signature generation
     let { blockhash } = await connection.getRecentBlockhash();
@@ -98,31 +98,12 @@ export const addBorrowUtil = async (
 
     // to sign
     let signedTx = await wallet.signTransaction(tx);
-    // //   // to write without signer
+
     //   signedTx.partialSign(troveAccount)
     let txId = await connection.sendRawTransaction(signedTx.serialize());
-    await connection.confirmTransaction(txId);
-
-    // Info
-    const encodedTroveState = (await connection.getAccountInfo(
-        troveAccount,
-        "singleGossip"
-    ))!.data;
-    const decodedTroveState = TROVE_ACCOUNT_DATA_LAYOUT.decode(
-        encodedTroveState
-    ) as TroveLayout;
 
     return {
         txId,
         troveAccountPubkey: troveAccount.toBase58(),
-        isInitialized: !!decodedTroveState.isInitialized,
-        isLiquidated: !!decodedTroveState.isLiquidated,
-        isReceived: !!decodedTroveState.isReceived,
-        borrowAmount: new BN(decodedTroveState.borrowAmount, 10, "le").toNumber(),
-        lamports: new BN(decodedTroveState.lamports, 10, "le").toString(),
-        teamFee: new BN(decodedTroveState.teamFee, 10, "le").toString(),
-        depositorFee: new BN(decodedTroveState.depositorFee, 10, "le").toString(),
-        amountToClose: new BN(decodedTroveState.amountToClose, 10, "le").toString(),
-        owner: new PublicKey(decodedTroveState.owner).toBase58(),
     };
 };

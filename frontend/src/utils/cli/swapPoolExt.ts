@@ -1,6 +1,5 @@
 import { ManagerAppDepInstallRequired } from '@ledgerhq/errors';
 import {
-    createAccountAndSwapAtomic,
     createTokenSwap,
     swap,
     depositAllTokenTypes,

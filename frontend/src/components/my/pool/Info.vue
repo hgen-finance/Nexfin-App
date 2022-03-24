@@ -103,6 +103,18 @@
           <span class="f-white-200 pl-1-S pr-5-XS">HGEN</span>
         </div>
       </div>
+      <div class="my-5-S my-10-XS">
+        <AmButton
+          color="mcolor-100"
+          bColor="mcolor-100"
+          opacityEffect
+          full
+          v-if="true"
+          @click="withdrawFarm()"
+        >
+          Withdraw
+        </AmButton>
+      </div>
     </div>
   </div>
 </template>
@@ -137,6 +149,9 @@ export default {
     },
     getHgen() {
       return this.$accessor.pool.rewardHgenAmount;
+    },
+    withdrawReward() {
+      return;
     },
   },
   mounted() {
