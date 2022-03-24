@@ -10,10 +10,10 @@ import { WalletAdapter } from "@solana/wallet-base";
 import { PhantomWalletAdapter } from "@/components/my/wallets";
 
 export const TOKEN_GENS = new PublicKey(
-    "7d3U17g4WEZkVGjRVVQchrgEaoFAuuui2xmEGCzmtUGt"
+    "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe"
 );
 export const TOKEN_HGEN = new PublicKey(
-    "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv"
+    "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3"
 );
 const LAMPORTS = 1000000000;
 
@@ -26,6 +26,7 @@ export const state = () => ({
     balance: 0,
     balanceHGEN: 0,
     balanceGENS: 0,
+    escrowProgram: "",
 });
 
 // Getters
@@ -63,6 +64,11 @@ export const mutations = mutationTree(state, {
         state.balanceHGEN = 0;
         state.balanceGENS = 0;
     },
+
+    setEscrowProgram(state, newValue: any) {
+        state.escrowProgram = newValue;
+    },
+
 });
 
 // Actions
@@ -93,6 +99,7 @@ export const actions = actionTree(
                             : 0;
                     })
                     .catch((err) => console.log(err));
+                console.log("hgen token amount: ", myTokenAmount)
                 commit("setBalanceHGEN", Number(myTokenAmount));
             }
         },
@@ -100,18 +107,22 @@ export const actions = actionTree(
         //getting balance for gens from the wallet
         async getGENSBalance({ commit }) {
             if (this.$web3 && this.$wallet) {
-                let myTokenAmount = 0;
+                let gensTokenAmount = 0;
                 await this.$web3
                     .getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
                         mint: new PublicKey(TOKEN_GENS),
                     })
                     .then((res) => {
-                        myTokenAmount = res.value[0]
+                        console.log(
+                            res
+                        )
+                        gensTokenAmount = res.value[0]
                             ? res.value[0].account.data.parsed.info.tokenAmount.uiAmountString
                             : 0;
                     })
                     .catch((err) => console.log(err));
-                commit("setBalanceGENS", Number(myTokenAmount));
+                console.log("gens tokena mount:", gensTokenAmount)
+                commit("setBalanceGENS", Number(gensTokenAmount));
             }
         },
 
@@ -129,7 +140,7 @@ export const actions = actionTree(
                 return;
             }
             this.$wallet = adapter;
-            adapter.on("connect", () => {
+            adapter.on("connect", async () => {
                 if (adapter.publicKey) {
                     commit("setPublicKey", adapter.publicKey.toBase58());
                     this.app.$accessor.setModal("");

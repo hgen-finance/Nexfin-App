@@ -34,6 +34,10 @@
         >
           We are almost ready. Be one of the first to experience it by entering
           presale.
+          <br />
+          You can participate in the testing soon, we will soon announce when it
+          is ready for test.
+
           <!-- We have a strong integrated solution to bring our world to DeFi online
           platform, greatly reduces risks and environmental pollution, and
           results in more reliable power through the utilization of existing

@@ -3,7 +3,6 @@ import { getterTree, mutationTree, actionTree } from "typed-vuex";
 import { PublicKey } from "@solana/web3.js";
 import { ManagerAppDepInstallRequired } from '@ledgerhq/errors';
 import {
-    createAccountAndSwapAtomic,
     addToken,
     createTokenSwap,
     swap,
@@ -12,6 +11,8 @@ import {
     depositSingleTokenTypeExactAmountIn,
     withdrawSingleTokenTypeExactAmountOut,
 } from '@/utils/swapPool'
+
+import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B } from '@/utils/layout';
 
 import { CurveType, Numberu64 } from '@/utils/tokenSwap';
 import { Pool } from '@/store/interfaces/poolInterface';
@@ -91,14 +92,14 @@ export const actions = actionTree(
 
         // getting info for pool token A
         async getTokenAInfo({ state, commit }, value) {
-            let tokenA = await this.$web3.getParsedTokenAccountsByOwner(value.authority, { mint: value.tokenAMintAddr });
+            let tokenA = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY, { mint: TOKEN_A_MINT_ADDR });
             let result: number = tokenA.value[0].account.data.parsed.info.tokenAmount.uiAmount;
             commit('setTokenAmountA', result);
         },
 
         // getting info for pool token B
         async getTokenBInfo({ state, commit }, value) {
-            let tokenB = await this.$web3.getParsedTokenAccountsByOwner(value.authority, { mint: value.tokenBMintAddr });
+            let tokenB = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY, { mint: TOKEN_B_MINT_ADDR });
             let result: number = tokenB.value[0].account.data.parsed.info.tokenAmount.uiAmount;
             commit('setTokenAmountB', result);
         },
@@ -108,9 +109,8 @@ export const actions = actionTree(
         // TODO: set timeout on account change
         async onTokenAChange({ dispatch }, value) {
             this.$web3.onAccountChange(
-                new PublicKey(value.tokenAccountA),
-                () => dispatch("swapPool/getTokenAInfo", { authority: value.authority, tokenAMintAddr: value.tokenAMintAddr }, { root: true }),
-                "confirmed"
+                (TOKEN_ACC_A),
+                () => dispatch("swapPool/getTokenAInfo", { authority: POOL_AUTHORITY, tokenAMintAddr: TOKEN_A_MINT_ADDR }, { root: true }),
             );
         },
 
@@ -118,9 +118,8 @@ export const actions = actionTree(
         // TODO: set timeout on account change
         async onTokenBChange({ dispatch }, value) {
             this.$web3.onAccountChange(
-                new PublicKey(value.tokenAccountB),
-                () => dispatch("swapPool/getTokenBInfo", { authority: value.authority, tokenBMintAddr: value.tokenBMintAddr }, { root: true }),
-                "confirmed"
+                (TOKEN_ACC_B),
+                () => dispatch("swapPool/getTokenBInfo", { authority: POOL_AUTHORITY, tokenBMintAddr: TOKEN_A_MINT_ADDR }, { root: true }),
             );
         },
 

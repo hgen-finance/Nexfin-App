@@ -102,7 +102,12 @@ export default {
       this.$accessor.swapPool.createTokenSwapPool();
     },
   },
-  mounted() {},
+  mounted() {
+    this.$accessor.swapPool.getTokenAInfo();
+    this.$accessor.swapPool.getTokenBInfo();
+    this.$accessor.swapPool.onTokenAChange();
+    this.$accessor.swapPool.onTokenBChange();
+  },
 };
 </script>
 <style scoped>

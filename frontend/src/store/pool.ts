@@ -4,6 +4,7 @@ import {
     DEPOSIT_ACCOUNT_DATA_LAYOUT,
     DepositLayout,
     TOKEN_GENS,
+    CLUSTER
 } from "@/utils/layout";
 import { getterTree, mutationTree, actionTree } from "typed-vuex";
 
@@ -12,6 +13,9 @@ import { depositUtil } from "@/utils/deposit";
 import { addDepositUtil } from "@/utils/addDeposit";
 import { withdrawUtil } from "@/utils/withdraw";
 import BN from "bn.js";
+
+// anchor
+import { setup } from "@/utils/anchor";
 
 require("dotenv").config();
 
@@ -132,6 +136,10 @@ export const actions = actionTree(
 
         // New Deposit
         async newDeposit({ state, commit, dispatch }, value) {
+
+            // setting anchor program
+            let program = await setup(this.$web3, this.$wallet)
+
             let GENS = await this.$web3.getParsedTokenAccountsByOwner(
                 this.$wallet.publicKey,
                 { mint: new PublicKey(TOKEN_GENS) }
@@ -141,15 +149,48 @@ export const actions = actionTree(
                 if (!state.depositKey.deposit) {
                     commit("setLoading", true);
                     try {
-                        console.log("reached here");
                         const data = await depositUtil(
                             this.$wallet,
                             TOKEN_GENS.toBase58(),
                             Number(value.from),
                             burn_addr,
                             "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv",
-                            this.$web3
+                            this.$web3,
+                            program
                         );
+
+                        console.log(
+                            `https://explorer.solana.com/tx/${data.txId}?cluster=${CLUSTER}`,
+                            "transaction id "
+                        );
+                        console.log(
+                            `${data.txId.substring(0, 14)}...${data.txId.substring(
+                                data.txId.length - 14
+                            )}`
+                        );
+                        // pass wait transaction notification
+                        this.$accessor.notification.notify({
+                            title: "Transaction sent",
+                            description: "Waiting for confirmation",
+                            type: "confirm",
+                            txId: data.txId,
+                        });
+
+                        console.log(
+                            "this list of notification is ",
+                            this.$accessor.notification.notifications.map((val) => val)
+                        );
+
+                        // handling the transaciton in the borrow
+                        await this.$web3.confirmTransaction(data.txId).then(
+                            (res) => {
+                                console.log(res, `res`);
+                            },
+                            (err) => {
+                                console.error(err.message, "Err");
+                            }
+                        );
+
                         if (data && data.depositAccountPubkey) {
                             commit("setDepositKey", data.depositAccountPubkey || "");
                             console.log(data, "newDeposit");
@@ -250,6 +291,10 @@ export const actions = actionTree(
 
         // Add Deposit
         async addDeposit({ state, commit, dispatch }, value) {
+
+            // setting anchor program
+            let program = await setup(this.$web3, this.$wallet)
+
             let GENS = await this.$web3.getParsedTokenAccountsByOwner(
                 this.$wallet.publicKey,
                 { mint: new PublicKey(TOKEN_GENS) }
@@ -266,7 +311,42 @@ export const actions = actionTree(
                             Number(value.from),
                             burn_addr,
                             "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv",
-                            this.$web3
+                            this.$web3,
+                            program
+                        );
+
+                        console.log(
+                            `https://explorer.solana.com/tx/${data.txId}?cluster=${CLUSTER}`,
+                            "transaction id "
+                        );
+
+                        console.log(
+                            `${data.txId.substring(0, 14)}...${data.txId.substring(
+                                data.txId.length - 14
+                            )}`
+                        );
+
+                        // pass wait transaction notification
+                        this.$accessor.notification.notify({
+                            title: "Transaction sent",
+                            description: "Waiting for confirmation",
+                            type: "confirm",
+                            txId: data.txId,
+                        });
+
+                        console.log(
+                            "this list of notification is ",
+                            this.$accessor.notification.notifications.map((val) => val)
+                        );
+
+                        // handling the transaciton in the borrow
+                        await this.$web3.confirmTransaction(data.txId).then(
+                            (res) => {
+                                console.log(res, `res`);
+                            },
+                            (err) => {
+                                console.error(err.message, "Err");
+                            }
                         );
 
                         this.$accessor.wallet.getBalance();

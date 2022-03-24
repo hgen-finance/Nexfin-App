@@ -1,7 +1,6 @@
 import {
     Account,
     PublicKey,
-    SystemProgram,
     SYSVAR_RENT_PUBKEY,
     Transaction,
     Connection,
@@ -15,55 +14,66 @@ import {
     TROVE_ACCOUNT_DATA_LAYOUT,
     EscrowProgramIdString,
     CHAINLINK_SOL_USD_PUBKEY,
+    PYTH_SOL_USD_PUBKEY,
     TOKEN_GENS_ACC,
     SYS_ACCOUNT,
     TOKEN_GENS,
 } from "./layout";
+
+const anchor = require("@project-serum/anchor");
+const { SystemProgram } = anchor.web3;
+
 import {
     TOKEN_PROGRAM_ID,
     Token,
     ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import Wallet from "@project-serum/sol-wallet-adapter";
+import { consoleSandbox } from "@sentry/utils";
 
 export const borrowUtil = async (
     wallet: Wallet,
     mintAmount: number,
     borrowAmount: number,
     lamportAmount: number,
-    connection: Connection
+    connection: Connection,
+    escrowProgram: any,
 ) => {
+
+    console.log("Borrow in process")
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
 
     // setup pda for minting
-    // TODO: This should be moved to the smart contract
     const [pda_mint, bump_mint] = await PublicKey.findProgramAddress(
-        [Buffer.from("test")],
-        new PublicKey(EscrowProgramIdString)
+        [anchor.utils.bytes.utf8.encode("mint-authority")],
+        escrowProgramId
     );
     console.log(`bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`);
 
     // finding a program address for the trove pda
     let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
-        [wallet.publicKey.toBuffer()],
+        [anchor.utils.bytes.utf8.encode("borrowertrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
         escrowProgramId
     );
-    console.log(`bump: ${bump_trove}, pubkey: ${troveAccountPDA.toBase58()}`);
 
-    const troveAccount = new Account();
-    const createBorrowAccountIx = SystemProgram.createAccount({
-        space: TROVE_ACCOUNT_DATA_LAYOUT.span,
-        lamports: lamportAmount,
-        fromPubkey: wallet.publicKey,
-        newAccountPubkey: troveAccount.publicKey,
-        programId: escrowProgramId,
-    });
+    // finding a program address for the fee pda
+    let [feeAccountPDA, bump_fee] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("fee")],
+        escrowProgramId
+    );
 
-    let mintPubkey = new PublicKey(TOKEN_GENS);
+    // finding a program address for the fee pda
+    let [teamFeeAccountPDA, bump_team_fee] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("teamfee")],
+        escrowProgramId
+    );
+
+    const troveAccount = troveAccountPDA;
+    let mintPubkey = TOKEN_GENS;
 
     // get the token account info of the wallet
     let GENS = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-        mint: new PublicKey(TOKEN_GENS),
+        mint: TOKEN_GENS,
     });
     let tokenATA = GENS.value[0] ? GENS.value[0].pubkey.toBase58() : "";
 
@@ -75,30 +85,33 @@ export const borrowUtil = async (
 
     console.log(tokenATA, "|", ata);
 
-    // TODO: Add creating of trove account to different intruction and create another tx for it.
-    const borrowIx = new TransactionInstruction({
-        programId: escrowProgramId,
-        keys: [
-            { pubkey: wallet.publicKey, isSigner: true, isWritable: false },
-            { pubkey: troveAccount.publicKey, isSigner: false, isWritable: false },
-            { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-            { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-            { pubkey: mintPubkey, isSigner: false, isWritable: true },
-            { pubkey: ata, isSigner: false, isWritable: true },
-            { pubkey: pda_mint, isSigner: false, isWritable: true },
-        ],
-        data: Buffer.from(
-            Uint8Array.of(
-                0,
-                ...new BN(borrowAmount).toArray("le", 8),
-                ...new BN(lamportAmount).toArray("le", 8),
-                bump_mint
-            )
-        ),
-    });
+    let borrowIx;
+    try {
+        borrowIx = escrowProgram.instruction.borrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_trove), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
+            {
+                accounts: {
+                    authority: wallet.publicKey,
+                    troveAccount,
+                    feeAccount: feeAccountPDA,
+                    teamFeeAccount: teamFeeAccountPDA,
+                    tokenAuthority: pda_mint,
+                    stableCoin: mintPubkey,
+                    userToken: tokenATA,
+                    pythSolAccount: PYTH_SOL_USD_PUBKEY,
+                    systemProgram: SystemProgram.programId,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    rent: SYSVAR_RENT_PUBKEY,
+                }
+            },
+        );
+
+    } catch (e) {
+        console.error(e, "Anchor borrow error");
+    }
+
 
     // добавялем инструкции в транзакцию (add instruction to the transaction)
-    let tx;
+    let tx = new Transaction();
     if (tokenATA == "") {
         // Only create tx if the account wasnt present
         // calculate ATA
@@ -111,20 +124,21 @@ export const borrowUtil = async (
 
         console.log(`ATA: ${ata.toBase58()}`);
 
-        const ataAccountTx = new Transaction().add(
-            Token.createAssociatedTokenAccountInstruction(
-                ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-                TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-                mintPubkey, // mint
-                ata, // ata
-                wallet.publicKey, // owner of token account
-                wallet.publicKey // fee payer
-            )
-        );
-        tx = new Transaction().add(ataAccountTx, createBorrowAccountIx, borrowIx);
+        const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            mintPubkey, // mint
+            ata, // ata
+            wallet.publicKey, // owner of token account
+            wallet.publicKey // fee payer
+        )
+
+        tx = tx.add(ataAccountTx, borrowIx);
     } else {
-        tx = new Transaction().add(createBorrowAccountIx, borrowIx);
+        tx = tx.add(borrowIx);
     }
+
+
 
     // add data for signature generation
     // добавляем данне для возможност формирования подписи
@@ -134,17 +148,24 @@ export const borrowUtil = async (
     tx.feePayer = wallet.publicKey;
 
     // to sign
-    let signedTx = await wallet.signTransaction(tx);
+    let signedTx;
+    try {
+        signedTx = await wallet.signTransaction(tx);
+    } catch (e) {
+        console.error(e)
+    }
 
     // to write without signer
     // TODO: use pda to sign in transaction for trove details instead of troveAccount. Enable write for trove details with signer
-    signedTx.partialSign(troveAccount);
-    let txId = await connection.sendRawTransaction(signedTx.serialize(), {
-        skipPreflight: true,
-    });
+    // signedTx.partialSign(troveAccount);
+    let txId = await connection.sendRawTransaction(signedTx.serialize());
 
     return {
         txId,
-        troveAccountPubkey: troveAccount.publicKey.toBase58(),
+        troveAccountPubkey: troveAccount,
     };
 };
+
+
+
+

@@ -19,6 +19,8 @@ import * as risky from "./risky";
 import * as admin from "./admin";
 import * as notification from "./notification";
 import * as swapPool from "./swapPool";
+import * as solFaucet from "./faucet";
+
 
 // State
 export const state = () => ({
@@ -146,6 +148,7 @@ export const accessorType = getAccessorType({
         admin,
         url,
         notification,
-        swapPool
+        swapPool,
+        solFaucet
     },
 });
