@@ -72,17 +72,30 @@ export const actions = actionTree(
     { state, getters, mutations },
     {
         async setTroveById({ commit }, value) {
+            console.log("starting here ...")
+            // setting anchor program
+            let program = await setup(this.$web3, this.$wallet)
+            console.log("check the value:", value)
+            let result;
+            try {
+                result = (await program.account.trove.fetch(new PublicKey(value)));
+                console.log(result, "result");
+            } catch (err) {
+                console.error(err)
+            }
+            commit("setTroveId", value);
+
             commit("setTrove", {
-                troveAccountPubkey: value.troveAccountPubkey.toBase58(),
-                isInitialized: value.isInitialized,
-                isLiquidated: value.isLiquidated,
-                isReceived: value.isReceived,
-                borrowAmount: value.borrowAmount.toNumber(),
-                lamports: value.lamportsAmount.toString(),
-                teamFee: value.teamFee.toString(),
-                depositorFee: value.depositorFee.toString(),
-                amountToClose: value.amountToClose.toString(),
-                owner: value.authority.toBase58(),
+                troveAccountPubkey: value,
+                isInitialized: result.isInitialized,
+                isLiquidated: result.isLiquidated,
+                isReceived: result.isReceived,
+                borrowAmount: result.borrowAmount.toNumber(),
+                lamports: result.lamportsAmount.toString(),
+                teamFee: result.teamFee.toString(),
+                depositorFee: result.depositorFee.toString(),
+                amountToClose: result.amountToClose.toString(),
+                owner: result.authority.toBase58(),
             });
         },
         // Get Deposit
@@ -93,7 +106,7 @@ export const actions = actionTree(
                     .then(({ data }) => {
                         if (data.model && data.model.trove) {
                             commit("setTroveId", data.model.trove || "");
-                            dispatch("setTroveById", new PublicKey(data.model.trove));
+                            dispatch("setTroveById", (data.model.trove));
                             this.$accessor.dashboard.setBorrow(true);
                         }
                     });
@@ -132,6 +145,7 @@ export const actions = actionTree(
             let program = await setup(this.$web3, this.$wallet)
 
             // check if there already previous trove opened under this wallet pub key
+            // if (state.troveId && Number(value.from > 0) && totalColl > 109) {
             if (state.troveId && Number(value.from > 0) && totalColl > 109) {
                 try {
                     commit("setLoading", true);
@@ -192,7 +206,7 @@ export const actions = actionTree(
                     // TODO: possible map accounts with the discriminator Trove
                     let result;
                     try {
-                        result = (await program.account.trove.fetch(data.troveAccountPubkey));
+                        result = (await program.account.trove.fetch(new PublicKey(data.troveAccountPubkey)));
                         console.log(result, "result");
                     } catch (err) {
                         console.error(err)
@@ -229,8 +243,7 @@ export const actions = actionTree(
             if (
                 !state.troveId &&
                 Number(value.from > 0) &&
-                Number(value.to) > 99 &&
-                cr > 109
+                Number(value.to) > 99
             ) {
                 commit("setLoading", true);
                 try {
@@ -290,7 +303,7 @@ export const actions = actionTree(
                         console.error(err)
                     }
 
-                    dispatch("setTroveById", { ...result, troveAccountPubkey: (data.troveAccountPubkey) });
+                    dispatch("setTroveById", data.troveAccountPubkey.toBase58());
                     this.$accessor.dashboard.setBorrow(true);
 
                     // pass confirm transaction notification
@@ -306,7 +319,7 @@ export const actions = actionTree(
                     if (data && data.troveAccountPubkey) {
                         await this.$axios
                             .post("/api/trove/upsert", {
-                                trove: data.troveAccountPubkey,
+                                trove: data.troveAccountPubkey.toBase58(),
                                 amount: Number(value.to),
                                 user: value.mint,
                                 dest: this.$wallet.publicKey.toBase58(),
@@ -315,13 +328,13 @@ export const actions = actionTree(
                                 console.log(res, "newTrove Backend");
                             });
                     }
-                    await this.$axios
-                        .post("/api/reward/addReward", {
-                            amount: value.to,
-                        })
-                        .then((res) => {
-                            console.log(res, "reward Added to the liquidity provider");
-                        });
+                    // await this.$axios
+                    //     .post("/api/reward/addReward", {
+                    //         amount: value.to,
+                    //     })
+                    //     .then((res) => {
+                    //         console.log(res, "reward Added to the liquidity provider");
+                    //     });
                 } catch {
                     commit("setLoading", false);
                 }
@@ -341,20 +354,21 @@ export const actions = actionTree(
             );
             let burn_addr = GENS.value[0].pubkey.toBase58();
 
+            console.log(state.troveId, "trove id");
             if (state.troveId) {
                 commit("setLoading", true);
                 try {
                     console.log("processing closing the trove...");
                     console.log(state.trove.amountToClose);
 
-                    await this.$axios
-                        .post("/api/trove/pay", {
-                            trove: state.trove.troveAccountPubkey,
-                            amount: state.trove.amountToClose,
-                        })
-                        .then((res) => {
-                            console.log(res, "payTroveBackend");
-                        });
+                    // await this.$axios
+                    //     .post("/api/trove/pay", {
+                    //         trove: state.trove.troveAccountPubkey,
+                    //         amount: state.trove.amountToClose,
+                    //     })
+                    //     .then((res) => {
+                    //         console.log(res, "payTroveBackend");
+                    //     });
 
                     const data = await closeBorrowUtil(
                         this.$wallet,
@@ -398,13 +412,13 @@ export const actions = actionTree(
                     );
 
                     commit("setTroveId", "");
-                    await this.$axios
-                        .post("/api/trove/liquidate", {
-                            trove: state.trove.troveAccountPubkey,
-                        })
-                        .then((res) => {
-                            console.log(res, "newTrove Backend");
-                        });
+                    // await this.$axios
+                    //     .post("/api/trove/liquidate", {
+                    //         trove: state.trove.troveAccountPubkey,
+                    //     })
+                    //     .then((res) => {
+                    //         console.log(res, "newTrove Backend");
+                    //     });
 
                     dispatch("clearTrove");
                     this.$accessor.wallet.getBalance();
@@ -443,6 +457,7 @@ export const actions = actionTree(
                         state.trove.troveAccountPubkey,
                         burn_addr,
                         value.amount,
+                        value.lamports,
                         this.$web3,
                         program
                     );
@@ -499,7 +514,7 @@ export const actions = actionTree(
                         console.error(err)
                     }
 
-                    dispatch("setTroveById", { ...result, troveAccountPubkey: (data.troveAccountPubkey) });
+                    dispatch("setTroveById", (data.troveAccountPubkey));
                     this.$accessor.dashboard.setBorrow(true);
                     commit("setLoading", false);
 

@@ -37,13 +37,32 @@ const TROVE_ACCOUNT_DATA_LAYOUT = BufferLayout.struct([
     uint64("amountToClose"),
     publicKey("owner"),
 ]);
+
 let connection = new Connection("https://api.devnet.solana.com");
+
+const anchor = require("@project-serum/anchor");
+const nexfin = require("./nexfin.json");
+
+const setup = (connection) => {
+    const provider = new anchor.Provider(connection, new Account(require("../rootDir/my_wallet.json")));
+    anchor.setProvider(provider);
+
+    // Address of the deployed program
+    const escrowProgramId = new anchor.web3.PublicKey(nexfin.metadata.address);
+
+    // Generate program client from IDL
+    const escrowProgram = new anchor.Program(nexfin, escrowProgramId);
+
+    return escrowProgram;
+}
+
 
 module.exports = {
     TROVE_ACCOUNT_DATA_LAYOUT,
     DEPOSIT_ACCOUNT_DATA_LAYOUT,
     connection,
-    programId: "5kLDDxNQzz82UtPA5hJmyKR3nUKBtRTfu4nXaGZmLanS",
+    setup,
+    programId: "HPwvr8B9KtM3CZwQg7V8pevfgsZfZBLiR3gL1HcEsGiD",
     //   programId: '5uqKRHcKyEJ4Pw4cRVus32a1wfEMGdHpgMa1FLqoQaN8',
     sysAccount: new Account(require("../rootDir/my_wallet.json")),
 };

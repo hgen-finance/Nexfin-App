@@ -169,7 +169,7 @@
         <div class="w-100-S w-100-XS">
           <div class="w-100 fd-r py-2-S py-10-XS">
             <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-              Fee Borrow (<span class="f-white-200 fw-600">0.5 %</span>)
+              Fee Borrow (<span class="f-white-200 fw-600">1.47 %</span>)
             </div>
             <div
               class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
@@ -180,7 +180,7 @@
           </div>
         </div>
       </div>
-      <div class="w-100 fd-r">
+      <!-- <div class="w-100 fd-r">
         <div class="w-100-S w-100-XS">
           <div class="w-100 fd-r py-2-S py-10-XS">
             <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
@@ -194,7 +194,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="w-100">
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">

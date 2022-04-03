@@ -46,7 +46,7 @@ export const depositUtil = async (
         escrowProgramId
     );
     const depositAccount = depositAccountPDA;
-    const depositIx = escrowProgram.instruction.borrow(new anchor.BN(tokenAmount), new anchor.BN(deposit_account_bump),
+    const depositIx = escrowProgram.instruction.addDeposit(new anchor.BN(tokenAmount), new anchor.BN(deposit_account_bump),
         {
             accounts: {
                 authority: wallet.publicKey,
@@ -72,35 +72,8 @@ export const depositUtil = async (
     let signedTx = await wallet.signTransaction(tx);
     let txId = await connection.sendRawTransaction(signedTx.serialize());
 
-    // Info
-    const encodedDepositAccount = (await connection.getAccountInfo(
-        depositAccount,
-        "singleGossip"
-    ))!.data;
-    const decodedDepositState = DEPOSIT_ACCOUNT_DATA_LAYOUT.decode(
-        encodedDepositAccount
-    ) as DepositLayout;
-
     return {
         txId,
-        depositAccountPubkey: depositAccount.toBase58(),
-        isInitialized: !!decodedDepositState.isInitialized,
-        tokenAmount: new BN(decodedDepositState.tokenAmount, 10, "le").toNumber(),
-        rewardTokenAmount: new BN(
-            decodedDepositState.rewardTokenAmount,
-            10,
-            "le"
-        ).toNumber(),
-        rewardGovernanceTokenAmount: new BN(
-            decodedDepositState.rewardGovernanceTokenAmount,
-            10,
-            "le"
-        ).toNumber(),
-        rewardCoinAmount: new BN(
-            decodedDepositState.rewardCoinAmount,
-            10,
-            "le"
-        ).toNumber(),
-        owner: new PublicKey(decodedDepositState.owner).toBase58(),
+        depositAccountPubkey: depositAccount.toBase58()
     };
 };

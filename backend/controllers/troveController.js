@@ -79,18 +79,19 @@ class troveController {
 
     //add borrow collateral
     async addBorrow(req, res) {
+
         try {
             let address = req.body.user;
             let trove = req.body.trove;
             let destination = req.body.dest;
 
             // TODO refractor this code. Make a separate function to get the dep fee
-            let depositorFee = req.body.amount * (DEPOSIT_FEE_PERCENT / 100);
-            depositorFee =
-                depositorFee < MIN_DEPOSIT_FEES ? MIN_DEPOSIT_FEES : depositorFee;
+            // let depositorFee = req.body.amount * (DEPOSIT_FEE_PERCENT / 100);
+            // depositorFee =
+            //     depositorFee < MIN_DEPOSIT_FEES ? MIN_DEPOSIT_FEES : depositorFee;
 
-            let teamFee = req.body.amount * (TEAM_FEE_PERCENT / 100);
-            teamFee = teamFee < MIN_TEAM_FEES ? MIN_TEAM_FEES : teamFee;
+            // let teamFee = req.body.amount * (TEAM_FEE_PERCENT / 100);
+            // teamFee = teamFee < MIN_TEAM_FEES ? MIN_TEAM_FEES : teamFee;
             let amount = req.body.amount;
 
             console.log("add borrow is activated");

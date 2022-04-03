@@ -28,6 +28,7 @@ export const payBorrowUtil = async (
     //wallet address of the user gens token
     pdaToken: string,
     amount: number,
+    lamports: number,
     connection: Connection,
     escrowProgram: any,
 ) => {
@@ -37,6 +38,7 @@ export const payBorrowUtil = async (
     const pdaTokenAcc = new PublicKey(pdaToken);
 
     let payBorrowIx;
+    let transferSolIx;
     try {
         payBorrowIx = escrowProgram.instruction.updateTrove(new anchor.BN(amount),
             {
@@ -49,6 +51,16 @@ export const payBorrowUtil = async (
                 },
             },
         );
+
+        // transferSolIx = escrowProgram.instruction.withdrawCoin(new anchor.BN(lamports),
+        //     {
+        //         accounts: {
+        //             authority: wallet.publicKey,
+        //             trove: troveAccount,
+        //             systemProgram: SystemProgram.programId
+        //         },
+        //     },
+        // );
     } catch (err) {
         console.error(err, "Anchor error")
     }
