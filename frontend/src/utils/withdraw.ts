@@ -58,16 +58,21 @@ export const withdrawUtil = async (
     });
     let tokenADA = GENS.value[0] ? GENS.value[0].pubkey.toBase58() : "";
 
-    const withdrawIx = escrowProgram.instruction.withdrawDeposit(new anchor.BN(tokenAmount), new anchor.BN(bump_mint), {
-        accounts: {
-            authority: wallet.publicKey,
-            depositAccount: depositAccount,
-            tokenAuthority: pda_mint,
-            stableCoin: gens_mint_addr,
-            userToken: new PublicKey(tokenADA),
-            tokenProgram: TOKEN_PROGRAM_ID,
-        }
-    })
+    let withdrawIx
+    try {
+        withdrawIx = escrowProgram.instruction.withdrawDeposit(new anchor.BN(tokenAmount), new anchor.BN(bump_mint), new anchor.BN(deposit_account_bump), {
+            accounts: {
+                authority: wallet.publicKey,
+                deposit: depositAccount,
+                tokenAuthority: pda_mint,
+                stableCoin: gens_mint_addr,
+                userToken: new PublicKey(tokenADA),
+                tokenProgram: TOKEN_PROGRAM_ID,
+            }
+        })
+    } catch (err) {
+        console.error(err)
+    }
 
     const tx = new Transaction().add(withdrawIx);
     console.log("the transaction is ", tx);

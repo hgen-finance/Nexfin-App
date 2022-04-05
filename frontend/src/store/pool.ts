@@ -165,6 +165,18 @@ export const actions = actionTree(
                             }
                         );
 
+                        let result;
+                        try {
+                            result = (await program.account.deposit.fetch(new PublicKey(data.depositAccountPubkey)));
+                            console.log(result, "result");
+                        } catch (err) {
+                            console.error(err)
+                        }
+
+                        let backend_data = {
+                            owner: result.authority.toBase58(),
+                        }
+
                         if (data && data.depositAccountPubkey) {
                             commit("setDepositKey", data.depositAccountPubkey || "");
                             console.log(data, "newDeposit");
@@ -172,6 +184,7 @@ export const actions = actionTree(
                                 .post("/api/deposit/upsert", {
                                     deposit: data.depositAccountPubkey,
                                     amount: Number(value.from),
+                                    data: backend_data
                                 })
                                 .then((res) => {
                                     console.log(res, "newDeposit Backend");
