@@ -11,12 +11,6 @@ const getDeposit = async ({ deposit }) => {
         console.error(err)
     }
 
-    commit("setGens", result.bank);
-    commit("setHgen", result.governanceBank);
-    commit("setRewardGensAmount", result.rewardTokenAmount);
-    commit("setRewardHgenAmount", result.rewardGovernanceTokenAmount);
-    commit("setDepositAmount", result.tokenAmount);
-    commit("setRewardCoinAmount", result.rewardCoinAmount);
     return {
         depositAccountPubkey: deposit,
         isInitialized: result.isInitialized,

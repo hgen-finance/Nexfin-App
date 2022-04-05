@@ -38,7 +38,7 @@ const TROVE_ACCOUNT_DATA_LAYOUT = BufferLayout.struct([
     publicKey("owner"),
 ]);
 
-let connection = new Connection("https://api.devnet.solana.com");
+let connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
 const anchor = require("@project-serum/anchor");
 const nexfin = require("./nexfin.json");
