@@ -11,8 +11,8 @@ const { claimReward } = require("../commands/claimReward");
 
 const MIN_DEPOSIT_FEES = 4;
 const MIN_TEAM_FEES = 1;
-const DEPOSIT_FEE_PERCENT = 0.4;
-const TEAM_FEE_PERCENT = 0.1;
+const DEPOSIT_FEE_PERCENT = 1;
+const TEAM_FEE_PERCENT = 0.47;
 
 //TODO fix the partial payment for borrow
 class troveController {
@@ -26,6 +26,7 @@ class troveController {
             let trove = req.body.trove;
             let amount = req.body.amount;
             let destination = req.body.dest;
+            let data = req.body.data
             // TODO refractor this code. Make a separate function to get the dep fee
             let depositorFee = amount * (DEPOSIT_FEE_PERCENT / 100);
             depositorFee =
@@ -34,10 +35,10 @@ class troveController {
             let teamFee = req.body.amount * (TEAM_FEE_PERCENT / 100);
             teamFee = teamFee < MIN_TEAM_FEES ? MIN_TEAM_FEES : teamFee;
 
-            const troveData = await getTrove({ trove });
+            // const troveData = await getTrove({ trove });
 
-            const user = troveData.owner;
-            trove = troveData.troveAccountPubkey;
+            const user = data.owner;
+            trove = data.troveAccountPubkey;
             let model = await troveModel.findOrCreateByAddress(user, trove);
             let lamports = 0;
 
@@ -46,17 +47,17 @@ class troveController {
 
             if (!model.amountSent) {
                 model.amountSent = sentAmount;
-                model.depositorFee = troveData.depositorFee / 1000;
-                model.teamFee = troveData.teamFee / 1000;
-                lamports = troveData.lamports;
+                model.depositorFee = data.depositorFee / 1000;
+                model.teamFee = data.teamFee / 1000;
+                lamports = data.lamports;
             }
 
-            if (!troveData.isReceived) {
+            if (!data.isReceived) {
                 await setTroveReceived({ trove });
 
                 increaseCounters({
                     coin: 0,
-                    token: troveData.depositorFee,
+                    token: data.depositorFee,
                     governance: 0,
                     deposit: 0,
                     trove: sentAmount,
@@ -84,6 +85,7 @@ class troveController {
             let address = req.body.user;
             let trove = req.body.trove;
             let destination = req.body.dest;
+
 
             // TODO refractor this code. Make a separate function to get the dep fee
             // let depositorFee = req.body.amount * (DEPOSIT_FEE_PERCENT / 100);
@@ -212,6 +214,53 @@ class troveController {
             troveModelData.teamFee = Number(troveData.teamFee) / 1000;
 
             res.json({ status: false, trove, troveData });
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({ error: "Error: " + err });
+        }
+    }
+
+    // close trove
+    async closeTrove(req, res) {
+        try {
+            let trove = req.body.trove.trim();
+            let data = req.body.data;
+
+            // let troveData = await getTrove({ trove });
+
+            const troveModelData = await troveModel.getByTrove(trove);
+
+            if (troveModelData) {
+                await troveModel.model.deleteOne({ trove });
+            }
+
+            console.log("before liquidating......");
+            // TODO check this later
+            // && troveData.isReceived
+            if (data !== null && !data.isLiquidated) {
+                let oldData = data;
+                if (data === null) {
+                    decreaseCounters({
+                        coin: 0,
+                        token: 0,
+                        governance: 0,
+                        deposit: 0,
+                        trove: oldData.borrowAmount,
+                        collateral: oldData.lamports,
+                    });
+
+                    increaseCounters({
+                        coin: new BN(oldData.lamports).div(new BN("1000000000")),
+                        token: 0,
+                        governance: 0,
+                        deposit: 0,
+                        trove: 0,
+                        collateral: 0,
+                    });
+                    return res.json({ status: true, trove, data });
+                }
+            }
+            res.json({ status: false, trove });
         } catch (err) {
             console.log(err);
             res.status(400).json({ error: "Error: " + err });
