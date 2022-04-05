@@ -29,25 +29,25 @@ export default {
   computed: {},
   watch: {},
   methods: {
-    addSol() {
+    async addSol() {
       try {
         console.log("Adding SOL....");
+        await this.$accessor.faucet.addSol();
         this.$accessor.notification.notify({
           title: "Transaction Completed",
           description: "2 sol is added to the account.",
           type: "confirm",
           txId: "",
         });
-        this.$accessor.faucet.addSol();
       } catch (err) {
-        // pass wait transaction notification
         this.$accessor.notification.notify({
           title: "Transaction failed",
-          description: "Too many request. JSON Rpc failed",
-          type: "error",
+          description: err,
+          type: "confirm",
           txId: "",
         });
-        console.error(err, "Failed to add SOl");
+        console.error(err, "my error");
+        // pass wait transaction notification
       }
     },
   },

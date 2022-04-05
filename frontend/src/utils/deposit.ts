@@ -1,4 +1,6 @@
-import { Token, TOKEN_PROGRAM_ID, AuthorityType } from "@solana/spl-token";
+import {
+    Token, TOKEN_PROGRAM_ID, AuthorityType, ASSOCIATED_TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import {
     Account,
     PublicKey,
@@ -15,6 +17,7 @@ import {
     DepositLayout,
     EscrowProgramIdString,
     SYS_ACCOUNT,
+    TOKEN_HGEN
 } from "./layout";
 import Wallet from "@project-serum/sol-wallet-adapter";
 
@@ -26,7 +29,7 @@ export const depositUtil = async (
     wallet: Wallet,
     // Адрес токена GENS
     tokenMintAccountPubkey: string,
-    tokenAmount: number,
+    amount: number,
     // Адрес кошелька токена пользователя GENS
     pdaToken: string,
     // Адрес кошелька токена пользователя HGEN
@@ -38,30 +41,68 @@ export const depositUtil = async (
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
     const tokenMintAcc = new PublicKey(tokenMintAccountPubkey);
     const pdaTokenAcc = new PublicKey(pdaToken);
-    const governanceTokenAcc = new PublicKey(governanceToken);
+    let governanceTokenAcc;
+    if (governanceToken)
+        governanceTokenAcc = new PublicKey(governanceToken);
 
     // setup pda for deposit account
-    const [depositAccountPDA, deposit_account_bump] = await PublicKey.findProgramAddress(
+    console.log(escrowProgram.programId.toBase58(), " | ", escrowProgramId.toBase58())
+    const [depositAccountPDA, depositAccountBump] = await PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode("deposit"), wallet.publicKey.toBuffer()],
         escrowProgramId
     );
     const depositAccount = depositAccountPDA;
-    const depositIx = escrowProgram.instruction.addDeposit(new anchor.BN(tokenAmount), new anchor.BN(deposit_account_bump),
-        {
-            accounts: {
-                authority: wallet.publicKey,
-                depositAccount: depositAccount,
-                rent: SYSVAR_RENT_PUBKEY,
-                tokenProgram: TOKEN_PROGRAM_ID,
-                userToken: pdaTokenAcc,
-                userGovToken: governanceTokenAcc,
-                tokenMint: tokenMintAcc,
-                SystemProgram: SystemProgram.programId,
-            }
-        },
-    );
+    let ata;
+    if (governanceToken == "") {
+        ata = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            TOKEN_HGEN, // mint
+            wallet.publicKey // owner
+        );
 
-    const tx = new Transaction().add(depositIx);
+        governanceTokenAcc = ata;
+    }
+
+    console.log("amoutn:", amount)
+    console.log("bump", depositAccountBump)
+    console.log("pda token acc", pdaTokenAcc.toBase58())
+    console.log("goven token acc", governanceTokenAcc.toBase58());
+    console.log("tokenmint", tokenMintAcc.toBase58());
+    let depositIx;
+    try {
+        depositIx = escrowProgram.instruction.addDeposit(new anchor.BN(amount), new anchor.BN(depositAccountBump),
+            {
+                accounts: {
+                    authority: wallet.publicKey,
+                    depositAccount: depositAccount,
+                    rent: SYSVAR_RENT_PUBKEY,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    userToken: pdaTokenAcc,
+                    userGovToken: governanceTokenAcc,
+                    tokenMint: tokenMintAcc,
+                    systemProgram: SystemProgram.programId,
+                }
+            },
+        );
+    } catch (err) {
+        console.error(err)
+    }
+
+    let tx = new Transaction();
+    if (governanceToken == "") {
+        const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            TOKEN_HGEN, // mint
+            governanceTokenAcc, // ata
+            wallet.publicKey, // owner of token account
+            wallet.publicKey // fee payer
+        )
+        tx = tx.add(ataAccountTx, depositIx);
+    } else {
+        tx = tx.add(depositIx);
+    }
 
     // добавляем данне для возможност формирования подписи
     let { blockhash } = await connection.getRecentBlockhash();

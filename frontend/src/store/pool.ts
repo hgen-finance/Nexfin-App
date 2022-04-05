@@ -4,6 +4,7 @@ import {
     DEPOSIT_ACCOUNT_DATA_LAYOUT,
     DepositLayout,
     TOKEN_GENS,
+    TOKEN_HGEN,
     CLUSTER
 } from "@/utils/layout";
 import { getterTree, mutationTree, actionTree } from "typed-vuex";
@@ -103,15 +104,21 @@ export const actions = actionTree(
 
         // New Deposit
         async newDeposit({ state, commit, dispatch }, value) {
-
+            console.log("Running new deposit...")
             // setting anchor program
             let program = await setup(this.$web3, this.$wallet)
 
             let GENS = await this.$web3.getParsedTokenAccountsByOwner(
                 this.$wallet.publicKey,
-                { mint: new PublicKey(TOKEN_GENS) }
+                { mint: (TOKEN_GENS) }
             );
             let burn_addr = GENS.value[0] ? GENS.value[0].pubkey.toBase58() : "";
+
+            let HGEN = await this.$web3.getParsedTokenAccountsByOwner(
+                this.$wallet.publicKey,
+                { mint: (TOKEN_HGEN) }
+            );
+            let gov_addr = HGEN.value[0] ? HGEN.value[0].pubkey.toBase58() : "";
             if (value && Number(value.from) > 0) {
                 if (!state.depositKey.deposit) {
                     commit("setLoading", true);
@@ -121,7 +128,7 @@ export const actions = actionTree(
                             TOKEN_GENS.toBase58(),
                             Number(value.from),
                             burn_addr,
-                            "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv",
+                            gov_addr,
                             this.$web3,
                             program
                         );
@@ -252,9 +259,22 @@ export const actions = actionTree(
                         this.$accessor.wallet.getBalance();
                         this.$accessor.wallet.getGENSBalance();
 
+                        let result;
+                        try {
+                            result = (await program.account.deposit.fetch(new PublicKey(data.depositAccountPubkey)));
+                            console.log(result, "result");
+                        } catch (err) {
+                            console.error(err)
+                        }
+
+                        let backend_data = {
+                            owner: result.authority.toBase58(),
+                        }
+
                         await this.$axios.post("/api/deposit/upsert", {
                             deposit: state.depositKey.deposit,
                             amount: Number(value.from),
+                            data: backend_data
                         });
                         dispatch("getDeposit")
                         commit("setLoading", false);

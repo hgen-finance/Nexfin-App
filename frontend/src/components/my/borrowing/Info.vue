@@ -141,9 +141,7 @@
     > -->
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="
-        ((disputeDebt > 0 && getTroveAmount) || disputeDebt < 0) && getIsBorrow
-      "
+      v-if="(disputeDebt > 0 && getTroveAmount) || disputeDebt < 0"
     >
       <div
         class="w-100 pb-2-S pb-10-XS"
@@ -158,7 +156,7 @@
     </div>
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="CheckWalletBalance && getIsBorrow"
+      v-if="CheckWalletBalance"
     >
       <div class="w-100 pb-2-S pb-10-XS" v-if="CheckWalletBalance">
         You don't have enough GENS for this transaction.
@@ -166,7 +164,7 @@
     </div>
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="getCurrentRatio < 130 && this.repayCr && getIsBorrow"
+      v-if="getCurrentRatio < 130 && this.repayCr"
     >
       <div class="w-100 pb-2-S pb-10-XS">
         Warning! Collateral Ratio is below 130%. Trove is liquidated at 110%.
@@ -325,24 +323,18 @@ export default {
     getFee() {
       let fee = this.to;
       console.log(fee, "fee");
-      fee = fee ? (this.to * 1.47) / 100 / this.$accessor.usd : 0;
+      fee = fee ? (this.to * 1.47) / 100 / 135 : 0;
       if (this.getIsBorrow) {
         return 0;
       }
+      fee = fee < 5 ? 5 / this.$accessor.usd : fee;
       let fee_trim = fee.toString().split(".");
-      if (fee_trim[1].length > 9 && fee_trim.length > 1) {
+      if (fee_trim.length > 1 && fee_trim[1].length > 9) {
         fee =
           Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
       }
-      return fee != 0 && fee < 5 ? 5 / this.$accessor.usd : fee;
+      return fee;
     },
-    // getFeePay() {
-    //   let fee = this.repayTo;
-    //   fee = fee ? (this.repayTo * 0.5) / 100 : 0;
-
-    //   console.log("the new fee is", fee);
-    //   return fee != 0 && fee < 5 ? 5 : fee;
-    // },
     getDebt() {
       //   let currentColl = this.$accessor.borrowing.debt || 0;
       //   let prevColl = Number(this.getRatio);

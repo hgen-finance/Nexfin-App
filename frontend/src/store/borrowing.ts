@@ -304,7 +304,8 @@ export const actions = actionTree(
                     let result;
                     try {
                         result = (await program.account.trove.fetch(data.troveAccountPubkey));
-                        console.log(result, "result");
+                        console.log(result, "result is this");
+
                     } catch (err) {
                         console.error(err)
                     }
@@ -321,6 +322,18 @@ export const actions = actionTree(
                     });
 
                     commit("setLoading", false);
+                    let backend_data = {
+                        troveAccountPubkey: data.troveAccountPubkey.toBase58(),
+                        isInitialized: result.isInitialized,
+                        isLiquidated: result.isLiquidated,
+                        isReceived: result.isReceived,
+                        borrowAmount: result.borrowAmount.toNumber(),
+                        lamports: result.lamportsAmount.toString(),
+                        teamFee: result.teamFee.toString(),
+                        depositorFee: result.depositorFee.toString(),
+                        amountToClose: result.amountToClose.toString(),
+                        owner: result.authority.toBase58()
+                    }
 
                     if (data && data.troveAccountPubkey) {
                         await this.$axios
@@ -329,11 +342,14 @@ export const actions = actionTree(
                                 amount: Number(value.to),
                                 user: value.mint,
                                 dest: this.$wallet.publicKey.toBase58(),
+                                data: backend_data,
                             })
                             .then((res) => {
                                 console.log(res, "newTrove Backend");
                             });
                     }
+
+
                     // await this.$axios
                     //     .post("/api/reward/addReward", {
                     //         amount: value.to,
@@ -366,6 +382,27 @@ export const actions = actionTree(
                 try {
                     console.log("processing closing the trove...");
                     console.log(state.trove.amountToClose);
+                    let result
+                    try {
+                        result = (await program.account.trove.fetch(new PublicKey(state.troveId)));
+                        console.log(result, "result");
+                    } catch (err) {
+                        console.error(err)
+                    }
+
+                    let backend_data = {
+                        troveAccountPubkey: state.troveId,
+                        isInitialized: result.isInitialized,
+                        isLiquidated: result.isLiquidated,
+                        isReceived: result.isReceived,
+                        borrowAmount: result.borrowAmount.toNumber(),
+                        lamports: result.lamportsAmount.toString(),
+                        teamFee: result.teamFee.toString(),
+                        depositorFee: result.depositorFee.toString(),
+                        amountToClose: result.amountToClose.toString(),
+                        owner: result.authority.toBase58(),
+
+                    }
 
                     await this.$axios
                         .post("/api/trove/pay", {
@@ -418,13 +455,14 @@ export const actions = actionTree(
                     );
 
                     commit("setTroveId", "");
-                    // await this.$axios
-                    //     .post("/api/trove/liquidate", {
-                    //         trove: state.trove.troveAccountPubkey,
-                    //     })
-                    //     .then((res) => {
-                    //         console.log(res, "newTrove Backend");
-                    //     });
+                    await this.$axios
+                        .post("/api/trove/close", {
+                            trove: state.trove.troveAccountPubkey,
+                            data: backend_data
+                        })
+                        .then((res) => {
+                            console.log(res, "trove Backend closed");
+                        });
 
                     dispatch("clearTrove");
                     this.$accessor.wallet.getBalance();
