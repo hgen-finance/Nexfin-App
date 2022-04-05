@@ -32,6 +32,7 @@ export const state = () => ({
     loadingSub: false,
     borrowOrPay: true,
     closeAmount: 0,
+    currentCr: 0,
 });
 
 // Getters
@@ -65,6 +66,10 @@ export const mutations = mutationTree(state, {
     setCloseAmount(state, newValue: number) {
         state.closeAmount = newValue;
     },
+
+    setCurrentCr(state, newValue: number) {
+        state.currentCr = newValue;
+    }
 });
 
 // Actions
@@ -204,15 +209,15 @@ export const actions = actionTree(
 
                     // TODO: Create a refDB on chain
                     // TODO: possible map accounts with the discriminator Trove
-                    let result;
-                    try {
-                        result = (await program.account.trove.fetch(new PublicKey(data.troveAccountPubkey)));
-                        console.log(result, "result");
-                    } catch (err) {
-                        console.error(err)
-                    }
+                    // let result;
+                    // try {
+                    //     result = (await program.account.trove.fetch(new PublicKey(data.troveAccountPubkey)));
+                    //     console.log(result, "result");
+                    // } catch (err) {
+                    //     console.error(err)
+                    // }
 
-                    dispatch("setTroveById", { ...result, troveAccountPubkey: (data.troveAccountPubkey) });
+                    dispatch("setTroveById", data.troveAccountPubkey);
                     this.$accessor.dashboard.setBorrow(true);
 
                     this.$accessor.wallet.getBalance();
@@ -243,7 +248,8 @@ export const actions = actionTree(
             if (
                 !state.troveId &&
                 Number(value.from > 0) &&
-                Number(value.to) > 99
+                Number(value.to) > 99 &&
+                cr > 109
             ) {
                 commit("setLoading", true);
                 try {
@@ -361,14 +367,14 @@ export const actions = actionTree(
                     console.log("processing closing the trove...");
                     console.log(state.trove.amountToClose);
 
-                    // await this.$axios
-                    //     .post("/api/trove/pay", {
-                    //         trove: state.trove.troveAccountPubkey,
-                    //         amount: state.trove.amountToClose,
-                    //     })
-                    //     .then((res) => {
-                    //         console.log(res, "payTroveBackend");
-                    //     });
+                    await this.$axios
+                        .post("/api/trove/pay", {
+                            trove: state.trove.troveAccountPubkey,
+                            amount: state.trove.amountToClose,
+                        })
+                        .then((res) => {
+                            console.log(res, "payTroveBackend");
+                        });
 
                     const data = await closeBorrowUtil(
                         this.$wallet,
@@ -570,6 +576,12 @@ export const actions = actionTree(
                     "setCloseAmount",
                     this.$accessor.borrowing.trove.amountToClose - value.repayTo
                 );
+            }
+        },
+        //get the changed cr
+        async currentCollateralRatio({ commit }, value) {
+            if (value) {
+                commit("setCurrentCr", value);
             }
         },
 

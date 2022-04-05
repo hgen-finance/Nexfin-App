@@ -37,6 +37,18 @@ export const payBorrowUtil = async (
     const tokenMintAcc = new PublicKey(tokenMintAccountPubkey);
     const pdaTokenAcc = new PublicKey(pdaToken);
 
+    // finding a program address for the trove pda
+    let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("borrowertrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+
+    // finding a program address for the trove pda
+    let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+
     let payBorrowIx;
     let transferSolIx;
     try {
@@ -45,6 +57,7 @@ export const payBorrowUtil = async (
                 accounts: {
                     authority: wallet.publicKey,
                     trove: troveAccount,
+                    solTrove: solTroveAccountPDA,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     userToken: pdaTokenAcc,
                     tokenMint: tokenMintAcc,
@@ -52,20 +65,21 @@ export const payBorrowUtil = async (
             },
         );
 
-        // transferSolIx = escrowProgram.instruction.withdrawCoin(new anchor.BN(lamports),
-        //     {
-        //         accounts: {
-        //             authority: wallet.publicKey,
-        //             trove: troveAccount,
-        //             systemProgram: SystemProgram.programId
-        //         },
-        //     },
-        // );
+        transferSolIx = escrowProgram.instruction.withdrawCoin(new anchor.BN(lamports), new anchor.BN(bump_trove),
+            {
+                accounts: {
+                    authority: wallet.publicKey,
+                    trove: troveAccount,
+                    solTrove: solTroveAccountPDA,
+                    systemProgram: SystemProgram.programId
+                },
+            },
+        );
     } catch (err) {
         console.error(err, "Anchor error")
     }
 
-    const tx = new Transaction().add(payBorrowIx);
+    const tx = new Transaction().add(payBorrowIx, transferSolIx);
 
     // добавляем данне для возможност формирования подписи
     let { blockhash } = await connection.getRecentBlockhash();
@@ -75,7 +89,7 @@ export const payBorrowUtil = async (
     // to sign
     let signedTx = await wallet.signTransaction(tx);
     let txId = await connection.sendRawTransaction(signedTx.serialize());
-    await connection.confirmTransaction(txId);
+
 
     return {
         troveAccountPubkey: troveAccount.toBase58(),

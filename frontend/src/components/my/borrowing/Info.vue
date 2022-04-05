@@ -141,7 +141,9 @@
     > -->
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="(disputeDebt > 0 && getTroveAmount) || disputeDebt < 0"
+      v-if="
+        ((disputeDebt > 0 && getTroveAmount) || disputeDebt < 0) && getIsBorrow
+      "
     >
       <div
         class="w-100 pb-2-S pb-10-XS"
@@ -156,10 +158,18 @@
     </div>
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="CheckWalletBalance"
+      v-if="CheckWalletBalance && getIsBorrow"
     >
       <div class="w-100 pb-2-S pb-10-XS" v-if="CheckWalletBalance">
         You don't have enough GENS for this transaction.
+      </div>
+    </div>
+    <div
+      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      v-if="getCurrentRatio < 130 && this.repayCr && getIsBorrow"
+    >
+      <div class="w-100 pb-2-S pb-10-XS">
+        Warning! Collateral Ratio is below 130%. Trove is liquidated at 110%.
       </div>
     </div>
     <div
@@ -175,7 +185,7 @@
               class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
             >
               {{ getFee }}
-              <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
+              <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
             </div>
           </div>
         </div>
@@ -276,15 +286,26 @@ export default {
     to: { type: Number, default: null },
     from: { type: Number, default: null },
     repayTo: { type: Number, default: null },
-    // collateral: { type: Number, default: null }
+    repayCr: { type: Number, default: null },
   },
   watch: {
     repayTo: function (newVal, oldVal) {
       // watch the changes to repayTo for the collateral
       console.log("Prop changed: ", newVal, " | was: ", oldVal);
     },
+    repayCr: function (newVal, oldVal) {
+      console.log("Prop changed cr", newVal, "| was: ", oldVal);
+    },
   },
   computed: {
+    getCurrentRatio() {
+      console.log(this.repayCr, "info cr");
+      console.log(
+        this.$accessor.borrowing.currentCr,
+        "Getting the current cr from the utils"
+      );
+      return this.repayCr;
+    },
     getMaxRatio() {
       if (this.$accessor.lightMode) {
         return 110;
@@ -303,12 +324,22 @@ export default {
     },
     getFee() {
       let fee = this.to;
-      fee = fee ? (this.to * 0.5) / 100 : 0;
-      return fee != 0 && fee < 5 ? 5 : fee;
+      console.log(fee, "fee");
+      fee = fee ? (this.to * 1.47) / 100 / this.$accessor.usd : 0;
+      console.log(fee, "fee2");
+      return fee != 0 && fee < 5 ? 5 / this.$accessor.usd : fee;
     },
     getFeePay() {
       let fee = this.repayTo;
       fee = fee ? (this.repayTo * 0.5) / 100 : 0;
+      if (this.getIsBorrow) {
+        return 0;
+      }
+      let fee_trim = fee.toString().split(".");
+      if (fee_trim[1].length > 9) {
+        fee =
+          Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
+      }
       return fee != 0 && fee < 5 ? 5 : fee;
     },
     getDebt() {

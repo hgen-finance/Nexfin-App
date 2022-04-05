@@ -42,7 +42,15 @@ export const addBorrowUtil = async (
     );
     console.log(`bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`);
 
+
+
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
+
+    // finding a program address for the trove pda
+    let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
 
     // finding a program address for the trove pda
     let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
@@ -53,11 +61,12 @@ export const addBorrowUtil = async (
 
     const troveAccount = troveAccountPDA;
 
-    const transferIx = SystemProgram.transfer({
-        fromPubkey: wallet.publicKey,
-        toPubkey: troveAccount,
-        lamports: lamportAmount,
-    });
+    // TODO: move this to smart contract
+    // const transferIx = SystemProgram.transfer({
+    //     fromPubkey: wallet.publicKey,
+    //     toPubkey: troveAccount,
+    //     lamports: lamportAmount,
+    // });
 
     let mintPubkey = new PublicKey(TOKEN_GENS);
 
@@ -74,6 +83,7 @@ export const addBorrowUtil = async (
                 accounts: {
                     authority: wallet.publicKey,
                     trove: troveAccount,
+                    solTrove: solTroveAccountPDA,
                     tokenAuthority: pda_mint,
                     stableCoin: mintPubkey,
                     userToken: tokenADA,
@@ -89,7 +99,7 @@ export const addBorrowUtil = async (
     }
 
     // add instruction to the transaction
-    const tx = new Transaction().add(transferIx, addBorrowIx);
+    const tx = new Transaction().add(addBorrowIx);
 
     // add data for signature generation
     let { blockhash } = await connection.getRecentBlockhash();

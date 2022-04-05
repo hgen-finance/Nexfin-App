@@ -163,7 +163,7 @@
           />
           <span
             class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
-            @click="closeTroveFunc"
+            @click="setMaxGens"
             >Max</span
           >
         </div>
@@ -193,7 +193,7 @@
 
       <!-- for collateral ratio   -->
       <div
-        class="w-100 mt-4 mb-2 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        class="w-100 mt-4 mb-2 mcolor-500 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
         v-if="!getBorrowOrPay"
       >
         <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
@@ -206,6 +206,7 @@
             placeholder="0"
             v-model="collateralRatio"
             maxlength="12"
+            disabled
           />
           <span class="f-white-200 fs-6 fw-500">%</span>
         </div>
@@ -318,8 +319,9 @@ export default {
 
     collateralRatio: {
       get: function () {
+        let result;
         if (this.$accessor.borrowing.trove.amountToClose > 0) {
-          return getCollateral(
+          result = getCollateral(
             (
               this.$accessor.borrowing.trove.amountToClose - this.repayTo
             ).toString(),
@@ -330,22 +332,13 @@ export default {
             parseInt(this.$accessor.usd).toString()
           );
         } else {
-          return 0;
+          result = 0;
         }
+        this.repayCr = result;
+        console.log("repay cr in get | ", this.repayCr);
+        return result;
       },
-      set: function (newVal) {
-        this.repayTo = new BN(
-          (
-            this.$accessor.borrowing.trove.lamports -
-            this.repaySol * 1000000000
-          ).toString()
-        )
-          .div(new BN("10000000"))
-          .mul(new BN(parseInt(this.$accessor.usd).toString()))
-          .div(new BN(newVal.toString()))
-          .toNumber();
-        console.log(this.repayTo, "new value for repay");
-      },
+      set: function (newVal) {},
     },
   },
   watch: {
@@ -374,15 +367,31 @@ export default {
     },
     repayTo(val) {
       console.log("checking the changes");
+      console.log(val, "check the repayTo val");
       this.$emit("repay", this.repayTo);
       this.$accessor.borrowing.closeBorrowAmount({ repayTo: val });
     },
-    repaySol() {
+    repaySol(val) {
+      //   this.$emit("repaySol", this.repaySol);
       this.$emit("repaySol", this.repaySol);
+
       console.log(this.repaySol);
+    },
+    repayCr(val) {
+      console.log(val, "my repaycr is");
+      this.$emit("cr", this.repayCr);
+      this.$accessor.borrowing.currentCollateralRatio(val);
     },
   },
   methods: {
+    setMaxGens() {
+      let user_gens_balance = this.getGensBalance; // gens balance in the wallet
+      if (user_gens_balance < this.getDebt) {
+        this.repayTo = user_gens_balance;
+      } else {
+        this.repayTo = this.getDebt;
+      }
+    },
     setMax() {
       this.from = this.$accessor.wallet.balance
         ? this.$accessor.wallet.balance - 1
@@ -423,7 +432,12 @@ export default {
     },
     payTroveFunc() {
       console.log(this.collateralRatio, "repay cr");
-      if (this.getGensBalance >= this.repayTo) {
+      console.log(this.repaySol, "repay sol");
+      if (
+        this.getGensBalance >= this.repayTo &&
+        this.collateralRatio > 109 &&
+        this.repayTo > 0
+      ) {
         this.$accessor.borrowing.payTrove({
           mint: "EdvHEGQ2sqC4ZofLpj2xE5BQefgewWFY5nHe9aMcReC1",
           amount: this.repayTo,

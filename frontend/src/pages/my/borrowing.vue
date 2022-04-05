@@ -9,6 +9,7 @@
           @gens="to = $event"
           @sol="from = $event"
           @repay="repayTo = $event"
+          @cr="repayCr = $event"
         />
       </div>
       <div class="w-25-S w-100-XS pt-30-XS">
@@ -16,6 +17,7 @@
           :to="Number(to)"
           :from="Number(from)"
           :repayTo="Number(repayTo)"
+          :repayCr="Number(repayCr)"
         />
       </div>
     </div>
@@ -51,6 +53,7 @@ export default {
       to: null,
       from: null,
       repayTo: null,
+      repayCr: null,
     };
   },
 };

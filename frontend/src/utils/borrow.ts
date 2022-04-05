@@ -56,6 +56,13 @@ export const borrowUtil = async (
         escrowProgramId
     );
 
+    // finding a program address for the trove pda
+    let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+
+
     // finding a program address for the fee pda
     let [feeAccountPDA, bump_fee] = await PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode("fee")],
@@ -99,11 +106,12 @@ export const borrowUtil = async (
 
     let borrowIx;
     try {
-        borrowIx = escrowProgram.instruction.borrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_trove), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
+        borrowIx = escrowProgram.instruction.borrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_trove), new anchor.BN(bump_sol_trove), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
             {
                 accounts: {
                     authority: wallet.publicKey,
                     troveAccount,
+                    solTrove: solTroveAccountPDA,
                     feeAccount: feeAccountPDA,
                     teamFeeAccount: teamFeeAccountPDA,
                     tokenAuthority: pda_mint,
