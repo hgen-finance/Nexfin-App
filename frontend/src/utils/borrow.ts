@@ -56,6 +56,13 @@ export const borrowUtil = async (
         escrowProgramId
     );
 
+    // finding a program address for the trove pda
+    let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+
+
     // finding a program address for the fee pda
     let [feeAccountPDA, bump_fee] = await PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode("fee")],
@@ -80,23 +87,36 @@ export const borrowUtil = async (
     // create a ATA account if the wallet user doesnt have one
     let ata;
     if (tokenATA != "") {
-        ata = tokenATA;
+        ata = new PublicKey(tokenATA);
     }
 
     console.log(tokenATA, "|", ata);
 
+    if (tokenATA == "") {
+        // Only create tx if the account wasnt present
+        // calculate ATA
+        ata = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            mintPubkey, // mint
+            wallet.publicKey // owner
+        );
+    }
+    console.log(`ATA: ${ata.toBase58()}`);
+
     let borrowIx;
     try {
-        borrowIx = escrowProgram.instruction.borrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_trove), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
+        borrowIx = escrowProgram.instruction.borrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_trove), new anchor.BN(bump_sol_trove), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
             {
                 accounts: {
                     authority: wallet.publicKey,
                     troveAccount,
+                    solTrove: solTroveAccountPDA,
                     feeAccount: feeAccountPDA,
                     teamFeeAccount: teamFeeAccountPDA,
                     tokenAuthority: pda_mint,
                     stableCoin: mintPubkey,
-                    userToken: tokenATA,
+                    userToken: ata,
                     pythSolAccount: PYTH_SOL_USD_PUBKEY,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
@@ -113,16 +133,6 @@ export const borrowUtil = async (
     // добавялем инструкции в транзакцию (add instruction to the transaction)
     let tx = new Transaction();
     if (tokenATA == "") {
-        // Only create tx if the account wasnt present
-        // calculate ATA
-        ata = await Token.getAssociatedTokenAddress(
-            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-            mintPubkey, // mint
-            wallet.publicKey // owner
-        );
-
-        console.log(`ATA: ${ata.toBase58()}`);
 
         const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
             ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
@@ -137,6 +147,8 @@ export const borrowUtil = async (
     } else {
         tx = tx.add(borrowIx);
     }
+
+    console.log(tx, "tx");
 
 
 

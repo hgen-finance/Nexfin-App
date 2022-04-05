@@ -176,6 +176,9 @@ export const getCollateral = (gens: string, lamports: string, usd: string) => {
     return result;
 };
 
+// cr = lamport/1000000000 * usd / gens
+// gens = lamport / 100000000
+
 // 4Xjce6j7YAR9Rz1321oWJndxDWkh3vemUzzwT3XPW3yC token swap account 
 // instrument.js?ea14:109 Uint8Array(64) [71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43, buffer: ArrayBuffer(64), byteLength: 64, byteOffset: 0, length: 64, Symbol(Symbol.toStringTag): 'Uint8Array'] 'token swap account secret key'
 // instrument.js?ea14:109 AiaMQPdxqxjNvJm4MAW3yAjp3kJRqyrE9gUrRgRAPXu4 pda Authority pubkey

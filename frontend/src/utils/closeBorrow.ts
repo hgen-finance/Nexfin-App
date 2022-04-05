@@ -37,17 +37,24 @@ export const closeBorrowUtil = async (
     const tokenMintAcc = new PublicKey(tokenMintAccountPubkey);
     const pdaTokenAcc = new PublicKey(pdaToken);
 
+    // finding a program address for the trove pda
+    let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
+        escrowProgramId
+    );
+
+
     let closeBorrowIx;
     try {
-        closeBorrowIx = escrowProgram.instruction.closeTrove(
+        closeBorrowIx = escrowProgram.instruction.closeTrove(new anchor.BN(bump_sol_trove),
             {
                 accounts: {
                     authority: wallet.publicKey,
                     trove: troveAccount,
+                    solTrove: solTroveAccountPDA,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     userToken: pdaTokenAcc,
                     tokenMint: tokenMintAcc,
-
                 },
             },
         );

@@ -25,6 +25,7 @@
     "http-errors": "^1.8.0",
     "mongoose": "^6.0.14",
     "node": "^16.6.1",
-    "nodemailer": "^6.6.3"
+    "nodemailer": "^6.6.3",
+    "@project-serum/serum": "^0.13.57"
   }
 }

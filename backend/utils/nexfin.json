@@ -16,11 +16,6 @@
             "isSigner": false
           },
           {
-            "name": "solTrove",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
             "name": "feeAccount",
             "isMut": true,
             "isSigner": false
@@ -80,10 +75,6 @@
             "type": "u8"
           },
           {
-            "name": "solAccountBump",
-            "type": "u8"
-          },
-          {
             "name": "mintAccountBump",
             "type": "u8"
           },
@@ -107,11 +98,6 @@
           },
           {
             "name": "trove",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
-            "name": "solTrove",
             "isMut": true,
             "isSigner": false
           },
@@ -180,11 +166,6 @@
             "isSigner": false
           },
           {
-            "name": "solTrove",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
             "name": "tokenProgram",
             "isMut": false,
             "isSigner": false
@@ -200,12 +181,7 @@
             "isSigner": false
           }
         ],
-        "args": [
-          {
-            "name": "solAccountBump",
-            "type": "u8"
-          }
-        ]
+        "args": []
       },
       {
         "name": "liquidateTrove",
@@ -242,11 +218,6 @@
             "isSigner": false
           },
           {
-            "name": "solTrove",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
             "name": "systemProgram",
             "isMut": false,
             "isSigner": false
@@ -256,10 +227,6 @@
           {
             "name": "amount",
             "type": "u64"
-          },
-          {
-            "name": "troveBump",
-            "type": "u8"
           }
         ]
       },
@@ -407,10 +374,6 @@
           {
             "name": "mintAccountBump",
             "type": "u8"
-          },
-          {
-            "name": "depositAccountBump",
-            "type": "u8"
           }
         ]
       },
@@ -484,11 +447,6 @@
           },
           {
             "name": "trove",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
-            "name": "solTrove",
             "isMut": true,
             "isSigner": false
           },
@@ -721,10 +679,6 @@
           "fields": [
             {
               "name": "bump",
-              "type": "u8"
-            },
-            {
-              "name": "solBump",
               "type": "u8"
             },
             {

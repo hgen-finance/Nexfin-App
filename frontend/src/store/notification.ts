@@ -10,7 +10,7 @@ import {
 export type Notificationtx = {
     txId?: string;
     id?: number;
-    type: "error" | "success" | "confirm";
+    type: "fail" | "success" | "confirm";
     title: string;
     description?: string;
     show: boolean;

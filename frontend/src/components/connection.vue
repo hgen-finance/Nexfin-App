@@ -29,12 +29,25 @@ export default {
   computed: {},
   watch: {},
   methods: {
-    addSol() {
+    async addSol() {
       try {
         console.log("Adding SOL....");
-        this.$accessor.faucet.addSol();
+        await this.$accessor.faucet.addSol();
+        this.$accessor.notification.notify({
+          title: "Transaction Completed",
+          description: "2 sol is added to the account.",
+          type: "confirm",
+          txId: "",
+        });
       } catch (err) {
-        console.error(err, "Failed to add SOl");
+        this.$accessor.notification.notify({
+          title: "Transaction failed",
+          description: err,
+          type: "confirm",
+          txId: "",
+        });
+        console.error(err, "my error");
+        // pass wait transaction notification
       }
     },
   },

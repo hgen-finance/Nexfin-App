@@ -162,12 +162,64 @@
             maxlength="12"
           />
           <span
-            class="fs-6-S fs-20-XS f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
-            @click="closeTroveFunc"
-            >Close Borrow</span
+            class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
+            @click="setMaxGens"
+            >Max</span
           >
         </div>
       </div>
+
+      <!-- for sol -->
+      <div
+        class="w-100 mt-4 mb-4 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        v-if="!getBorrowOrPay"
+      >
+        <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
+          Amount you want to receive in SOL
+        </div>
+        <div class="w-100 fd-r ai-c">
+          <span class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
+            >SOL</span
+          >
+          <input
+            type="text"
+            class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
+            placeholder="0"
+            v-model="repaySol"
+            maxlength="12"
+          />
+        </div>
+      </div>
+
+      <!-- for collateral ratio   -->
+      <div
+        class="w-100 mt-4 mb-2 mcolor-500 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        v-if="!getBorrowOrPay"
+      >
+        <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
+          Collateral Ratio
+        </div>
+        <div class="w-100 fd-r ai-c">
+          <input
+            type="text"
+            class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
+            placeholder="0"
+            v-model="collateralRatio"
+            maxlength="12"
+            disabled
+          />
+          <span class="f-white-200 fs-6 fw-500">%</span>
+        </div>
+      </div>
+
+      <div class="w-100 mb-3-S d-f jc-r" v-if="!getBorrowOrPay">
+        <span
+          class="fs-5-S fw-500 fs-20-XS f-mcolor-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3-S px-5-XS py-2-S py-5-XS rad-fix-3"
+          @click="closeTroveFunc"
+          >Close Borrow</span
+        >
+      </div>
+
       <div class="w-100 fd-r-S fd-c-XS mt-0-S mt-15-XS" v-if="!getBorrowOrPay">
         <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
           <AmButton
@@ -214,6 +266,8 @@ export default {
       from: null,
       to: null,
       repayTo: null, // this.$accessor.borrowing.trove.amountToClose, // TO DO change this later
+      repaySol: null,
+      repayCr: null,
       mint: "",
       borrow: 0,
       depositAmount: 0,
@@ -262,6 +316,30 @@ export default {
     getTotalNotifications() {
       return this.$accessor.notification.totalNotificaitons;
     },
+
+    collateralRatio: {
+      get: function () {
+        let result;
+        if (this.$accessor.borrowing.trove.amountToClose > 0) {
+          result = getCollateral(
+            (
+              this.$accessor.borrowing.trove.amountToClose - this.repayTo
+            ).toString(),
+            (
+              this.$accessor.borrowing.trove.lamports -
+              this.repaySol * 1000000000
+            ).toString(),
+            parseInt(this.$accessor.usd).toString()
+          );
+        } else {
+          result = 0;
+        }
+        this.repayCr = result;
+        console.log("repay cr in get | ", this.repayCr);
+        return result;
+      },
+      set: function (newVal) {},
+    },
   },
   watch: {
     from(val) {
@@ -289,11 +367,31 @@ export default {
     },
     repayTo(val) {
       console.log("checking the changes");
+      console.log(val, "check the repayTo val");
       this.$emit("repay", this.repayTo);
       this.$accessor.borrowing.closeBorrowAmount({ repayTo: val });
     },
+    repaySol(val) {
+      //   this.$emit("repaySol", this.repaySol);
+      this.$emit("repaySol", this.repaySol);
+
+      console.log(this.repaySol);
+    },
+    repayCr(val) {
+      console.log(val, "my repaycr is");
+      this.$emit("cr", this.repayCr);
+      this.$accessor.borrowing.currentCollateralRatio(val);
+    },
   },
   methods: {
+    setMaxGens() {
+      let user_gens_balance = this.getGensBalance; // gens balance in the wallet
+      if (user_gens_balance < this.getDebt) {
+        this.repayTo = user_gens_balance;
+      } else {
+        this.repayTo = this.getDebt;
+      }
+    },
     setMax() {
       this.from = this.$accessor.wallet.balance
         ? this.$accessor.wallet.balance - 1
@@ -333,10 +431,17 @@ export default {
       }
     },
     payTroveFunc() {
-      if (this.getGensBalance >= this.repayTo) {
+      console.log(this.collateralRatio, "repay cr");
+      console.log(this.repaySol, "repay sol");
+      if (
+        this.getGensBalance >= this.repayTo &&
+        this.collateralRatio > 109 &&
+        this.repayTo > 0
+      ) {
         this.$accessor.borrowing.payTrove({
           mint: "EdvHEGQ2sqC4ZofLpj2xE5BQefgewWFY5nHe9aMcReC1",
           amount: this.repayTo,
+          lamports: this.repaySol * 1000000000,
         });
       }
     },

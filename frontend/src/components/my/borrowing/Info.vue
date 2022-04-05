@@ -163,24 +163,32 @@
       </div>
     </div>
     <div
+      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      v-if="getCurrentRatio < 130 && this.repayCr"
+    >
+      <div class="w-100 pb-2-S pb-10-XS">
+        Warning! Collateral Ratio is below 130%. Trove is liquidated at 110%.
+      </div>
+    </div>
+    <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
     >
       <div class="w-100 fd-r">
         <div class="w-100-S w-100-XS">
           <div class="w-100 fd-r py-2-S py-10-XS">
             <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-              Fee Borrow (<span class="f-white-200 fw-600">0.5 %</span>)
+              Fee Borrow (<span class="f-white-200 fw-600">1.47 %</span>)
             </div>
             <div
               class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
             >
               {{ getFee }}
-              <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
+              <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="w-100 fd-r">
+      <!-- <div class="w-100 fd-r">
         <div class="w-100-S w-100-XS">
           <div class="w-100 fd-r py-2-S py-10-XS">
             <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
@@ -194,7 +202,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="w-100">
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
@@ -276,15 +284,26 @@ export default {
     to: { type: Number, default: null },
     from: { type: Number, default: null },
     repayTo: { type: Number, default: null },
-    // collateral: { type: Number, default: null }
+    repayCr: { type: Number, default: null },
   },
   watch: {
     repayTo: function (newVal, oldVal) {
       // watch the changes to repayTo for the collateral
       console.log("Prop changed: ", newVal, " | was: ", oldVal);
     },
+    repayCr: function (newVal, oldVal) {
+      console.log("Prop changed cr", newVal, "| was: ", oldVal);
+    },
   },
   computed: {
+    getCurrentRatio() {
+      console.log(this.repayCr, "info cr");
+      console.log(
+        this.$accessor.borrowing.currentCr,
+        "Getting the current cr from the utils"
+      );
+      return this.repayCr;
+    },
     getMaxRatio() {
       if (this.$accessor.lightMode) {
         return 110;
@@ -303,13 +322,18 @@ export default {
     },
     getFee() {
       let fee = this.to;
-      fee = fee ? (this.to * 0.5) / 100 : 0;
-      return fee != 0 && fee < 5 ? 5 : fee;
-    },
-    getFeePay() {
-      let fee = this.repayTo;
-      fee = fee ? (this.repayTo * 0.5) / 100 : 0;
-      return fee != 0 && fee < 5 ? 5 : fee;
+      console.log(fee, "fee");
+      fee = fee ? (this.to * 1.47) / 100 / 135 : 0;
+      if (this.getIsBorrow) {
+        return 0;
+      }
+      fee = fee < 5 ? 5 / this.$accessor.usd : fee;
+      let fee_trim = fee.toString().split(".");
+      if (fee_trim.length > 1 && fee_trim[1].length > 9) {
+        fee =
+          Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
+      }
+      return fee;
     },
     getDebt() {
       //   let currentColl = this.$accessor.borrowing.debt || 0;
@@ -343,7 +367,7 @@ export default {
       return totalColl;
     },
     getCurrentDebt() {
-      return Number(this.getFee) + Number(this.to) || 0;
+      return Number(this.to) || 0;
     },
     getIsBorrow() {
       return this.$accessor.borrowing.troveId;
