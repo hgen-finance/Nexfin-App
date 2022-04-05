@@ -32,8 +32,21 @@ export default {
     addSol() {
       try {
         console.log("Adding SOL....");
+        this.$accessor.notification.notify({
+          title: "Transaction Completed",
+          description: "2 sol is added to the account.",
+          type: "confirm",
+          txId: "",
+        });
         this.$accessor.faucet.addSol();
       } catch (err) {
+        // pass wait transaction notification
+        this.$accessor.notification.notify({
+          title: "Transaction failed",
+          description: "Too many request. JSON Rpc failed",
+          type: "error",
+          txId: "",
+        });
         console.error(err, "Failed to add SOl");
       }
     },

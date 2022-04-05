@@ -326,22 +326,23 @@ export default {
       let fee = this.to;
       console.log(fee, "fee");
       fee = fee ? (this.to * 1.47) / 100 / this.$accessor.usd : 0;
-      console.log(fee, "fee2");
-      return fee != 0 && fee < 5 ? 5 / this.$accessor.usd : fee;
-    },
-    getFeePay() {
-      let fee = this.repayTo;
-      fee = fee ? (this.repayTo * 0.5) / 100 : 0;
       if (this.getIsBorrow) {
         return 0;
       }
       let fee_trim = fee.toString().split(".");
-      if (fee_trim[1].length > 9) {
+      if (fee_trim[1].length > 9 && fee_trim.length > 1) {
         fee =
           Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
       }
-      return fee != 0 && fee < 5 ? 5 : fee;
+      return fee != 0 && fee < 5 ? 5 / this.$accessor.usd : fee;
     },
+    // getFeePay() {
+    //   let fee = this.repayTo;
+    //   fee = fee ? (this.repayTo * 0.5) / 100 : 0;
+
+    //   console.log("the new fee is", fee);
+    //   return fee != 0 && fee < 5 ? 5 : fee;
+    // },
     getDebt() {
       //   let currentColl = this.$accessor.borrowing.debt || 0;
       //   let prevColl = Number(this.getRatio);
@@ -374,7 +375,7 @@ export default {
       return totalColl;
     },
     getCurrentDebt() {
-      return Number(this.getFee) + Number(this.to) || 0;
+      return Number(this.to) || 0;
     },
     getIsBorrow() {
       return this.$accessor.borrowing.troveId;
