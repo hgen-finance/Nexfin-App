@@ -1,8 +1,6 @@
 // Import Typed
 import { PublicKey } from "@solana/web3.js";
 import {
-    DEPOSIT_ACCOUNT_DATA_LAYOUT,
-    DepositLayout,
     TOKEN_GENS,
     TOKEN_HGEN,
     CLUSTER
@@ -13,7 +11,7 @@ import { getterTree, mutationTree, actionTree } from "typed-vuex";
 import { depositUtil } from "@/utils/deposit";
 import { addDepositUtil } from "@/utils/addDeposit";
 import { withdrawUtil } from "@/utils/withdraw";
-import BN from "bn.js";
+import { claimRewardUtil } from "@/utils/claimDepositReward";
 
 // anchor
 import { setup } from "@/utils/anchor";
@@ -76,29 +74,33 @@ export const actions = actionTree(
         // Get Deposit
         async getDeposit({ state, commit }, value) {
             if (this.$wallet) {
-                await this.$axios
-                    .get("/api/deposit?user=" + this.$wallet.publicKey.toBase58())
-                    .then(async ({ data }) => {
-                        if (data.model) {
-                            commit("setDepositKey", data.model || "");
+                try {
+                    await this.$axios
+                        .get("/api/deposit?user=" + this.$wallet.publicKey.toBase58())
+                        .then(async ({ data }) => {
+                            if (data.model) {
+                                commit("setDepositKey", data.model || "");
 
-                            let program = await setup(this.$web3, this.$wallet)
-                            let result;
-                            try {
-                                result = (await program.account.deposit.fetch(new PublicKey(data.model.deposit)));
-                                console.log(result, "result");
-                            } catch (err) {
-                                console.error(err)
+                                let program = await setup(this.$web3, this.$wallet)
+                                let result;
+                                try {
+                                    result = (await program.account.deposit.fetch(new PublicKey(data.model.deposit)));
+                                    console.log(result, "result");
+                                } catch (err) {
+                                    console.error(err)
+                                }
+
+                                commit("setGens", result.bank);
+                                commit("setHgen", result.governanceBank);
+                                commit("setRewardGensAmount", result.rewardTokenAmount);
+                                commit("setRewardHgenAmount", result.rewardGovernanceTokenAmount);
+                                commit("setDepositAmount", result.tokenAmount);
+                                commit("setRewardCoinAmount", result.rewardCoinAmount);
                             }
-
-                            commit("setGens", result.bank);
-                            commit("setHgen", result.governanceBank);
-                            commit("setRewardGensAmount", result.rewardTokenAmount);
-                            commit("setRewardHgenAmount", result.rewardGovernanceTokenAmount);
-                            commit("setDepositAmount", result.tokenAmount);
-                            commit("setRewardCoinAmount", result.rewardCoinAmount);
-                        }
-                    });
+                        });
+                } catch (err) {
+                    console.error(err, "Getting Deposit data error");
+                }
             }
         },
 
@@ -119,6 +121,7 @@ export const actions = actionTree(
                 { mint: (TOKEN_HGEN) }
             );
             let gov_addr = HGEN.value[0] ? HGEN.value[0].pubkey.toBase58() : "";
+
             if (value && Number(value.from) > 0) {
                 if (!state.depositKey.deposit) {
                     commit("setLoading", true);
@@ -220,6 +223,13 @@ export const actions = actionTree(
                 { mint: new PublicKey(TOKEN_GENS) }
             );
             let burn_addr = GENS.value[0].pubkey.toBase58();
+
+            let HGEN = await this.$web3.getParsedTokenAccountsByOwner(
+                this.$wallet.publicKey,
+                { mint: (TOKEN_HGEN) }
+            );
+            let gov_addr = HGEN.value[0] ? HGEN.value[0].pubkey.toBase58() : "";
+
             if (value && Number(value.from) > 0) {
                 if (state.depositKey.deposit) {
                     commit("setLoading", true);
@@ -230,7 +240,7 @@ export const actions = actionTree(
                             TOKEN_GENS.toBase58(),
                             Number(value.from),
                             burn_addr,
-                            "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv",
+                            gov_addr,
                             this.$web3,
                             program
                         );
@@ -309,7 +319,7 @@ export const actions = actionTree(
                 { mint: new PublicKey(TOKEN_GENS) }
             );
             let mint_acc_addr = GENS.value[0].pubkey.toBase58();
-            console.log(mint_acc_addr, "mint acc addr");
+
             if (
                 value &&
                 Number(value) > 0 &&
@@ -348,6 +358,16 @@ export const actions = actionTree(
                             )}`
                         );
 
+                        // handling the transaciton in the borrow
+                        await this.$web3.confirmTransaction(data.txId).then(
+                            (res) => {
+                                console.log(res, `res`);
+                            },
+                            (err) => {
+                                console.error(err.message, "Err");
+                            }
+                        );
+
                         this.$accessor.wallet.getBalance();
                         this.$accessor.wallet.getGENSBalance();
                         dispatch("getDeposit")
@@ -358,6 +378,62 @@ export const actions = actionTree(
                         commit("setLoading", false);
                     }
                 }
+            }
+        },
+        // claim deposit rewards
+        async claimDepositReward({ state, dispatch }, value) {
+            console.log("Starting claim")
+            // setting anchor program
+            let program = await setup(this.$web3, this.$wallet)
+
+            let GENS = await this.$web3.getParsedTokenAccountsByOwner(
+                this.$wallet.publicKey,
+                { mint: new PublicKey(TOKEN_GENS) }
+            );
+            let mint_acc_addr = GENS.value[0].pubkey.toBase58();
+
+            let HGEN = await this.$web3.getParsedTokenAccountsByOwner(
+                this.$wallet.publicKey,
+                { mint: (TOKEN_HGEN) }
+            );
+            let gov_addr = HGEN.value[0] ? HGEN.value[0].pubkey.toBase58() : "";
+
+            try {
+                console.log("claiming rewards...")
+                let data = await claimRewardUtil(
+                    this.$wallet,
+                    state.depositKey.deposit,
+                    TOKEN_GENS,
+                    mint_acc_addr,
+                    gov_addr,
+                    this.$web3,
+                    program
+                )
+                console.log(
+                    `https://explorer.solana.com/tx/${data.txId}?cluster=${CLUSTER}`,
+                    "transaction id "
+                );
+                console.log(
+                    `${data.txId.substring(0, 14)}...${data.txId.substring(
+                        data.txId.length - 14
+                    )}`
+                );
+
+                // handling the transaciton in the borrow
+                await this.$web3.confirmTransaction(data.txId).then(
+                    (res) => {
+                        console.log(res, `res`);
+                    },
+                    (err) => {
+                        console.error(err.message, "Err");
+                    }
+                );
+
+                this.$accessor.wallet.getBalance();
+                this.$accessor.wallet.getGENSBalance();
+                dispatch("getDeposit")
+            } catch (err) {
+                console.error(err)
             }
         },
 

@@ -37,7 +37,7 @@ export const depositUtil = async (
     connection: Connection,
     escrowProgram: any,
 ) => {
-
+    console.log(anchor, "anchor")
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
     const tokenMintAcc = new PublicKey(tokenMintAccountPubkey);
     const pdaTokenAcc = new PublicKey(pdaToken);

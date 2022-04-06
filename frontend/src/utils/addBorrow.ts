@@ -1,23 +1,16 @@
 import {
-    Account,
     PublicKey,
     SYSVAR_RENT_PUBKEY,
     Transaction,
     Connection,
 } from "@solana/web3.js";
-import BN from "bn.js";
 
 import {
-    TroveLayout,
-    TROVE_ACCOUNT_DATA_LAYOUT,
     EscrowProgramIdString,
-    CHAINLINK_SOL_USD_PUBKEY,
-    TOKEN_GENS_ACC,
-    SYS_ACCOUNT,
     TOKEN_GENS,
     PYTH_SOL_USD_PUBKEY
 } from "./layout";
-import { TOKEN_PROGRAM_ID, Token, AuthorityType } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import Wallet from "@project-serum/sol-wallet-adapter";
 
 // anchor
@@ -40,19 +33,18 @@ export const addBorrowUtil = async (
         [anchor.utils.bytes.utf8.encode("mint-authority")],
         new PublicKey(EscrowProgramIdString)
     );
-    console.log(`bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`);
-
-
 
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
 
     // finding a program address for the trove pda
+    // TODO pass the sol trove bump to the smartcontract for validation
     let [solTroveAccountPDA, bump_sol_trove] = await PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode("solTrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
         escrowProgramId
     );
 
     // finding a program address for the trove pda
+    // TODO: pass the bump_trove to the smart contract for validation
     let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
         [anchor.utils.bytes.utf8.encode("borrowertrove"), anchor.getProvider().wallet.publicKey.toBuffer()],
         escrowProgramId
@@ -60,13 +52,6 @@ export const addBorrowUtil = async (
     console.log(`trove_bump: ${bump_mint}, pubkey: ${pda_mint.toBase58()}`)
 
     const troveAccount = troveAccountPDA;
-
-    // TODO: move this to smart contract
-    // const transferIx = SystemProgram.transfer({
-    //     fromPubkey: wallet.publicKey,
-    //     toPubkey: troveAccount,
-    //     lamports: lamportAmount,
-    // });
 
     let mintPubkey = new PublicKey(TOKEN_GENS);
 
@@ -109,7 +94,6 @@ export const addBorrowUtil = async (
     // to sign
     let signedTx = await wallet.signTransaction(tx);
 
-    //   signedTx.partialSign(troveAccount)
     let txId = await connection.sendRawTransaction(signedTx.serialize());
 
     return {

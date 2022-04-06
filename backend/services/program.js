@@ -6,7 +6,7 @@ const { BN } = require('bn.js')
 const { promisifyExec } = require("../utils/process")
 const { bs58 } = require('bs58')
 
-const { anchor } = require("@project-serum/anchor");
+const anchor = require("@project-serum/anchor");
 
 const setTroveReceived = async ({ trove }) => {
     const initializerAccount = sysAccount
@@ -138,25 +138,24 @@ const claimDepositReward = async ({ deposit }) => {
     return getDeposit({ deposit })
 }
 
+//TODO add the sys account as singer later when we have add private rpc pool
 const createAddRewardIx = async ({ deposit, coin, governance, token }) => {
+    // setting anchor program
+    let program = await setup(connection)
+
     const initializerAccount = sysAccount
 
-    const depositAccount = new PublicKey(deposit)
-    const escrowProgramId = new PublicKey(programId)
-
-    return new TransactionInstruction({
-        programId: escrowProgramId,
-        keys: [
-            { pubkey: initializerAccount.publicKey, isSigner: true, isWritable: false },
-            { pubkey: depositAccount, isSigner: false, isWritable: true },
-        ],
-        data: Buffer.from(
-            Uint8Array.of(10,
-                ...new BN(coin).toArray('le', 8),
-                ...new BN(governance).toArray('le', 8),
-                ...new BN(token).toArray('le', 8),
-            ))
-    })
+    let tx;
+    try {
+        tx = new TransactionInstruction(program.instruction.addDepositReward(new anchor.BN(coin), new anchor.BN(governance), new anchor.BN(token), {
+            accounts: {
+                deposit: new PublicKey(deposit),
+            }
+        }));
+    } catch (err) {
+        console.error(err)
+    }
+    return tx;
 }
 
 const runAddRewardTransaction = async ({ instructions }) => {

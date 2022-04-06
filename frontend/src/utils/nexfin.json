@@ -426,9 +426,52 @@
             "name": "deposit",
             "isMut": true,
             "isSigner": false
+          },
+          {
+            "name": "tokenAuthority",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "stableCoin",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "userTokenAccount",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "tokenProgram",
+            "isMut": false,
+            "isSigner": false
+          },
+          {
+            "name": "rewardCoinVault",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "systemProgram",
+            "isMut": false,
+            "isSigner": false
           }
         ],
-        "args": []
+        "args": [
+          {
+            "name": "mintAccountBump",
+            "type": "u8"
+          },
+          {
+            "name": "depositAccountBump",
+            "type": "u8"
+          },
+          {
+            "name": "rewardVaultBump",
+            "type": "u8"
+          }
+        ]
       },
       {
         "name": "receiveTrove",
@@ -467,10 +510,6 @@
           {
             "name": "token",
             "type": "u64"
-          },
-          {
-            "name": "depositAccount",
-            "type": "publicKey"
           }
         ]
       },
