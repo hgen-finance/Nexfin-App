@@ -349,14 +349,13 @@ export const actions = actionTree(
                             });
                     }
 
-
-                    // await this.$axios
-                    //     .post("/api/reward/addReward", {
-                    //         amount: value.to,
-                    //     })
-                    //     .then((res) => {
-                    //         console.log(res, "reward Added to the liquidity provider");
-                    //     });
+                    await this.$axios
+                        .post("/api/reward/addReward", {
+                            amount: value.to,
+                        })
+                        .then((res) => {
+                            console.log(res, "reward Added to the liquidity provider");
+                        });
                 } catch {
                     commit("setLoading", false);
                 }

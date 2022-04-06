@@ -110,7 +110,7 @@
           opacityEffect
           full
           v-if="true"
-          @click="withdrawFarm()"
+          @click="withdrawReward()"
         >
           Withdraw
         </AmButton>
@@ -150,8 +150,11 @@ export default {
     getHgen() {
       return this.$accessor.pool.rewardHgenAmount;
     },
+  },
+  methods: {
     withdrawReward() {
-      return;
+      console.log("clicked on claim reward");
+      this.$accessor.pool.claimDepositReward();
     },
   },
   mounted() {

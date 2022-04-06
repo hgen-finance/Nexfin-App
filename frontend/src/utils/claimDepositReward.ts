@@ -1,16 +1,10 @@
-import { Token, TOKEN_PROGRAM_ID, AuthorityType } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
-    Account,
     Connection,
     PublicKey,
-    SYSVAR_RENT_PUBKEY,
     Transaction,
-    TransactionInstruction,
 } from "@solana/web3.js";
-import BN from "bn.js";
 import {
-    DEPOSIT_ACCOUNT_DATA_LAYOUT,
-    DepositLayout,
     EscrowProgramIdString,
 } from "./layout";
 import Wallet from "@project-serum/sol-wallet-adapter";
@@ -19,25 +13,20 @@ import Wallet from "@project-serum/sol-wallet-adapter";
 const anchor = require("@project-serum/anchor");
 const { SystemProgram } = anchor.web3;
 
-export const addDepositUtil = async (
+export const claimRewardUtil = async (
     wallet: Wallet,
     depositId: string,
-    // Адрес токена GENS
-    tokenMintAccountPubkey: string,
-    tokenAmount: number,
-    // Адрес кошелька токена пользователя GENS
+    tokenMintAccountPubkey: PublicKey,
     pdaToken: string,
-    // Адрес кошелька токена пользователя HGEN
     governanceToken: string,
     connection: Connection,
     escrowProgram
 ) => {
     const depositAccount = new PublicKey(depositId);
     const escrowProgramId = new PublicKey(EscrowProgramIdString);
-    const tokenMintAcc = new PublicKey(tokenMintAccountPubkey);
+    const tokenMintAcc = tokenMintAccountPubkey;
     const pdaTokenAcc = new PublicKey(pdaToken);
     const governanceTokenAcc = new PublicKey(governanceToken);
-
 
     // setup pda for deposit account
     const [_, deposit_account_bump] = await PublicKey.findProgramAddress(
@@ -45,19 +34,34 @@ export const addDepositUtil = async (
         escrowProgramId
     );
 
-    let addDepositIx;
+    //setup for mint authroity account
+    const [pda_mint, mint_account_bump] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("mint-authority")],
+        new PublicKey(EscrowProgramIdString)
+    );
+
+    //setup for mint authroity account
+    const [reward_vault_pda, reward_vault_bump] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("rewardVault")],
+        new PublicKey(EscrowProgramIdString)
+    );
+
+
+    let claimDepositRewardIx;
     try {
-        addDepositIx = escrowProgram.instruction.addDeposit(new anchor.BN(tokenAmount), new anchor.BN(deposit_account_bump),
+        claimDepositRewardIx = escrowProgram.instruction.claimDepositReward(new anchor.BN(mint_account_bump), new anchor.BN(deposit_account_bump), new anchor.BN(reward_vault_bump),
             {
                 accounts: {
                     authority: wallet.publicKey,
-                    depositAccount: depositAccount,
-                    rent: SYSVAR_RENT_PUBKEY,
+                    deposit: depositAccount,
+                    tokenAuthority: pda_mint,
+                    stableCoin: tokenMintAcc,
+                    userTokenAccount: pdaTokenAcc,
                     tokenProgram: TOKEN_PROGRAM_ID,
-                    userToken: pdaTokenAcc,
                     userGovToken: governanceTokenAcc,
-                    tokenMint: tokenMintAcc,
+                    rewardCoinVault: reward_vault_pda,
                     systemProgram: SystemProgram.programId,
+
                 }
             },
         );
@@ -67,8 +71,7 @@ export const addDepositUtil = async (
     }
 
 
-    const tx = new Transaction().add(addDepositIx);
-    console.log("the transaction is ", tx);
+    const tx = new Transaction().add(claimDepositRewardIx);
 
     let { blockhash } = await connection.getRecentBlockhash();
     tx.recentBlockhash = blockhash;
@@ -82,5 +85,6 @@ export const addDepositUtil = async (
     return {
         txId,
         depositAccountPubkey: depositAccount.toBase58(),
+        rewardVaultPubkey: reward_vault_pda.toBase58(),
     };
 };

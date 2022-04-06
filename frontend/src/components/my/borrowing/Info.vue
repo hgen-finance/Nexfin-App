@@ -327,7 +327,8 @@ export default {
       if (this.getIsBorrow) {
         return 0;
       }
-      fee = fee < 5 ? 5 / this.$accessor.usd : fee;
+      const MIN_FEE = 5 / this.$accessor.usd;
+      fee = fee < MIN_FEE ? MIN_FEE : fee;
       let fee_trim = fee.toString().split(".");
       if (fee_trim.length > 1 && fee_trim[1].length > 9) {
         fee =

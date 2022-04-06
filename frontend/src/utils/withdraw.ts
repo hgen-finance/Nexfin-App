@@ -1,21 +1,12 @@
-import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
-    Account,
     Connection,
     PublicKey,
-    SYSVAR_RENT_PUBKEY,
     Transaction,
-    TransactionInstruction,
-    Keypair,
 } from "@solana/web3.js";
-import BN from "bn.js";
-import * as bs58 from "bs58";
 
 import {
-    DEPOSIT_ACCOUNT_DATA_LAYOUT,
-    DepositLayout,
     EscrowProgramIdString,
-    SYS_ACCOUNT,
     TOKEN_GENS,
 } from "./layout";
 import Wallet from "@project-serum/sol-wallet-adapter";
@@ -88,6 +79,5 @@ export const withdrawUtil = async (
     return {
         txId,
         depositAccountPubkey: depositAccount.toBase58(),
-
     };
 };
