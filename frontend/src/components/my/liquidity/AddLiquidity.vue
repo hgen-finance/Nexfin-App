@@ -153,6 +153,14 @@ import BN from "bn.js";
 
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
+import {
+  TOKEN_A_MINT_ADDR,
+  TOKEN_B_MINT_ADDR,
+  POOL_AUTHORITY,
+  TOKEN_ACC_A,
+  TOKEN_ACC_B,
+  LP_TOKENS_HGEN_GENS,
+} from "@/utils/layout";
 
 const TOKENS = [
   { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
@@ -197,6 +205,14 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
+      tokenPoolType: "HG",
+      tokenAacc: "",
+      tokenBacc: "",
+      tokenLP: "",
+      tokenAMintAddr: "",
+      tokenBMintAddr: "",
+      poolAccA: "",
+      poolAccB: "",
     };
   },
   computed: {
@@ -214,6 +230,18 @@ export default {
 
       if (tokenB > tokenA) return tokenB / tokenA || 0;
       else return tokenA / tokenB || 0;
+    },
+    tokepool: {
+      get: function () {
+        let result;
+        result = {
+          lpToken: LP_TOKENS_HGEN_GENS,
+          tokenAaccount: TOKEN_ACC_A,
+          tokenBaccount: TOKEN_ACC_B,
+        };
+        return result;
+      },
+      set: function () {},
     },
   },
   watch: {
@@ -246,6 +274,7 @@ export default {
           this.from = this.from.replace(/\.(?=[^\.]*$)/, "");
         if (this.from.substr(0, 2) === "00")
           this.from = this.from.substr(1, this.from.length);
+
         this.convert();
       } else {
         this.to = 0;
@@ -298,14 +327,29 @@ export default {
     confirm() {
       if (Number(this.from) > 0) {
         this.$accessor.swapPool.depositAllToken({
+          tokenLP: this.tokenLP,
+          tokenAacc: this.tokenAacc,
+          tokenBacc: this.tokenBacc,
+          tokenAMintAddr: this.tokenAMintAddr,
+          tokenBMintAddr: this.tokenBMintAddr,
           from: Number(this.from),
           to: Number(this.to),
+          tokenType: this.tokenPoolType,
         });
       }
     },
     createSwapPool() {
       this.$accessor.swapPool.createTokenSwapPool();
     },
+  },
+  mounted() {
+    if (this.tokenPoolType == "HG") {
+      this.tokenLP = LP_TOKENS_HGEN_GENS;
+      this.tokenAacc = TOKEN_ACC_A;
+      this.tokenBacc = TOKEN_ACC_B;
+      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
+      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
+    }
   },
 };
 </script>

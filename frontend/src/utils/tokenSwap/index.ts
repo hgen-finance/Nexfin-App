@@ -15,6 +15,7 @@ import * as Layout from "./layout";
 import { sendAndConfirmTransaction } from './util/send-and-confirm-transaction';
 import { loadAccount } from './util/account';
 import Wallet from '@project-serum/sol-wallet-adapter';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 // TODO: set it up for testnet later, the below swap program id is for the devnet
 export const TOKEN_SWAP_PROGRAM_ID: PublicKey = new PublicKey(
@@ -556,40 +557,56 @@ export class TokenSwap {
      * @param maximumTokenA The maximum amount of token A to deposit
      * @param maximumTokenB The maximum amount of token B to deposit
      */
-    async depositAllTokenTypes(
+    static async depositAllTokenTypes(
         wallet: Wallet,
+        connection: Connection,
+        tokenSwapAccount: PublicKey,
+        authority: PublicKey,
         userAccountA: PublicKey,
         userAccountB: PublicKey,
+        tokenAccountA: PublicKey,
+        tokenAccountB: PublicKey,
+        poolToken: PublicKey,
         poolAccount: PublicKey,
         userTransferAuthority: PublicKey, // TODO: change to account type when testing
         poolTokenAmount: number | Numberu64,
         maximumTokenA: number | Numberu64,
         maximumTokenB: number | Numberu64,
+        instruction?: TransactionInstruction
     ): Promise<TransactionSignature> {
         // TODO: Only replace this inside  TokenSwap.depositAllTokenTypesInstruction for testing with wallet.publicKey
         //  userTransferAuthority.publicKey,
+        console.log("Starting to add tx here...")
+        let tx = new Transaction();
+        let depositIx = TokenSwap.depositAllTokenTypesInstruction(
+            tokenSwapAccount,
+            authority,
+            userTransferAuthority,
+            userAccountA,
+            userAccountB,
+            tokenAccountA,
+            tokenAccountB,
+            poolToken,
+            poolAccount,
+            TOKEN_SWAP_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            poolTokenAmount,
+            maximumTokenA,
+            maximumTokenB,
+        )
+        if (instruction) {
+            tx.add(
+                instruction,
+                depositIx
+            )
+        } else {
+            tx.add(depositIx)
+        }
         return await sendAndConfirmTransaction(
             'depositAllTokenTypes',
             wallet,
-            this.connection,
-            new Transaction().add(
-                TokenSwap.depositAllTokenTypesInstruction(
-                    this.tokenSwap,
-                    this.authority,
-                    userTransferAuthority,
-                    userAccountA,
-                    userAccountB,
-                    this.tokenAccountA,
-                    this.tokenAccountB,
-                    this.poolToken,
-                    poolAccount,
-                    this.swapProgramId,
-                    this.tokenProgramId,
-                    poolTokenAmount,
-                    maximumTokenA,
-                    maximumTokenB,
-                ),
-            ),
+            connection,
+            tx,
             // TODO: Only for testing
             // userTransferAuthority,
         );
@@ -659,34 +676,41 @@ export class TokenSwap {
      * @param minimumTokenA The minimum amount of token A to withdraw
      * @param minimumTokenB The minimum amount of token B to withdraw
      */
-    async withdrawAllTokenTypes(
+    static async withdrawAllTokenTypes(
         payer: Wallet,
+        connection: Connection,
+        tokenSwapAccount: PublicKey,
+        authority: PublicKey,
         userAccountA: PublicKey,
         userAccountB: PublicKey,
+        tokenAccountA: PublicKey,
+        tokenAccountB: PublicKey,
+        poolToken: PublicKey,
         poolAccount: PublicKey,
         userTransferAuthority: PublicKey,
         poolTokenAmount: number | Numberu64,
         minimumTokenA: number | Numberu64,
         minimumTokenB: number | Numberu64,
+        feeAccount: PublicKey,
     ): Promise<TransactionSignature> {
         return await sendAndConfirmTransaction(
             'withdraw',
             payer,
-            this.connection,
+            connection,
             new Transaction().add(
                 TokenSwap.withdrawAllTokenTypesInstruction(
-                    this.tokenSwap,
-                    this.authority,
+                    tokenSwapAccount,
+                    authority,
                     userTransferAuthority,
-                    this.poolToken,
-                    this.feeAccount,
+                    poolToken,
+                    feeAccount,
                     poolAccount,
-                    this.tokenAccountA,
-                    this.tokenAccountB,
+                    tokenAccountA,
+                    tokenAccountB,
                     userAccountA,
                     userAccountB,
-                    this.swapProgramId,
-                    this.tokenProgramId,
+                    TOKEN_SWAP_PROGRAM_ID,
+                    TOKEN_PROGRAM_ID,
                     poolTokenAmount,
                     minimumTokenA,
                     minimumTokenB,

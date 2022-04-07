@@ -107,6 +107,15 @@ import BN from "bn.js";
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
 
+import {
+  TOKEN_A_MINT_ADDR,
+  TOKEN_B_MINT_ADDR,
+  POOL_AUTHORITY,
+  TOKEN_ACC_A,
+  TOKEN_ACC_B,
+  LP_TOKENS_HGEN_GENS,
+} from "@/utils/layout";
+
 const TOKENS = [
   { label: "HGEN-GENS", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
 ];
@@ -135,6 +144,14 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
+      tokenPoolType: "HG",
+      tokenAacc: "",
+      tokenBacc: "",
+      tokenLP: "",
+      tokenAMintAddr: "",
+      tokenBMintAddr: "",
+      poolAccA: "",
+      poolAccB: "",
     };
   },
   computed: {
@@ -151,12 +168,29 @@ export default {
     },
     confirm() {
       if (Number(this.from) > 0) {
-        this.$accessor.swapPool.withdrawToken(Number(this.from));
+        this.$accessor.swapPool.withdrawToken({
+          tokenLP: this.tokenLP,
+          tokenAacc: this.tokenAacc,
+          tokenBacc: this.tokenBacc,
+          tokenAMintAddr: this.tokenAMintAddr,
+          tokenBMintAddr: this.tokenBMintAddr,
+          from: Number(this.from),
+          tokenType: this.tokenPoolType,
+        });
       }
     },
     createSwapPool() {
       this.$accessor.swapPool.createTokenSwapPool();
     },
+  },
+  mounted() {
+    if (this.tokenPoolType == "HG") {
+      this.tokenLP = LP_TOKENS_HGEN_GENS;
+      this.tokenAacc = TOKEN_ACC_A;
+      this.tokenBacc = TOKEN_ACC_B;
+      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
+      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
+    }
   },
 };
 </script>

@@ -156,7 +156,8 @@ export const TOKEN_ACC_A = new PublicKey("HqESSnK1XaQ33Ww4YecraNxEXJEs6zVwxDgQ5v
 export const TOKEN_ACC_B = new PublicKey("CDAhGN7AoMzEmnfPKnAmpaH2HBKxg27MHwBrNmxMaQ8W");
 
 export const POOL_AUTHORITY = new PublicKey("AiaMQPdxqxjNvJm4MAW3yAjp3kJRqyrE9gUrRgRAPXu4");
-export const LP_TOKENS = new PublicKey("3nHK28wsZvGpVj99XvEL5FgVUzh4dUcoP3MsN3pA38aV")
+export const LP_TOKENS_HGEN_GENS = new PublicKey("3nHK28wsZvGpVj99XvEL5FgVUzh4dUcoP3MsN3pA38aV");
+export const LP_POOL_OWNER = new PublicKey("424v2hHJtDA879UfMikVWr7VTvJsFqE9XaZkkbe6Uv2J");
 
 // export const pda_account_for_mint = new PublicKey("");
 
