@@ -8,7 +8,7 @@ import {
 } from '@solana/web3.js';
 
 import { AccountLayout, Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B } from '@/utils/layout';
+import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B, LP_TOKENS_HGEN_GENS } from '@/utils/layout';
 
 import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from '@/utils/tokenSwap';
 import { sendAndConfirmTransaction } from '@/utils/tokenSwap/util/send-and-confirm-transaction';
@@ -23,6 +23,8 @@ import BN from 'bn.js';
 import * as bs58 from "bs58";
 
 import { connect } from 'http2';
+
+import { getMintInfo, getAccountInfo } from "@/utils/accounts";
 
 
 // The following globals are created by `createTokenSwap` and used by subsequent tests
@@ -379,22 +381,38 @@ export async function createTokenSwap(
 
 export async function depositAllTokenTypes(
     wallet: Wallet,
+    tokenSwapAccount: Account,
+    lp_tokens: PublicKey,
+    poolTokenAccountA: PublicKey,
+    poolTokenAccountB: PublicKey,
+    tokenAMintAddr: PublicKey,
+    tokenBMintAddr: PublicKey,
     tokenAmountA: number,
     tokenAmountB: number,
 ): Promise<void> {
-    const poolMintInfo = await tokenPool.getMintInfo();
+    const connection = await getConnection();
+    [authority, bumpSeed] = await PublicKey.findProgramAddress(
+        [tokenSwapAccount.publicKey.toBuffer()],
+        TOKEN_SWAP_PROGRAM_ID,
+    );
+    // const poolMintInfo = await tokenPool.getMintInfo();
+    console.log("starting deposit..")
+    console.log(lp_tokens, "liptoken")
+    const poolMintInfo = await getMintInfo(connection, lp_tokens);
     console.log(poolMintInfo, "poolmintinfo")
     const supply = poolMintInfo.supply.toNumber();
     console.log(supply, "supply");
-    const swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
-    console.log(swapTokenA.amount.toNumber(), "swap token a in the pool");
+    // const swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
+    const swapTokenA = await getAccountInfo(connection, poolTokenAccountA);
+    console.log(swapTokenA.info.amount.toNumber(), "swap token a in the pool");
     // TODO only for testing
     // const tokenA = Math.floor(
     //     (swapTokenA.amount.toNumber() * POOL_TOKEN_AMOUNT) / supply,
     // );
     // console.log(tokenA, "pool token for swap amount a")
-    const swapTokenB = await HGEN.getAccountInfo(tokenAccountHGEN);
-    console.log(swapTokenB.amount.toNumber(), "swap token b in the pool");
+    // const swapTokenB = await HGEN.getAccountInfo(tokenAccountHGEN);
+    const swapTokenB = await getAccountInfo(connection, poolTokenAccountB);
+    console.log(swapTokenB.info.amount.toNumber(), "swap token b in the pool");
 
     // TODO only for testing
     // const tokenB = Math.floor(
@@ -403,7 +421,7 @@ export async function depositAllTokenTypes(
     // console.log(tokenB, "pool token for swap amount B");
 
     // liqidity for the pool token
-    POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * 100 * supply / swapTokenA.amount.toNumber(), tokenAmountB * 100 * supply / swapTokenB.amount.toNumber());
+    POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * 100 * supply / swapTokenA.info.amount.toNumber(), tokenAmountB * 100 * supply / swapTokenB.info.amount.toNumber());
     console.log(POOL_TOKEN_AMOUNT, "liquidity")
 
     //TODO only for testing
@@ -432,20 +450,95 @@ export async function depositAllTokenTypes(
     //     tokenB,
     // );
     console.log('Creating depositor pool token account');
-    const newAccountPool = await tokenPool.createAccount(wallet.publicKey);
+    // const newAccountPool = await tokenPool.createAccount(wallet.publicKey);
+    // get the token account info of the wallet
+    let LP_TOKEN = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: lp_tokens,
+    });
+    let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
 
-    console.log('Depositing into swap');
+    // create a ATA account if the wallet user doesnt have one
+    let ata: PublicKey;
+    if (tokenATA != "") {
+        ata = new PublicKey(tokenATA);
+    }
+
+    if (tokenATA == "") {
+        // Only create tx if the account wasnt present
+        // calculate ATA
+        ata = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            lp_tokens, // mint
+            wallet.publicKey // owner
+        );
+    }
+    console.log(tokenATA, "|", ata.toBase58());
+
+    let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: tokenAMintAddr,
+    });
+    let aATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+
+    let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: tokenBMintAddr,
+    });
+    let bATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
+
+
     // TODO uncomment for test only
-    await tokenSwap.depositAllTokenTypes(
-        wallet,
-        userAccountGENS,
-        userAccountHGEN,
-        newAccountPool,
-        userTransferAuthority,
-        POOL_TOKEN_AMOUNT,
-        tokenAmountA * 100,
-        tokenAmountB * 100,
-    );
+    if (tokenATA == "") {
+        const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+            TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+            lp_tokens, // mint
+            ata, // ata
+            wallet.publicKey, // owner of token account
+            wallet.publicKey // fee payer
+        )
+        try {
+            await TokenSwap.depositAllTokenTypes(
+                wallet,
+                connection,
+                tokenSwapAccount.publicKey,
+                authority,
+                new PublicKey(aATA),
+                new PublicKey(bATA),
+                poolTokenAccountA,
+                poolTokenAccountB,
+                lp_tokens,
+                ata,
+                userTransferAuthority,
+                POOL_TOKEN_AMOUNT,
+                tokenAmountA * 100,
+                tokenAmountB * 100,
+                ataAccountTx
+            );
+
+        } catch (err) {
+            console.error(err, "deposit liquidity")
+        }
+
+    }
+    else {
+        await TokenSwap.depositAllTokenTypes(
+            wallet,
+            connection,
+            tokenSwapAccount.publicKey,
+            authority,
+            new PublicKey(aATA),
+            new PublicKey(bATA),
+            poolTokenAccountA,
+            poolTokenAccountB,
+            lp_tokens,
+            ata,
+            userTransferAuthority,
+            POOL_TOKEN_AMOUNT,
+            tokenAmountA * 100,
+            tokenAmountB * 100,
+        );
+    }
+
 
     // TODO only for testing
     // let info;
@@ -465,13 +558,33 @@ export async function depositAllTokenTypes(
 
 export async function withdrawAllTokenTypes(
     wallet: Wallet,
+    tokenSwapAccount: Account,
+    lp_tokens: PublicKey,
+    ownertokenAccountPool: PublicKey,
+    poolTokenAccountA: PublicKey,
+    poolTokenAccountB: PublicKey,
+    tokenAMintAddr: PublicKey,
+    tokenBMintAddr: PublicKey,
     LP_POOL_TOKEN_AMOUNT: number,
+    ownerfeeAccount: PublicKey,
 
 ): Promise<void> {
-    const poolMintInfo = await tokenPool.getMintInfo();
+    const connection = await getConnection();
+    [authority, bumpSeed] = await PublicKey.findProgramAddress(
+        [tokenSwapAccount.publicKey.toBuffer()],
+        TOKEN_SWAP_PROGRAM_ID,
+    );
+    const poolMintInfo = await getMintInfo(connection, lp_tokens);
+    console.log(poolMintInfo, "poolmintinfo")
     const supply = poolMintInfo.supply.toNumber();
-    let swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
-    let swapTokenB = await HGEN.getAccountInfo(tokenAccountHGEN);
+    console.log(supply, "supply");
+
+    const swapTokenA = await getAccountInfo(connection, poolTokenAccountA);
+    console.log(swapTokenA.info.amount.toNumber(), "swap token a in the pool");
+
+    const swapTokenB = await getAccountInfo(connection, poolTokenAccountB);
+    console.log(swapTokenB.info.amount.toNumber(), "swap token b in the pool");
+
     let feeAmount = 0;
     if (OWNER_WITHDRAW_FEE_NUMERATOR !== 0) {
         feeAmount = Math.floor(
@@ -481,16 +594,26 @@ export async function withdrawAllTokenTypes(
     }
     const poolTokenAmount = LP_POOL_TOKEN_AMOUNT - feeAmount;
     const tokenA = Math.floor(
-        (swapTokenA.amount.toNumber() * poolTokenAmount) / supply,
+        (swapTokenA.info.amount.toNumber() * poolTokenAmount) / supply,
     );
     const tokenB = Math.floor(
-        (swapTokenB.amount.toNumber() * poolTokenAmount) / supply,
+        (swapTokenB.info.amount.toNumber() * poolTokenAmount) / supply,
     );
 
-    console.log('Creating withdraw token A account');
-    let userAccountGENS = await GENS.createAccount(owner.publicKey);
-    console.log('Creating withdraw token B account');
-    let userAccountHGEN = await HGEN.createAccount(owner.publicKey);
+    let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: tokenAMintAddr,
+    });
+    let aATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+
+    let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: tokenBMintAddr,
+    });
+    let bATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
+
+    console.log(' withdraw token A account');
+    let userAccountA = new PublicKey(aATA);
+    console.log(' withdraw token B account');
+    let userAccountB = new PublicKey(bATA);
 
     // Only for testing
     // const userTransferAuthority = new Account();
@@ -507,36 +630,40 @@ export async function withdrawAllTokenTypes(
 
 
     console.log('Withdrawing pool tokens for A and B tokens');
-    await tokenSwap.withdrawAllTokenTypes(
+    await TokenSwap.withdrawAllTokenTypes(
         wallet,
-        userAccountGENS,
-        userAccountHGEN,
-        tokenAccountPool,
+        connection,
+        tokenSwapAccount.publicKey,
+        authority,
+        userAccountA,
+        userAccountB,
+        poolTokenAccountA,
+        poolTokenAccountB,
+        lp_tokens, //poolToken
+        ownertokenAccountPool,
         userTransferAuthority,
-        LP_POOL_TOKEN_AMOUNT,
+        LP_POOL_TOKEN_AMOUNT * 100, // 2 decimal token
         tokenA,
         tokenB,
+        ownerfeeAccount
     );
 
-    //const poolMintInfo = await tokenPool.getMintInfo();
-    swapTokenA = await GENS.getAccountInfo(tokenAccountGENS);
-    swapTokenB = await HGEN.getAccountInfo(tokenAccountHGEN);
-
-    let info = await tokenPool.getAccountInfo(tokenAccountPool);
-    assert(
-        info.amount.toNumber() == DEFAULT_POOL_TOKEN_AMOUNT - POOL_TOKEN_AMOUNT,
-    );
-    assert(swapTokenA.amount.toNumber() == currentSwapTokenA - tokenA);
-    currentSwapTokenA -= tokenA;
-    assert(swapTokenB.amount.toNumber() == currentSwapTokenB - tokenB);
-    currentSwapTokenB -= tokenB;
-    info = await GENS.getAccountInfo(userAccountGENS);
-    assert(info.amount.toNumber() == tokenA);
-    info = await HGEN.getAccountInfo(userAccountHGEN);
-    assert(info.amount.toNumber() == tokenB);
-    info = await tokenPool.getAccountInfo(feeAccount);
-    assert(info.amount.toNumber() == feeAmount);
-    currentFeeAmount = feeAmount;
+    //TODO only for testing
+    // let info = await tokenPool.getAccountInfo(tokenAccountPool);
+    // assert(
+    //     info.amount.toNumber() == DEFAULT_POOL_TOKEN_AMOUNT - POOL_TOKEN_AMOUNT,
+    // );
+    // assert(swapTokenA.info.amount.toNumber() == currentSwapTokenA - tokenA);
+    // currentSwapTokenA -= tokenA;
+    // assert(swapTokenB.info.amount.toNumber() == currentSwapTokenB - tokenB);
+    // currentSwapTokenB -= tokenB;
+    // info = await GENS.getAccountInfo(userAccountGENS);
+    // assert(info.amount.toNumber() == tokenA);
+    // info = await HGEN.getAccountInfo(userAccountHGEN);
+    // assert(info.amount.toNumber() == tokenB);
+    // info = await tokenPool.getAccountInfo(feeAccount);
+    // assert(info.amount.toNumber() == feeAmount);
+    // currentFeeAmount = feeAmount;
 }
 
 // export async function createAccountAndSwapAtomic(

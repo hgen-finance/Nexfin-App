@@ -38,3 +38,16 @@ export const COIN_VAULT_ASSOCIATED_SEED = 'coin_vault_associated_seed'
 export const PC_VAULT_ASSOCIATED_SEED = 'pc_vault_associated_seed'
 export const LP_MINT_ASSOCIATED_SEED = 'lp_mint_associated_seed'
 export const TEMP_LP_TOKEN_ASSOCIATED_SEED = 'temp_lp_token_associated_seed'
+
+// Devent id for our platform
+export const WRAPPED_SOL_MINT = new PublicKey(
+    "So11111111111111111111111111111111111111112"
+);
+
+export const POOL_PROGRAM_ID_V1 = "";
+
+
+// token pool address
+export const HGEN_GENS_POOL = "";
+export const GENS_SOL_POOL = "";
+export const HGEN_SOL_POOL = "";
