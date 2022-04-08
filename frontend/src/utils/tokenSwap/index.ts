@@ -455,12 +455,17 @@ export class TokenSwap {
      * @param amountIn Amount to transfer from source account
      * @param minimumAmountOut Minimum amount of tokens the user will receive
      */
-    async swap(
+    static async swap(
         payer: Wallet,
+        connection: Connection,
+        tokenSwap: PublicKey,
+        authority: PublicKey,
         userSource: PublicKey,
         poolSource: PublicKey,
         poolDestination: PublicKey,
         userDestination: PublicKey,
+        poolToken: PublicKey,
+        feeAccount: PublicKey,
         hostFeeAccount: PublicKey | null,
         userTransferAuthority: PublicKey, // TODO Change it to account for the testing
         amountIn: number | Numberu64,
@@ -469,21 +474,21 @@ export class TokenSwap {
         return await sendAndConfirmTransaction(
             'swap',
             payer,
-            this.connection,
+            connection,
             new Transaction().add(
                 TokenSwap.swapInstruction(
-                    this.tokenSwap,
-                    this.authority,
+                    tokenSwap,
+                    authority,
                     userTransferAuthority,
                     userSource,
                     poolSource,
                     poolDestination,
                     userDestination,
-                    this.poolToken,
-                    this.feeAccount,
+                    poolToken,
+                    feeAccount,
                     hostFeeAccount,
-                    this.swapProgramId,
-                    this.tokenProgramId,
+                    TOKEN_SWAP_PROGRAM_ID,
+                    TOKEN_PROGRAM_ID,
                     amountIn,
                     minimumAmountOut,
                 ),

@@ -238,6 +238,13 @@ import BN from "bn.js";
 
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
+import {
+  TOKEN_A_MINT_ADDR,
+  TOKEN_B_MINT_ADDR,
+  TOKEN_ACC_A,
+  TOKEN_ACC_B,
+  LP_TOKENS_HGEN_GENS,
+} from "@/utils/layout";
 
 const POOL_TOKENS = [
   { label: "HGEN", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
@@ -287,6 +294,14 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
+      tokenPoolType: "HG",
+      tokenAacc: "",
+      tokenBacc: "",
+      tokenLP: "",
+      tokenAMintAddr: "",
+      tokenBMintAddr: "",
+      poolAccA: "",
+      poolAccB: "",
     };
   },
   computed: {
@@ -418,7 +433,15 @@ export default {
     },
     confirm() {
       if (this.from > 0) {
-        this.$accessor.swapPool.swap(Number(this.from) * 100); // 2 decimal
+        this.$accessor.swapPool.swap({
+          tokenLP: this.tokenLP,
+          tokenAacc: this.tokenAacc,
+          tokenBacc: this.tokenBacc,
+          tokenAMintAddr: this.tokenAMintAddr,
+          tokenBMintAddr: this.tokenBMintAddr,
+          from: Number(this.from) * 100,
+          tokenType: this.tokenPoolType,
+        }); // 2 decimal
       }
       this.to = null;
       this.from = null;
@@ -432,6 +455,15 @@ export default {
         });
       }
     },
+  },
+  mounted() {
+    if (this.tokenPoolType == "HG") {
+      this.tokenLP = LP_TOKENS_HGEN_GENS;
+      this.tokenAacc = TOKEN_ACC_A;
+      this.tokenBacc = TOKEN_ACC_B;
+      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
+      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
+    }
   },
 };
 </script>
