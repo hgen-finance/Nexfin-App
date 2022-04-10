@@ -35,19 +35,19 @@
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
       <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS"
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS ta-r"
       >
         Set amount you want to remove
       </div>
-      <div class="w-100 pb-3-S pb-0 fd-r">
+      <div class="w-100 pb-3-S pb-0 fd-r jc-r">
         <input
-          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
+          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
           placeholder="0"
           v-model="from"
           maxlength="15"
           type="text"
         />
-        <div class="p-a-S p-r-XS r-0 b-0 w-fix-60-S w-35-XS">
+        <div class="p-a-S p-r-XS l-0 b-0 w-fix-60-S w-35-XS">
           <AmSelectbox
             v-bind:data.sync="currencyFrom"
             :update="true"

@@ -54,19 +54,8 @@
               </div>
             </div>
           </template> -->
-          <Icon
-            type="info-circle"
-            :style="{ width: '40px', height: '40px' }"
-            class="fd-r jc-c ai-c"
-          />
         </Tooltip>
-        <Tooltip>
-          <Icon
-            type="setting"
-            :style="{ width: '40px', height: '40px' }"
-            class="fd-r jc-c ai-c"
-          />
-        </Tooltip>
+
         <!-- <Tooltip>
           <Icon
             type="search"
@@ -88,24 +77,18 @@
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
       <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS"
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS ai-c jc-sb"
       >
-        From
-      </div>
-      <div class="w-100 pb-3-S pb-0 fd-r">
         <span
-          class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 mr-2"
+          class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 z-1"
           @click="setMax"
           >Max</span
         >
-        <input
-          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
-          placeholder="0"
-          v-model="from"
-          maxlength="15"
-          type="text"
-        />
-        <div class="p-a-S p-r-XS r-0 b-0 w-fix-35-S w-35-XS pb-1">
+        <span class="z-1">From</span>
+      </div>
+
+      <div class="w-100 pb-3-S pb-0 fd-r jc-r">
+        <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS pb-1">
           <AmSelectbox
             v-bind:data.sync="currencyFrom"
             :update="true"
@@ -113,11 +96,18 @@
             :padding="false"
           />
         </div>
+        <input
+          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
+          placeholder="0"
+          v-model="from"
+          maxlength="15"
+          type="text"
+        />
       </div>
     </div>
     <div class="cside-L cside-M cside-S cside-XS fd-r jc-c mt-8-XS mt-2-S">
       <div class="fd-r jc-c f-white-200 ai-c micon-L micon-M micon-S micon-XS">
-        <Icon type="swap" :rotate="90" @click="convert" />
+        <Icon type="swap" :rotate="90" @click="toggleToken" />
       </div>
     </div>
     <div
@@ -126,26 +116,26 @@
       <div
         class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS fd-r jc-sb z-4"
       >
-        <span> To </span>
         <span> Estimated </span>
+        <span> To </span>
       </div>
-      <div class="w-100 pb-3-S pb-0 fd-r jc-sb ai-c">
-        <div
-          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 br-0 oul-n"
-          :class="{
-            'f-mcolor-300': Number(to) > 0,
-            'f-gray-800': Number(to) === 0,
-          }"
-        >
-          {{ to }}
-        </div>
-        <div class="p-a-S p-r-XS r-0 b-0 w-fix-35-S w-35-XS">
+      <div class="w-100 pb-3-S pb-0 fd-r jc-r ai-c">
+        <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS">
           <AmSelectbox
             v-bind:data.sync="currencyTo"
             :update="true"
             :shadow="false"
             :padding="false"
           />
+        </div>
+        <div
+          class="w-fix-s-10min fs-6-S fs-25-XS fw-600 br-0 oul-n ta-r"
+          :class="{
+            'f-mcolor-300': Number(to) > 0,
+            'f-gray-800': Number(to) === 0,
+          }"
+        >
+          {{ to }}
         </div>
       </div>
     </div>
@@ -443,6 +433,10 @@ export default {
   methods: {
     toggleSwap() {
       this.raySwap = !this.raySwap;
+    },
+    toggleToken() {
+      let prev_curr_from = this.currencyFrom;
+      let prev_curr_to = this.currencyTo;
     },
     setModalFunc(value) {
       if (this.loaderConnect) {
