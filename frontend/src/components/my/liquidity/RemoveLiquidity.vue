@@ -117,7 +117,7 @@ import {
 } from "@/utils/layout";
 
 const TOKENS = [
-  { label: "HGEN-GENS", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
+  { label: "GENS-HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
 ];
 
 // TODO: add liquidity when choosed hgen/gens or gens/hgen

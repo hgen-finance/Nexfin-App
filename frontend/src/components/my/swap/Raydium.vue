@@ -218,6 +218,7 @@
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
       >
+        <span class="px-1" v-if="priceImpact <= 0.1"> > </span>
         {{ priceImpact }} <span class="f-white-200 pl-1">%</span>
       </div>
     </div>
@@ -467,7 +468,7 @@ export default {
         console.log(tokenB, "tokenB");
         let invariant = tokenA.mul(new BN(tokenB));
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from).mul(new BN(100)));
+        let denominator = tokenA.add(new BN(this.from * 100));
         console.log(numerator.toString(), "numerator");
         console.log(denominator.toString(), "denominator");
 
@@ -488,11 +489,18 @@ export default {
         console.log(swapTokenBWithFees.toString(), "swap token B with fees");
 
         // pool price before add
-        let price_before_add = Number(tokenB) / Number(tokenA);
-        let price_impact =
-          Number(swapTokenBWithFees) / Number(price_before_add);
+        denominator = tokenA.add(new BN(1).mul(new BN(100)));
+        let swapTokeB_for_one = numerator.div(denominator);
+        let price_impact = tokenB.sub(swapTokeB_for_one);
+        price_impact =
+          Math.abs(Number(swapTokenB) - Number(price_impact)) /
+          Number(price_impact) /
+          100;
+        if (price_impact <= 0.1) {
+          price_impact = 0.1;
+        }
         price_impact = price_impact.toString().split(".");
-        if (price_impact[1] > 3) {
+        if (price_impact[1] > 0) {
           price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
         }
         this.priceImpact = price_impact;
@@ -513,7 +521,7 @@ export default {
       );
       let invariant = new BN(tokenA).mul(new BN(tokenB));
       let numerator = invariant;
-      let denominator = tokenB.add(new BN(this.from).mul(new BN(100)));
+      let denominator = tokenB.add(new BN(this.from * 100));
 
       console.log("token A", Number(tokenA));
       console.log("token B", Number(tokenB));
@@ -536,13 +544,22 @@ export default {
       console.log(swapTokenAWithFees.toString(), "swap token B with fees");
 
       // pool price before add
-      let price_before_add = Number(tokenA) / Number(tokenB);
-      let price_impact = Number(swapTokenAWithFees) / Number(price_before_add);
+      denominator = tokenB.add(new BN(1).mul(new BN(100)));
+      let swapTokeA_for_one = numerator.div(denominator);
+      let price_impact = tokenA.sub(swapTokeA_for_one);
+      price_impact =
+        Math.abs(Number(swapTokenA) - Number(price_impact)) /
+        Number(price_impact) /
+        100;
+      if (price_impact <= 0.1) {
+        price_impact = 0.1;
+      }
       price_impact = price_impact.toString().split(".");
-      if (price_impact[1] > 3) {
+      if (price_impact[1] > 0) {
         price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
       }
       this.priceImpact = price_impact;
+
       return swapTokenAWithFees / 100 || 0; // 2 decimal
     },
     convert() {

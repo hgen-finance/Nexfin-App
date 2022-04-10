@@ -14,14 +14,14 @@
       >
         - Remove Liquidity
       </span>
-      <!-- <span
+      <span
         class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
         style="align-self: center"
         v-if="true"
         @click="createSwapPool"
       >
         + Create Pool
-      </span> -->
+      </span>
       <span
         class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
         style="align-self: center"
