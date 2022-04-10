@@ -93,6 +93,11 @@
         From
       </div>
       <div class="w-100 pb-3-S pb-0 fd-r">
+        <span
+          class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 mr-2"
+          @click="setMax"
+          >Max</span
+        >
         <input
           class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
           placeholder="0"
@@ -100,7 +105,7 @@
           maxlength="15"
           type="text"
         />
-        <div class="p-a-S p-r-XS r-0 b-0 w-fix-35-S w-35-XS">
+        <div class="p-a-S p-r-XS r-0 b-0 w-fix-35-S w-35-XS pb-1">
           <AmSelectbox
             v-bind:data.sync="currencyFrom"
             :update="true"
@@ -146,16 +151,16 @@
     </div>
     <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
-      v-if="currencyFrom.value === tokens[0].value"
+      v-if="currencyFrom.value"
     >
-      1 GENS ≈ {{ convertRay }} HGEN
+      1 {{ currencyFrom.name }} ≈ {{ getPrice }} {{ currencyTo.name }}
     </div>
-    <div
+    <!-- <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
       v-if="currencyFrom.value === tokens[1].value"
     >
       1 HGEN ≈ {{ convertSOL }} GENS
-    </div>
+    </div> -->
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
         Slippage Tolerance
@@ -165,9 +170,18 @@
         </Hint>
       </div>
       <div
-        class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+        class="w-15 fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 ai-c pt-2-XS jc-c-XS"
       >
-        1 <span class="f-white-200 pl-1">%</span>
+        <div class="mcolor-700 rad-fix-2 fd-r ai-c py-1">
+          <input
+            class="w-fix-s-10min fs-5-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 pl-2"
+            placeholder="0"
+            v-model="slippageTolerance"
+            maxlength="15"
+            type="text"
+          />
+          <span class="f-white-200 fw-400 pl-1 pr-2 fs-4-S fs-25-X">%</span>
+        </div>
       </div>
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
@@ -180,16 +194,16 @@
       </div>
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
-        v-if="currencyFrom.value === tokens[0].value"
+        v-if="currencyTo.value === tokens[0].value"
       >
-        0.0983070000
+        {{ slippagePrice }}
         <span class="f-white-200 pl-1">GENS</span>
       </div>
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
-        v-if="currencyFrom.value === tokens[1].value"
+        v-if="currencyTo.value === tokens[1].value"
       >
-        0.0983070000
+        {{ slippagePrice }}
         <span class="f-white-200 pl-1">HGEN</span>
       </div>
     </div>
@@ -204,7 +218,7 @@
       <div
         class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
       >
-        0.00 <span class="f-white-200 pl-1">%</span>
+        {{ priceImpact }} <span class="f-white-200 pl-1">%</span>
       </div>
     </div>
     <div class="w-100 pt-6-S pt-20-XS fd-r jc-c">
@@ -247,16 +261,54 @@ import {
 } from "@/utils/layout";
 
 const POOL_TOKENS = [
-  { label: "HGEN", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
-  { label: "GENS", value: "So11111111111111111111111111111111111111112" },
+  {
+    label: "GENS",
+    value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8",
+    mintAddr: TOKEN_A_MINT_ADDR,
+    tokenAccgh: TOKEN_ACC_A,
+  },
+  {
+    label: "HGEN",
+    value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC",
+    mintAddr: TOKEN_B_MINT_ADDR,
+    tokenAccgh: TOKEN_ACC_B,
+  },
+  {
+    label: "SOL",
+    value: "So11111111111111111111111111111111111111112",
+  },
+  //   {
+  //     label: "",
+  //     value: "",
+  //   },
+];
+const POOL_TOKEN_TYPE = [
+  {
+    label: "GH",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
+  },
+  {
+    label: "HG",
+  },
+  {
+    label: "HS",
+  },
+  {
+    label: "SH",
+  },
+  {
+    label: "GS",
+  },
+  {
+    label: "SG",
+  },
 ];
 
 const TOKENS = [
   { label: "RAY", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
   { label: "SOL", value: "So11111111111111111111111111111111111111112" },
 ];
-const CONVERT_GENS = 0.10104800982233;
-const CONVERT_HGEN = 9.896285951185709;
 
 export default {
   components: {
@@ -270,10 +322,12 @@ export default {
   },
   data() {
     return {
+      tokenPrice: 0,
+      priceImpact: 0,
+      slippageTolerance: null,
+      slippagePrice: 0,
       raySwap: false,
       tokens: POOL_TOKENS,
-      convertRay: CONVERT_GENS,
-      convertSOL: CONVERT_HGEN,
       from: null,
       currencyFrom: {
         theme: "default",
@@ -283,6 +337,7 @@ export default {
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
+        name: "GENS",
       },
       to: 0,
       currencyTo: {
@@ -293,8 +348,9 @@ export default {
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
+        name: "HGEN",
       },
-      tokenPoolType: "HG",
+      tokenPoolType: "GH",
       tokenAacc: "",
       tokenBacc: "",
       tokenLP: "",
@@ -306,27 +362,61 @@ export default {
   },
   computed: {
     ...mapState(["wallet", "swap", "url"]),
+    getPrice() {
+      let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
+        new BN(100)
+      );
+      let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
+        new BN(100)
+      );
+      let tokenPrice = 0;
+
+      if (this.currencyFrom.value == POOL_TOKENS[0].value) {
+        let price_before_add = Number(tokenB) / Number(tokenA);
+        tokenPrice = Number(price_before_add).toString().split(".");
+        if (tokenPrice[1] > 3) {
+          tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+        }
+      }
+      if (this.currencyFrom.value == POOL_TOKENS[1].value) {
+        let price_before_add = Number(tokenA) / Number(tokenB);
+        tokenPrice = Number(price_before_add).toString().split(".");
+        if (tokenPrice[1] > 3) {
+          tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+        }
+      }
+      return tokenPrice;
+    },
   },
   watch: {
     currencyFrom: {
       deep: true,
       handler(val) {
-        if (val.value === this.currencyTo.value) {
-          this.currencyTo.value = val.items.filter(
-            (item) => item.value !== val.value
-          )[0].value;
-        }
+        this.tokenAacc = val.items.filter(
+          (item) => item.value == val.value
+        )[0].tokenAccgh;
+        this.tokenAMintAddr = val.items.filter(
+          (item) => item.value == val.value
+        )[0].mintAddr;
+        this.currencyFrom.name = val.items.filter(
+          (item) => item.value == val.value
+        )[0].label;
         this.convert();
       },
     },
     currencyTo: {
       deep: true,
       handler(val) {
-        if (val.value === this.currencyFrom.value) {
-          this.currencyFrom.value = val.items.filter(
-            (item) => item.value !== val.value
-          )[0].value;
-        }
+        this.tokenBacc = val.items.filter(
+          (item) => item.value == val.value
+        )[0].tokenAccgh;
+
+        this.tokenBMintAddr = val.items.filter(
+          (item) => item.value == val.value
+        )[0].mintAddr;
+        this.currencyTo.name = val.items.filter(
+          (item) => item.value == val.value
+        )[0].label;
         this.convert();
       },
     },
@@ -341,6 +431,12 @@ export default {
       } else {
         this.to = 0;
       }
+    },
+    slippageTolerance(val) {
+      this.slippagePrice = this.to - (val / 100) * this.to;
+    },
+    to(val) {
+      this.slippagePrice = val - (val * this.slippageTolerance) / 100;
     },
   },
   methods: {
@@ -357,9 +453,9 @@ export default {
     calculateTokenGensToHgen() {
       let swapTokenBWithFees;
       if (this.from > 0) {
-        const TRADE_FEE_NUMBERATOR = 25;
+        const TRADE_FEE_NUMBERATOR = 0; //25
         const TRADE_FEE_DENOMINATOR = 10000;
-        const OWNER_FEE_NUMBERATOR = 5;
+        const OWNER_FEE_NUMBERATOR = 0; // 5
         const OWNER_FEE_DENOMINATOR = 10000;
         let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
           new BN(100)
@@ -390,23 +486,41 @@ export default {
         let swap_fees = trade_fees.add(owner_fees);
         swapTokenBWithFees = swapTokenB.sub(swap_fees);
         console.log(swapTokenBWithFees.toString(), "swap token B with fees");
+
+        // pool price before add
+        let price_before_add = Number(tokenB) / Number(tokenA);
+        let price_impact =
+          Number(swapTokenBWithFees) / Number(price_before_add);
+        price_impact = price_impact.toString().split(".");
+        if (price_impact[1] > 3) {
+          price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+        }
+        this.priceImpact = price_impact;
       }
 
       return swapTokenBWithFees / 100 || 0; // 2 decimal
     },
     calculateTokenHgenToGens() {
-      const TRADE_FEE_NUMBERATOR = 25;
+      const TRADE_FEE_NUMBERATOR = 0; // 25
       const TRADE_FEE_DENOMINATOR = 10000;
-      const OWNER_FEE_NUMBERATOR = 5;
+      const OWNER_FEE_NUMBERATOR = 0; // 5
       const OWNER_FEE_DENOMINATOR = 10000;
-      let tokenA = this.$accessor.swapPool.tokenAmountA * 100;
-      let tokenB = this.$accessor.swapPool.tokenAmountB * 100;
+      let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
+        new BN(100)
+      );
+      let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
+        new BN(100)
+      );
       let invariant = new BN(tokenA).mul(new BN(tokenB));
       let numerator = invariant;
-      let denominator = new BN(tokenB).add(new BN(100));
+      let denominator = tokenB.add(new BN(this.from).mul(new BN(100)));
+
+      console.log("token A", Number(tokenA));
+      console.log("token B", Number(tokenB));
 
       // new swap price for the token A->B
-      let swapTokenA = new BN(tokenA).sub(numerator).div(denominator);
+      let swapTokenA = numerator.div(denominator);
+      swapTokenA = new BN(tokenA).sub(swapTokenA);
       console.log(swapTokenA.toString(), "swap value for token B");
 
       // swaptokenB with fees
@@ -420,28 +534,42 @@ export default {
       console.log(swap_fees, "swapfee");
       let swapTokenAWithFees = swapTokenA.sub(swap_fees);
       console.log(swapTokenAWithFees.toString(), "swap token B with fees");
-      return swapTokenAWithFees; // 2 decimal
+
+      // pool price before add
+      let price_before_add = Number(tokenA) / Number(tokenB);
+      let price_impact = Number(swapTokenAWithFees) / Number(price_before_add);
+      price_impact = price_impact.toString().split(".");
+      if (price_impact[1] > 3) {
+        price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+      }
+      this.priceImpact = price_impact;
+      return swapTokenAWithFees / 100 || 0; // 2 decimal
     },
     convert() {
       if (this.currencyFrom.value === this.tokens[0].value) {
-        // this.to = CONVERT_GENS * Number(this.from);
         this.to = this.calculateTokenGensToHgen() || 0;
-      } else {
-        // this.to = CONVERT_HGEN * Number(this.from);
+      } else if (
+        this.currencyFrom.value === this.tokens[1].value &&
+        this.currencyTo.value === this.tokens[0].value &&
+        this.from > 0
+      ) {
         this.to = this.calculateTokenHgenToGens() || 0;
       }
     },
     confirm() {
       if (this.from > 0) {
-        this.$accessor.swapPool.swap({
-          tokenLP: this.tokenLP,
-          tokenAacc: this.tokenAacc,
-          tokenBacc: this.tokenBacc,
-          tokenAMintAddr: this.tokenAMintAddr,
-          tokenBMintAddr: this.tokenBMintAddr,
-          from: Number(this.from) * 100,
-          tokenType: this.tokenPoolType,
-        }); // 2 decimal
+        if (this.tokenPoolType == "GH") {
+          this.$accessor.swapPool.swap({
+            tokenLP: this.tokenLP,
+            tokenAacc: this.tokenAacc,
+            tokenBacc: this.tokenBacc,
+            tokenAMintAddr: this.tokenAMintAddr,
+            tokenBMintAddr: this.tokenBMintAddr,
+            from: Number(this.from) * 100,
+            tokenType: this.tokenPoolType,
+            slippagePrice: this.slippagePrice,
+          }); // 2 decimal
+        }
       }
       this.to = null;
       this.from = null;
@@ -455,15 +583,31 @@ export default {
         });
       }
     },
+    async setMax() {
+      let tokenDetail;
+      console.log("clicked");
+      if (this.$accessor.wallet.publicKey) {
+        console.log("this is running");
+        tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
+          this.currencyFrom.value
+        );
+        console.log(tokenDetail, "token amount ");
+        this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
+      }
+    },
   },
   mounted() {
-    if (this.tokenPoolType == "HG") {
+    if (this.tokenPoolType == "GH") {
       this.tokenLP = LP_TOKENS_HGEN_GENS;
       this.tokenAacc = TOKEN_ACC_A;
       this.tokenBacc = TOKEN_ACC_B;
       this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
       this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
     }
+    this.$accessor.swapPool.getTokenAInfo();
+    this.$accessor.swapPool.getTokenBInfo();
+    this.$accessor.swapPool.onTokenAChange();
+    this.$accessor.swapPool.onTokenBChange();
   },
 };
 </script>

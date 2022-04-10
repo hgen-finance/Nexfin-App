@@ -163,8 +163,8 @@ import {
 } from "@/utils/layout";
 
 const TOKENS = [
-  { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
   { label: "GENS", value: "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe" },
+  { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
 ];
 
 // TODO: Fetch these value from the pool, currently the values are hardcoded
@@ -315,7 +315,7 @@ export default {
       let tokenA = this.$accessor.swapPool.tokenAmountA;
       let tokenB = this.$accessor.swapPool.tokenAmountB;
 
-      if (this.currencyFrom.value === this.tokens[1].value && tokenA > tokenB) {
+      if (this.currencyFrom.value === this.tokens[0].value && tokenA > tokenB) {
         this.to = Number(this.from) / this.calculateTokenRatio() || 0;
       } else {
         this.to = this.calculateTokenRatio() * Number(this.from) || 0;
@@ -350,6 +350,10 @@ export default {
       this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
       this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
     }
+    this.$accessor.swapPool.getTokenAInfo();
+    this.$accessor.swapPool.getTokenBInfo();
+    this.$accessor.swapPool.onTokenAChange();
+    this.$accessor.swapPool.onTokenBChange();
   },
 };
 </script>

@@ -126,6 +126,24 @@ export const actions = actionTree(
             }
         },
 
+        // getting balance from the hgens from the wallet
+        async getTokenFromBalance({ commit }, value) {
+            if (this.$web3 && this.$wallet) {
+                let myTokenAmount = 0;
+                await this.$web3
+                    .getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
+                        mint: new PublicKey(value),
+                    })
+                    .then((res) => {
+                        myTokenAmount = res.value[0]
+                            ? res.value[0].account.data.parsed.info.tokenAmount.uiAmountString
+                            : 0;
+                    })
+                    .catch((err) => console.log(err));
+                return myTokenAmount;
+            }
+        },
+
         // Connection
         async connectWallet({ commit, dispatch }, wallet: WalletInfo) {
             commit("setLoaderConnect", true);
