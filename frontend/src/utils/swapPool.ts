@@ -98,8 +98,8 @@ const DEFAULT_POOL_TOKEN_AMOUNT = 1000000000;
 let POOL_TOKEN_AMOUNT = 100000;
 
 // TODO: Add it to backend
-payer = new Account(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
-owner = new Account(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
+// payer = new Account(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
+// owner = new Account(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
 
 function assert(condition: boolean, message?: string) {
     if (!condition) {
@@ -212,8 +212,8 @@ export async function createTokenSwap(
 ): Promise<any> {
     const connection = await getConnection();
     // payer = await newAccountWithLamports(connection, 1000000000);
-    // payer = Keypair.fromSecretKey(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
-    // owner = Keypair.fromSecretKey(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
+    let payer = Keypair.fromSecretKey(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
+    let owner = Keypair.fromSecretKey(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
     // owner = await newAccountWithLamports(connection, 1000000000);
     const tokenSwapAccount = new Account();
 
@@ -228,8 +228,8 @@ export async function createTokenSwap(
     console.log(authority.toBase58(), "pda Authority pubkey");
     console.log(owner.publicKey.toBase58(), "Owner of the token account pool");
     console.log(owner.secretKey, "owner secret key for the mint token")
-    // console.log(payer.publicKey.toBase58(), "the payer for the account");
-    // console.log(payer.secretKey, "payer secret key");
+    console.log(payer.publicKey.toBase58(), "the payer for the account");
+    console.log(payer.secretKey, "payer secret key");
 
     console.log('creating pool mint');
     tokenPool = await Token.createMint(
@@ -244,47 +244,72 @@ export async function createTokenSwap(
 
     console.log('creating pool account');
     tokenAccountPool = await tokenPool.createAccount(owner.publicKey);
+    console.log("token Account POOl is ", tokenAccountPool);
+    console.log("token account pool pubkey is ", tokenAccountPool.toBase58());
     const ownerKey = SWAP_PROGRAM_OWNER_FEE_ADDRESS || owner.publicKey.toString();
+    console.log("the owner key is ", ownerKey)
     feeAccount = await tokenPool.createAccount(new PublicKey(ownerKey));
-
     console.log(feeAccount.toBase58(), "fee account");
 
     console.log('creating token GENS');
-    GENS = await Token.createMint(
-        connection,
-        payer,
-        owner.publicKey,
-        null,
-        2,
-        TOKEN_PROGRAM_ID,
-    );
-    console.log(GENS.publicKey.toBase58(), 'gens mint addr')
+    // GENS = await Token.createMint(
+    //     connection,
+    //     payer,
+    //     owner.publicKey,
+    //     null,
+    //     2,
+    //     TOKEN_PROGRAM_ID,
+    // );
+    let GENS_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8");
+    console.log(GENS_ADDR.toBase58(), 'gens mint addr')
 
 
     console.log('creating token GENS account');
-    tokenAccountGENS = await GENS.createAccount(authority);
+    let tokenAccountGENS = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        GENS_ADDR,
+        authority
+    );
+    // tokenAccountGENS = await GENS.createAccount(authority);
     console.log(tokenAccountGENS.toBase58(), "pda GENS token account")
 
+    const GensAtaAccountTx = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+        TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+        GENS_ADDR, // mint
+        tokenAccountGENS, // ata
+        owner.publicKey, // owner of token account
+        wallet.publicKey // fee payer
+    )
     console.log('gens account')
     console.log('minting token GENS to swap');
+    let mintGensIx = Token.createMintToInstruction(
+        TOKEN_PROGRAM_ID,
+        GENS_ADDR,
+        tokenAccountGENS,
+        owner.publicKey,
+        [],
+        100000
+    );
     await GENS.mintTo(tokenAccountGENS, owner, [], currentSwapTokenA);
 
     console.log('creating token HGEN');
-    HGEN = await Token.createMint(
-        connection,
-        payer,
-        owner.publicKey,
-        null,
-        2,
-        TOKEN_PROGRAM_ID,
-    );
-    console.log(HGEN.publicKey.toBase58(), 'hgen mint addr')
+    // HGEN = await Token.createMint(
+    //     connection,
+    //     payer,
+    //     owner.publicKey,
+    //     null,
+    //     2,
+    //     TOKEN_PROGRAM_ID,
+    // );
+    // console.log(HGEN.publicKey.toBase58(), 'hgen mint addr')
 
-    console.log('creating token HGEN account');
-    tokenAccountHGEN = await HGEN.createAccount(authority);
-    console.log(tokenAccountHGEN.toBase58(), "pda HGEN token account")
-    console.log('minting token HGEN to swap');
-    await HGEN.mintTo(tokenAccountHGEN, owner, [], currentSwapTokenB);
+    // console.log('creating token HGEN account');
+    // tokenAccountHGEN = await HGEN.createAccount(authority);
+    // console.log(tokenAccountHGEN.toBase58(), "pda HGEN token account")
+    // console.log('minting token HGEN to swap');
+    // await HGEN.mintTo(tokenAccountHGEN, owner, [], currentSwapTokenB);
 
     console.log('creating token swap');
     const swapPayer = wallet;

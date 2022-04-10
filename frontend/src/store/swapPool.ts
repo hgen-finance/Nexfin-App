@@ -423,6 +423,7 @@ function tokenAccountFactory(pubKey: PublicKey, info: AccountInfo<Buffer>) {
 
 // State
 export const state = () => ({
+    pools: [],
     poolInfo: {},
     tokenAmountA: 0,
     tokenAmountB: 0,
@@ -500,11 +501,11 @@ export const actions = actionTree(
                 'CreateTokenSwap (constant product)',
             );
             let poolInfo: Pool = await createTokenSwap(CurveType.ConstantProduct, this.$wallet);
-            commit('setPool', poolInfo);
-            commit('setTokenAmountA', poolInfo.tokenAmountA / 100); // 2 decimal 
-            commit('setTokenAmountB', poolInfo.tokenAmountB / 100); // 2 decimal 
-            dispatch("onTokenAChange", { authority: poolInfo.authority, tokenAccountA: poolInfo.tokenAccountA, tokenAMintAddr: poolInfo.tokenAMintAddr });
-            dispatch("onTokenBChange", { authority: poolInfo.authority, tokenAccountB: poolInfo.tokenAccountB, tokenBMintAddr: poolInfo.tokenBMintAddr });
+            // commit('setPool', poolInfo);
+            // commit('setTokenAmountA', poolInfo.tokenAmountA / 100); // 2 decimal 
+            // commit('setTokenAmountB', poolInfo.tokenAmountB / 100); // 2 decimal 
+            // dispatch("onTokenAChange", { authority: poolInfo.authority, tokenAccountA: poolInfo.tokenAccountA, tokenAMintAddr: poolInfo.tokenAMintAddr });
+            // dispatch("onTokenBChange", { authority: poolInfo.authority, tokenAccountB: poolInfo.tokenAccountB, tokenBMintAddr: poolInfo.tokenBMintAddr });
         },
 
         // Add liquidity
