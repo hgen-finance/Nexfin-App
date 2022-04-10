@@ -61,9 +61,9 @@ const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
     process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS || "54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t";
 
 // Pool fees
-const TRADING_FEE_NUMERATOR = 0;
+const TRADING_FEE_NUMERATOR = 25;
 const TRADING_FEE_DENOMINATOR = 10000;
-const OWNER_TRADING_FEE_NUMERATOR = 0;
+const OWNER_TRADING_FEE_NUMERATOR = 5;
 const OWNER_TRADING_FEE_DENOMINATOR = 10000;
 const OWNER_WITHDRAW_FEE_NUMERATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 1;
 const OWNER_WITHDRAW_FEE_DENOMINATOR = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 0 : 6;
@@ -760,15 +760,16 @@ export async function swap(
     tokenAMintAddr: PublicKey,
     tokenBMintAddr: PublicKey,
     hostFeeAccount: PublicKey,
-    amount: number
+    amount: number,
+    slippagePrice: number,
 ): Promise<void> {
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
         [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
     SWAP_AMOUNT_IN = amount;
-    // SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 5 * amount / 100 : 1 * amount / 100;
-    SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? 20 : 10;
+    // SWAP_AMOUNT_OUT = SWAP_PROGRAM_OWNER_FEE_ADDRESS ? slippagePrice : slippagePrice; // TODO add the fee later with the slipapge price
+    SWAP_AMOUNT_OUT = slippagePrice;
     let genATA;
     let hgenATA;
     try {
@@ -880,7 +881,7 @@ export async function swap(
             hostFeeAccount,
             userTransferAuthority,
             SWAP_AMOUNT_IN,
-            SWAP_AMOUNT_OUT,
+            SWAP_AMOUNT_OUT + 10,
         );
     } catch (err) {
         console.error(err, "swap error")

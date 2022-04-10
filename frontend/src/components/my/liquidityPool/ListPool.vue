@@ -18,14 +18,14 @@
         class="w-100 h-100 fd-c ai-c jc-c ta-c fw-600 fs-5-S f-gray-500 mt-4-S"
       >
         Pool is empty
-        <span
+        <!-- <span
           class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
           style="align-self: center"
           v-if="true"
           @click="createSwapPool"
         >
           + Create Pool
-        </span>
+        </span> -->
       </div>
     </div>
     <div v-if="getPoolInfo.tokenAmountA > 0">
