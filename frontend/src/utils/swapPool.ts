@@ -98,8 +98,8 @@ const DEFAULT_POOL_TOKEN_AMOUNT = 1000000000;
 let POOL_TOKEN_AMOUNT = 100000;
 
 // TODO: Add it to backend
-// payer = new Account(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
-// owner = new Account(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
+payer = new Account(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
+owner = new Account(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
 
 function assert(condition: boolean, message?: string) {
     if (!condition) {

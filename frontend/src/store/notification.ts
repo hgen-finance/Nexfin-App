@@ -46,7 +46,11 @@ export const actions = actionTree(
     {
         async increaseCounterId({ state, commit }) {
             commit("setCounterId", state.counterId + 1);
+
         },
+        // clearNotification({state32}){
+        //     if
+        // },
 
         async notify({ state, commit, dispatch }, value) {
             const newNotiifcation: Notificationtx = {
