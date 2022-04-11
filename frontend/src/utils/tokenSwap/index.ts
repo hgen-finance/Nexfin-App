@@ -582,6 +582,7 @@ export class TokenSwap {
         // TODO: Only replace this inside  TokenSwap.depositAllTokenTypesInstruction for testing with wallet.publicKey
         //  userTransferAuthority.publicKey,
         console.log("Starting to add tx here...")
+        console.log(maximumTokenA, maximumTokenB);
         let tx = new Transaction();
         let depositIx = TokenSwap.depositAllTokenTypesInstruction(
             tokenSwapAccount,
@@ -596,8 +597,8 @@ export class TokenSwap {
             TOKEN_SWAP_PROGRAM_ID,
             TOKEN_PROGRAM_ID,
             poolTokenAmount,
-            maximumTokenA,
-            maximumTokenB,
+            1000000,
+            1000000,
         )
         if (instruction) {
             tx.add(
