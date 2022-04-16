@@ -23,22 +23,23 @@
         </span>
         <span class="fw-600 pr-1">% </span>CR)
       </div>
-      <div class="w-100 pt-6-S pb-15-XS fd-r-S fd-r-XS">
-        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+      <div class="w-100 fd-r-S fd-r-XS mcolor-1000 bs-sb-all rad-fix-3">
+        <div class="w-50-S w-100-XS">
           <AmButton
-            color="red-500"
-            bColor="red-500"
+            color="mcolor-1000"
+            bColor="mcolor-1000"
             full
             opacityEffect
             scaleEffect
+            disableShadow
             v-if="!getBorrowOrPay"
             @click="changeBorrowOrPayFunc"
           >
             Borrow
           </AmButton>
           <AmButton
-            color="red-500"
-            bColor="red-500"
+            color="gradient-5000"
+            bColor="gradient-5000"
             colorText="white-200"
             full
             disabled
@@ -47,10 +48,10 @@
             Borrow
           </AmButton>
         </div>
-        <div class="w-50-S w-100-XS ml-2-L ml-2-S ml-0-XS">
+        <div class="w-50-S w-100-XS">
           <AmButton
-            color="green-500"
-            bColor="green-500"
+            color="gradient-5001"
+            bColor="gradient-5001"
             colorText="white-200"
             full
             disabled
@@ -59,11 +60,12 @@
             Pay Debt
           </AmButton>
           <AmButton
-            color="green-500"
-            bColor="green-500"
+            color=""
+            bColor="mcolor-1000"
             full
             opacityEffect
             scaleEffect
+            disableShadow
             v-if="getBorrowOrPay"
             @click="changeBorrowOrPayFunc"
           >

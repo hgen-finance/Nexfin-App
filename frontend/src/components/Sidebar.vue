@@ -136,6 +136,7 @@ export default {
     return {
       items: [
         { id: 1, name: "Dashboard", to: "/my", class: "my" },
+
         {
           id: 9,
           name: "Liquidity Pool",
@@ -143,26 +144,32 @@ export default {
           class: "my-liquidityPool",
         },
         { id: 3, name: "Swap", to: "/my/swap", class: "my-swap" },
+
         { id: 2, name: "Borrow", to: "/my/borrowing", class: "my-borrowing" },
-        {
-          id: 8,
-          name: "Liquidity",
-          to: "/my/liquidity",
-          class: "my-liquidity",
-        },
+
         { id: 4, name: "Stake", to: "/my/pool", class: "my-pool" },
+
         { id: 6, name: "Farm", to: "/my/farming", class: "my-farming" },
+
         {
           id: 7,
           name: "PF Stake Pool",
           to: "/my/PFStakePool",
           class: "my-projectfarm",
         },
+
         {
           id: 5,
           name: "Liquidation",
           to: "/my/liquidation",
           class: "my-risky",
+        },
+
+        {
+          id: 8,
+          name: "Liquidity",
+          to: "/my/liquidity",
+          class: "my-liquidity",
         },
       ],
     };
