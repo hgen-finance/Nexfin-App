@@ -333,7 +333,6 @@ export default class farmingUtil {
             [],
             depositedHgen * 1e2
         )
-        let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
         let tx = new Transaction();
 
         tx.add(tokenTransaction, hgenTokenIx)
@@ -373,7 +372,10 @@ export default class farmingUtil {
         });
 
         try {
-            this.sendTransaction(new Transaction().add(instruction, tokenTransaction, hgenTokenIx))
+            let tx = new Transaction();
+            tx.add(instruction, tokenTransaction, hgenTokenIx)
+
+            this.sendTransactionKey(tx)
         } catch (err) {
             console.error(err, "aerror")
         }
@@ -469,14 +471,28 @@ export default class farmingUtil {
     //         ) / 100
     //     );
     // };
+    async sendTransactionKey(transaction: Transaction) {
+        transaction.feePayer = this.provider.publicKey;
+        transaction.setSigners(this.provider.publicKey);
+        let { blockhash } = await this.connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+        let signedTransaction = await this.provider.signTransaction(transaction);
+        let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
+        signedTransaction.partialSign(keypair);
+
+        await this.connection.sendRawTransaction(
+            signedTransaction.serialize(),
+            this.provider.publicKey
+        );
+    }
+
     async sendTransaction(transaction: Transaction) {
 
         transaction.feePayer = this.provider.publicKey;
         transaction.setSigners(this.provider.publicKey);
 
-        transaction.recentBlockhash = (
-            await this.connection.getRecentBlockhash()
-        ).blockhash;
+        let { blockhash } = await this.connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
         let signedTransaction = await this.provider.signTransaction(transaction);
         console.log(signedTransaction, "tx")
         await this.connection.sendRawTransaction(
