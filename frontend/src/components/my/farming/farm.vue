@@ -99,10 +99,11 @@
               class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
               placeholder="0"
               v-model="to"
+              disabled
             />
             <span
               class="fs-6 f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
-              @click="setmax"
+              @click="setMax"
               >Max</span
             >
           </div>
@@ -213,15 +214,15 @@ export default {
     };
   },
   mounted() {
-    // change value on input instead of the change
-    document.getElementById("from").addEventListener("input", function () {
-      document.getElementById("to").value = this.value * CONVERT_HGEN;
-      this.to = this.value;
-    });
-    document.getElementById("to").addEventListener("input", function () {
-      document.getElementById("from").value = this.value * CONVERT_SOL;
-      this.form = this.value;
-    });
+    // // change value on input instead of the change
+    // document.getElementById("from").addEventListener("input", function () {
+    //   document.getElementById("to").value = this.value * CONVERT_HGEN;
+    //   this.to = this.value;
+    // });
+    // document.getElementById("to").addEventListener("input", function () {
+    //   document.getElementById("from").value = this.value * CONVERT_SOL;
+    //   this.form = this.value;
+    // });
   },
   computed: {
     getUsd() {
@@ -259,7 +260,12 @@ export default {
       return this.day;
     },
   },
-  watch: {},
+  watch: {
+    from(val) {
+      this.to = val * (this.$accessor.usd || 100);
+    },
+    to(val) {},
+  },
   methods: {
     reset() {
       this.from = null;
@@ -273,9 +279,21 @@ export default {
       this.open = false;
     },
     setFarmingData() {
-      if (this.getFrom !== null && this.getTo !== null && this.getDay !== null)
-        farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
-      else alert("Enter the values correctly");
+      if (
+        this.getFrom !== null &&
+        this.getTo !== null &&
+        this.getDay !== null
+      ) {
+        console.log(Number(this.$accessor.wallet.balanceHGEN), "|", this.getTo);
+        if (
+          this.getFrom < Number(this.$accessor.wallet.balance) &&
+          this.getTo < Number(this.$accessor.wallet.balanceHGEN)
+        ) {
+          console.log("this is working");
+          farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
+        }
+      }
+      //   else alert("Enter the values correctly");
     },
     convertToHgen() {
       // converting to hgen when sol is entered

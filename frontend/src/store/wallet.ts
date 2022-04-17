@@ -10,10 +10,10 @@ import { WalletAdapter } from "@solana/wallet-base";
 import { PhantomWalletAdapter } from "@/components/my/wallets";
 
 export const TOKEN_GENS = new PublicKey(
-    "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe"
+    "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8"
 );
 export const TOKEN_HGEN = new PublicKey(
-    "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3"
+    "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC"
 );
 const LAMPORTS = 1000000000;
 

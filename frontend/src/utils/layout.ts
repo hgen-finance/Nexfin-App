@@ -123,19 +123,29 @@ export interface FarmingLayout {
 
 // export const TOKEN_GENS = new PublicKey('JCnyD2wyimf5P3MBVAxB5yCVhotmswDhvrwXdS9xNbAq')
 //export const TOKEN_GENS = new PublicKey('C6tfES3TrhTzQnRopAyqHAjx4ixShAzJ16QeffWvoXBk')
+// export const TOKEN_GENS = new PublicKey(
+//     "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe"
+// );
 export const TOKEN_GENS = new PublicKey(
-    "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe"
+    "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8"
 );
+// export const TOKEN_GENS_ACC = new PublicKey(
+//     "Dgb9x1ay5qEFHPimLJY9JZpTHcssdvYgM7aC5c2DVA73"
+// );
 export const TOKEN_GENS_ACC = new PublicKey(
-    "Dgb9x1ay5qEFHPimLJY9JZpTHcssdvYgM7aC5c2DVA73"
+    "HqESSnK1XaQ33Ww4YecraNxEXJEs6zVwxDgQ5vWkSutX"
 );
+
 //export const TOKEN_HGEN = new PublicKey('4MxiWoWWgRmd7YAPmJNtaivDATVgpoGjHbrdF4d2EmoJ')
 // export const TOKEN_HGEN = new PublicKey(
 //     "6UeYcgjzpij4wGhVShJQsoCoi3nk2bPvz4v4Dz4cmMVv"
 // );
 
+// export const TOKEN_HGEN = new PublicKey(
+//     "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3"
+// );
 export const TOKEN_HGEN = new PublicKey(
-    "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3"
+    "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC"
 );
 
 export const SYS_ACCOUNT = new PublicKey(

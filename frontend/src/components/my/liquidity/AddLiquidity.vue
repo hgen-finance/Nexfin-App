@@ -163,8 +163,8 @@ import {
 } from "@/utils/layout";
 
 const TOKENS = [
-  { label: "GENS", value: "2U3Mf4umT4CpLhhdwpfmGiktyvhdrLrNNv4z4GgsXNMe" },
-  { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
+  { label: "GENS", value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8" },
+  { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
 // TODO: Fetch these value from the pool, currently the values are hardcoded
