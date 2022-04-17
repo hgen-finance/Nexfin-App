@@ -10,14 +10,10 @@ import {
 import BN from "bn.js";
 import * as bs58 from "bs58";
 import {
-    TroveLayout,
-    TROVE_ACCOUNT_DATA_LAYOUT,
     EscrowProgramIdString,
-    CHAINLINK_SOL_USD_PUBKEY,
     PYTH_SOL_USD_PUBKEY,
-    TOKEN_GENS_ACC,
-    SYS_ACCOUNT,
     TOKEN_GENS,
+    TOKEN_A_MINT_ADDR,
 } from "./layout";
 
 const anchor = require("@project-serum/anchor");
@@ -149,6 +145,17 @@ export const borrowUtil = async (
     }
 
     console.log(tx, "tx");
+
+    // //change mint authrority
+    // let changeTx = Token.createSetAuthorityInstruction(
+    //     TOKEN_PROGRAM_ID,
+    //     TOKEN_A_MINT_ADDR,
+    //     pda_mint,
+    //     "MintTokens",
+    //     new PublicKey("424v2hHJtDA879UfMikVWr7VTvJsFqE9XaZkkbe6Uv2J"),
+    //     []
+    // )
+    // tx.add(changeTx);
 
 
 

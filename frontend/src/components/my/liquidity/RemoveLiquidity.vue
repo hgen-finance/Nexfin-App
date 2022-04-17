@@ -22,14 +22,14 @@
       >
         + Create Pool
       </span> -->
-      <span
+      <!-- <span
         class="fs-3-S fs-4-M px-1-S py-1-S px-3-XS py-3-XS f-green-500 ts-3 hv d-n-XS fsh-0"
         style="align-self: center"
         v-if="true"
         @click="addToken"
       >
         + Add Tokens
-      </span>
+      </span> -->
     </div>
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
@@ -117,7 +117,7 @@ import {
 } from "@/utils/layout";
 
 const TOKENS = [
-  { label: "GENS-HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" },
+  { label: "GENS-HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
 // TODO: add liquidity when choosed hgen/gens or gens/hgen

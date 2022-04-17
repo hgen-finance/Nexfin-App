@@ -1,4 +1,4 @@
-import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, Token, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
     Account,
     PublicKey,
@@ -14,22 +14,28 @@ import {
     FARMING_ACCOUNT_DATA_LAYOUT,
     INSTRUCTION_LAYOUT,
     InstructionLayout,
+    TOKEN_HGEN
 } from "./layout";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import axios from "axios";
 import * as web3 from "@solana/web3.js";
 import web3Plugin from "@/plugins/web3";
 import * as bs58 from "bs58";
+import { pbkdf2 } from "crypto";
+import { publicKey } from "./tokenSwap/layout";
 const programId = new PublicKey("3PtvnRuzC68zrDQoRsoKVQoVvhbVF7fTxeYzLF6mN3EE");
 const destination = new PublicKey(
-    "FnKXCAbNzvAGKtTqSxH2NrWemR4CoJhCMrdk4ihBG2P6"
+    "GvAQoq7SKdYhTNvjmEV5q8CNvkuufJH2oJCJWnx2YRj9"
 );
 const privateKey =
-    "224128Zpov8A1AVMGC3Ys46oZEerngk24PQCpbkyBdnSS3jBS1jtbQPMJzwY3bdqyYVegYHF9eK9Vqa4vp78epY4";
+    "4HSyzYxopDieeTKG8jRX6iznPM9ALWSiR2Va9xzSfYnk25o41SNrJiMZZTEnxkmfWnQnuvg4h7MbJDEK4WBzUGTm";
 var farming_account: PublicKey;
+
 export default class farmingUtil {
     connection: Connection;
     provider: any;
+    instructions: web3.TransactionInstruction[] = [];
+
     constructor() {
         this.connection = new Connection(
             "https://api.devnet.solana.com",
@@ -45,7 +51,7 @@ export default class farmingUtil {
             "computer",
             programId
         );
-        let transaction = new Transaction().add(
+        let transaction =
             SystemProgram.createAccountWithSeed({
                 fromPubkey: this.provider.publicKey,
                 basePubkey: this.provider.publicKey,
@@ -55,8 +61,8 @@ export default class farmingUtil {
                 space: 97,
                 programId: programId,
             })
-        );
-        await this.sendTransaction(transaction);
+
+        this.instructions.push(transaction)
     }
     async getTotalAmount() {
         let total = 0;
@@ -143,8 +149,8 @@ export default class farmingUtil {
             });
         }
 
-        let accountInfo = await this.connection.getAccountInfo(farming_account);
-        if (accountInfo == null) return false;
+        // let accountInfo = await this.connection.getAccountInfo(farming_account);
+        // if (accountInfo == null) return false;
         let today = new Date();
         let startDate =
             today.getFullYear() +
@@ -191,6 +197,40 @@ export default class farmingUtil {
         let sendData = Buffer.alloc(97);
         INSTRUCTION_LAYOUT.encode(_sendData, sendData);
         let balance = await this.connection.getBalance(this.provider.publicKey);
+
+        // get the token account info of the wallet
+        let HGENS = await this.connection.getParsedTokenAccountsByOwner(destination, {
+            mint: TOKEN_HGEN,
+        });
+        let tokenATA = HGENS.value[0] ? HGENS.value[0].pubkey.toBase58() : "";
+
+        let source_HGEN = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
+            mint: TOKEN_HGEN,
+        });
+        let sourceATA = source_HGEN.value[0] ? source_HGEN.value[0].pubkey.toBase58() : "";
+
+
+
+        // create a ATA account if the wallet user doesnt have one
+        let ata;
+        if (tokenATA != "") {
+            ata = new PublicKey(tokenATA);
+        }
+
+
+        if (tokenATA == "") {
+            // Only create tx if the account wasnt present
+            // calculate ATA
+            ata = await Token.getAssociatedTokenAddress(
+                ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+                TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+                TOKEN_HGEN, // mint
+                destination // owner
+            );
+        }
+        console.log(tokenATA, "|", ata);
+
+
         if (depositedSol * 1e9 > balance) {
             alert("Deposited SOL amount is too much!");
             return false;
@@ -207,19 +247,48 @@ export default class farmingUtil {
                 programId: programId,
                 data: sendData,
             });
-            let transaction = new Transaction().add(instruction);
-            await this.sendTransaction(transaction);
 
-            let tokenTransaction = new web3.Transaction().add(
+
+            let tokenTransaction =
                 web3.SystemProgram.transfer({
                     fromPubkey: this.provider.publicKey,
                     toPubkey: destination,
                     lamports: depositedSol * 1e9,
                 })
-            );
-            await this.sendTransaction(tokenTransaction);
+
+            // let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
+
+            console.log("the ata is ", ata);
+
+            let hgenTokenIx;
+            hgenTokenIx = Token.createTransferInstruction(
+                TOKEN_PROGRAM_ID,
+                new PublicKey(sourceATA),
+                ata,
+                this.provider.publicKey,
+                [],
+                depositedHgen * 1e2
+            )
+
+
+            if (tokenATA == "") {
+                const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
+                    ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+                    TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+                    TOKEN_HGEN, // mint
+                    ata, // ata
+                    destination, // owner of token account
+                    this.provider.publicKey // fee payer
+                )
+                this.instructions.push(ataAccountTx, instruction, hgenTokenIx, tokenTransaction,);
+            }
+            else {
+                this.instructions.push(instruction, hgenTokenIx, tokenTransaction)
+            }
+
+            const transaction = new web3.Transaction().add(...this.instructions);
+            this.sendTransaction(transaction);
         }
-        alert("Success!!!, please reload the page.");
         return true;
     }
     async withdrawFarm() {
@@ -231,19 +300,44 @@ export default class farmingUtil {
             dayLength,
             dayLeft,
         } = await this.getFarmingAccount();
-        let tokenTransaction = new web3.Transaction().add(
+        let tokenTransaction =
             web3.SystemProgram.transfer({
                 fromPubkey: destination,
                 toPubkey: this.provider.publicKey,
                 lamports: depositedSol * 1e9,
             })
-        );
+
+        // get the token account info of the wallet
+        let HGENS = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
+            mint: TOKEN_HGEN,
+        });
+        let tokenATA = HGENS.value[0] ? HGENS.value[0].pubkey.toBase58() : "";
+
+        // create a ATA account if the wallet user doesnt have one
+        let ata;
+        if (tokenATA != "") {
+            ata = new PublicKey(tokenATA);
+        }
+
+        let source_HGENS = await this.connection.getParsedTokenAccountsByOwner(destination, {
+            mint: TOKEN_HGEN,
+        });
+        let sourceTokenATA = source_HGENS.value[0] ? source_HGENS.value[0].pubkey.toBase58() : "";
+
+        let hgenTokenIx;
+        hgenTokenIx = Token.createTransferInstruction(
+            TOKEN_PROGRAM_ID,
+            new PublicKey(sourceTokenATA),
+            ata,
+            destination,
+            [],
+            depositedHgen * 1e2
+        )
         let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
-        let signature = await web3.sendAndConfirmTransaction(
-            this.connection,
-            tokenTransaction,
-            [keypair]
-        );
+        let tx = new Transaction();
+
+        tx.add(tokenTransaction, hgenTokenIx)
+        // await web3.sendAndConfirmTransaction(this.connection, tx, [, keypair])
 
         let dt = 0;
         let start = Buffer.alloc(32);
@@ -277,9 +371,14 @@ export default class farmingUtil {
             programId: programId,
             data: sendData,
         });
-        let transaction = new Transaction().add(instruction);
-        await this.sendTransaction(transaction);
-        alert("Withdraw has finished. Please reload the page.");
+
+        try {
+            this.sendTransaction(new Transaction().add(instruction, tokenTransaction, hgenTokenIx))
+        } catch (err) {
+            console.error(err, "aerror")
+        }
+
+        // alert("Withdraw has finished. Please reload the page.");
     }
     getEndDate(startDate: Date, length: number) {
         let res = new Date(startDate);
@@ -313,62 +412,74 @@ export default class farmingUtil {
             programId: programId,
             data: sendData,
         });
-        let transaction = new Transaction().add(instruction);
-        await this.sendTransaction(transaction);
+
+        this.instructions.push(instruction)
+        // let transaction = new Transaction().add(instruction);
+        // await this.sendTransaction(transaction);
         return true;
     }
-    async getMBalance() {
-        this.connection = new Connection(
-            "https://api.devnet.solana.com",
-            "confirmed"
-        );
-        this.provider = (window as any).solana;
-        let sol_balance =
-            (await this.connection.getBalance(this.provider.publicKey)) / 1e9;
-        let usd = sol_balance * 180.22;
-        let hgen = (12213432.9873 / 2000.34) * usd;
-        let gens = (20000.01 / 2000.34) * usd;
-        return {
-            sol_balance,
-            usd,
-            hgen,
-            gens,
-        };
-    }
-    getTokenBalance = async (walletAddress, tokenMintAddress) => {
-        const response = await axios({
-            url: "https://api.devnet.solana.com",
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            data: {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getTokenAccountsByOwner",
-                params: [
-                    walletAddress,
-                    {
-                        mint: tokenMintAddress,
-                    },
-                    {
-                        encoding: "jsonParsed",
-                    },
-                ],
-            },
-        });
-        return (
-            Number(
-                response?.data?.result?.value[0]?.account?.data?.parsed?.info
-                    ?.tokenAmount?.amount
-            ) / 1000000000
-        );
-    };
+    // async getMBalance() {
+    //     this.connection = new Connection(
+    //         "https://api.devnet.solana.com",
+    //         "confirmed"
+    //     );
+    //     this.provider = (window as any).solana;
+    //     let sol_balance =
+    //         (await this.connection.getBalance(this.provider.publicKey)) / 1e9;
+    //     let usd = sol_balance * 180.22;
+    //     let hgen = (12213432.9873 / 2000.34) * usd;
+    //     let gens = (20000.01 / 2000.34) * usd;
+    //     return {
+    //         sol_balance,
+    //         usd,
+    //         hgen,
+    //         gens,
+    //     };
+    // }
+    // getTokenBalance = async (walletAddress, tokenMintAddress) => {
+    //     const response = await axios({
+    //         url: "https://api.devnet.solana.com",
+    //         method: "post",
+    //         headers: { "Content-Type": "application/json" },
+    //         data: {
+    //             jsonrpc: "2.0",
+    //             id: 1,
+    //             method: "getTokenAccountsByOwner",
+    //             params: [
+    //                 walletAddress,
+    //                 {
+    //                     mint: tokenMintAddress,
+    //                 },
+    //                 {
+    //                     encoding: "jsonParsed",
+    //                 },
+    //             ],
+    //         },
+    //     });
+    //     // return (
+    //     //     Number(
+    //     //         response?.data?.result?.value[0]?.account?.data?.parsed?.info
+    //     //             ?.tokenAmount?.amount
+    //     //     ) / 1000000000
+    //     // );
+    //     return (
+    //         Number(
+    //             response?.data?.result?.value[0]?.account?.data?.parsed?.info
+    //                 ?.tokenAmount?.amount
+    //         ) / 100
+    //     );
+    // };
     async sendTransaction(transaction: Transaction) {
+        let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
         transaction.feePayer = this.provider.publicKey;
         transaction.setSigners(this.provider.publicKey);
+
         transaction.recentBlockhash = (
             await this.connection.getRecentBlockhash()
         ).blockhash;
+        transaction.partialSign(keypair);
         let signedTransaction = await this.provider.signTransaction(transaction);
+        console.log(signedTransaction, "tx")
         await this.connection.sendRawTransaction(
             signedTransaction.serialize(),
             this.provider.publicKey

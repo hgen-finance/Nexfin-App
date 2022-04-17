@@ -90,7 +90,7 @@
         </div>
         <div class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c">
           {{ depositedSol }}
-          <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
+          <span class="f-white-200 pl-1-S pl-5-XS">SOL</span>
         </div>
       </div>
       <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
