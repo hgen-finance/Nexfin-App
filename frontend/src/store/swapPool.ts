@@ -520,6 +520,9 @@ export const actions = actionTree(
                 }
             }
             await depositAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, value.to);
+            this.$accessor.wallet.getBalance();
+            this.$accessor.wallet.getGENSBalance();
+            this.$accessor.wallet.getHGENBalance();
         },
 
         // Remove Liquidity
@@ -552,6 +555,9 @@ export const actions = actionTree(
             }
 
             await withdrawAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, feeAccount);
+            this.$accessor.wallet.getBalance();
+            this.$accessor.wallet.getGENSBalance();
+            this.$accessor.wallet.getHGENBalance();
         },
 
         // swap tokens for the pool
@@ -580,6 +586,10 @@ export const actions = actionTree(
                     hostFeeAccount = new PublicKey(tokenATAFee);
 
                     await swap(this.$wallet, this.$web3, tokenSwapAccount.publicKey, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
+                    this.$accessor.wallet.getBalance();
+                    this.$accessor.wallet.getGENSBalance();
+                    this.$accessor.wallet.getHGENBalance();
+
                 } catch (err) {
                     console.error(err, "Account error")
                 }
