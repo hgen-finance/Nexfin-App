@@ -470,14 +470,13 @@ export default class farmingUtil {
     //     );
     // };
     async sendTransaction(transaction: Transaction) {
-        let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
+
         transaction.feePayer = this.provider.publicKey;
         transaction.setSigners(this.provider.publicKey);
 
         transaction.recentBlockhash = (
             await this.connection.getRecentBlockhash()
         ).blockhash;
-        transaction.partialSign(keypair);
         let signedTransaction = await this.provider.signTransaction(transaction);
         console.log(signedTransaction, "tx")
         await this.connection.sendRawTransaction(

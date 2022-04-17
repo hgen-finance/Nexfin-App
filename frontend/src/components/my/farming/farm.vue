@@ -291,6 +291,9 @@ export default {
         ) {
           console.log("this is working");
           farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
+          this.$accessor.wallet.getBalance();
+          this.$accessor.wallet.getGENSBalance();
+          this.$accessor.wallet.getHGENBalance();
         }
       }
       //   else alert("Enter the values correctly");
