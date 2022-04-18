@@ -75,9 +75,9 @@
               maxlength="12"
             />
             <span
-              class="fs-6 f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
+              class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
               @click="setMax"
-              >Max</span
+              >max</span
             >
           </div>
         </div>
@@ -102,9 +102,9 @@
               disabled
             />
             <span
-              class="fs-6 f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
+              class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
               @click="setMax"
-              >Max</span
+              >max</span
             >
           </div>
         </div>

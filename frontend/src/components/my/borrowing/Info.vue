@@ -90,18 +90,7 @@
       <div class="w-100" v-if="!withdrawOrDeposit">
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Amount Received
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-white-200 fd-r ai-c"
-          >
-            <span class="f-mcolor-100 mr-1"> {{ amountReceived }} </span
-            ><span class="mr-1">SOL</span>
-          </div>
-        </div>
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Remaining Amount
+            Borrowed Gens
           </div>
           <div
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-white-200 fd-r ai-c"
@@ -111,6 +100,17 @@
             ><span class="mr-1">GENS</span> (<span class="f-mcolor-100">
               {{ getRatio }}</span
             >% CR)
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
+            Collateral SOL
+          </div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-white-200 fd-r ai-c"
+          >
+            <span class="f-mcolor-100 mr-1">{{ getTroveCollateral || 0 }} </span
+            ><span class="mr-1">SOL</span>
           </div>
         </div>
       </div>
@@ -372,6 +372,9 @@ export default {
     },
     getIsBorrow() {
       return this.$accessor.borrowing.troveId;
+    },
+    getTroveCollateral() {
+      return this.$accessor.borrowing.trove.lamports;
     },
     getTroveAmount() {
       return this.$accessor.borrowing.trove

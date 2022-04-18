@@ -137,12 +137,6 @@ export default {
       items: [
         { id: 1, name: "Dashboard", to: "/my", class: "my" },
 
-        {
-          id: 9,
-          name: "Liquidity Pool",
-          to: "/my/liquidityPool",
-          class: "my-liquidityPool",
-        },
         { id: 3, name: "Swap", to: "/my/swap", class: "my-swap" },
 
         { id: 2, name: "Borrow", to: "/my/borrowing", class: "my-borrowing" },
@@ -170,6 +164,12 @@ export default {
           name: "Liquidity",
           to: "/my/liquidity",
           class: "my-liquidity",
+        },
+        {
+          id: 9,
+          name: "Liquidity Pool",
+          to: "/my/liquidityPool",
+          class: "my-liquidityPool",
         },
       ],
     };

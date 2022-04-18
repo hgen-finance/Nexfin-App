@@ -22,23 +22,23 @@
         }}</span>
         <span class="fw-600 pr-1">% </span>)
       </div>
-      <div class="w-100 pt-6-S pb-15-XS fd-r-S fd-r-XS">
-        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+      <div class="w-100 fd-r-S fd-r-XS mcolor-1000 bs-sb-all rad-fix-3">
+        <div class="w-50-S w-100-XS">
           <AmButton
-            shadow="shadow-green-100"
-            color="green-500"
-            bColor="green-500"
+            color=""
+            bColor="mcolor-1000"
+            full
             opacityEffect
             scaleEffect
-            full
+            disableShadow
             v-if="!getWithdrawOrDeposit"
             @click="changeWithdrawFunc"
           >
             Deposit
           </AmButton>
           <AmButton
-            color="green-500"
-            bColor="green-500"
+            color="gradient-5001"
+            bColor="gradient-5001"
             colorText="white-200"
             full
             disabled
@@ -47,10 +47,10 @@
             Deposit
           </AmButton>
         </div>
-        <div class="w-50-S w-100-XS ml-2-L ml-2-S ml-0-XS">
+        <div class="w-50-S w-100-XS">
           <AmButton
-            color="red-500"
-            bColor="red-500"
+            color="gradient-5000"
+            bColor="gradient-5000"
             colorText="white-200"
             full
             disabled
@@ -59,12 +59,12 @@
             Withdraw
           </AmButton>
           <AmButton
-            shadow="shadow-red-100"
-            color="red-500"
-            bColor="red-500"
+            color="mcolor-1000"
+            bColor="mcolor-1000"
             full
             opacityEffect
             scaleEffect
+            disableShadow
             v-if="getWithdrawOrDeposit"
             @click="changeWithdrawFunc"
           >
@@ -90,9 +90,9 @@
             v-model="withdrawAmount"
           />
           <span
-            class="fs-6 f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
+            class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
             @click="setMaxWithdraw"
-            >Max</span
+            >max</span
           >
         </div>
       </div>
@@ -114,9 +114,9 @@
             v-model="from"
           />
           <span
-            class="fs-6 f-mcolor-100 td-u ts-3 hv d-n-XS fsh-0"
+            class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
             @click="setMax"
-            >Max</span
+            >max</span
           >
         </div>
       </div>

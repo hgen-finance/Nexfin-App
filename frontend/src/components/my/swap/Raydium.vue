@@ -76,19 +76,8 @@
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
-      <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS ai-c jc-sb"
-      >
-        <span
-          class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 z-1"
-          @click="setMax"
-          >Max</span
-        >
-        <span class="z-1">From</span>
-      </div>
-
-      <div class="w-100 pb-3-S pb-0 fd-r jc-r">
-        <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS pb-1">
+      <div class="w-100 pb-0 fd-r jc-r">
+        <div class="p-a-S p-r-XS l-0 t-0 w-fix-35-S w-35-XS">
           <AmSelectbox
             v-bind:data.sync="currencyFrom"
             :update="true"
@@ -96,6 +85,25 @@
             :padding="false"
           />
         </div>
+
+        <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
+          <span
+            class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
+            >B.
+            <span class="f-green-500">{{
+              currencyFrom.balance || 0
+            }}</span></span
+          >
+        </div>
+      </div>
+      <div
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-1-S pt-10-XS ai-c jc-sb"
+      >
+        <span
+          class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 z-1"
+          @click="setMax"
+          >max</span
+        >
         <input
           class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
           placeholder="0"
@@ -113,14 +121,8 @@
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
-      <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS fd-r jc-sb z-4"
-      >
-        <span> Estimated </span>
-        <span> To </span>
-      </div>
-      <div class="w-100 pb-3-S pb-0 fd-r jc-r ai-c">
-        <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS">
+      <div class="w-100 pb-0 fd-r jc-r">
+        <div class="p-a-S p-r-XS l-0 t-0 w-fix-35-S w-35-XS">
           <AmSelectbox
             v-bind:data.sync="currencyTo"
             :update="true"
@@ -128,6 +130,24 @@
             :padding="false"
           />
         </div>
+
+        <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
+          <span
+            class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
+            >B.
+            <span class="f-green-500">
+              {{ currencyTo.balance || 0 }}</span
+            ></span
+          >
+        </div>
+      </div>
+      <div
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-1-S pt-10-XS ai-c jc-sb"
+      >
+        <span
+          class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 f-white-200 pr-3 pl-1 py-1 rad-fix-3 z-1"
+          >est.</span
+        >
         <div
           class="w-fix-s-10min fs-6-S fs-25-XS fw-600 br-0 oul-n ta-r"
           :class="{
@@ -329,6 +349,7 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
         name: "GENS",
+        balance: 0,
       },
       to: 0,
       currencyTo: {
@@ -378,37 +399,131 @@ export default {
       }
       return tokenPrice;
     },
+    getBalance() {
+      let result = 0;
+      if (this.$accessor.wallet.balance) {
+        result = Number(this.$accessor.wallet.balance).toString().split(".");
+        if (result.length > 1) {
+          result =
+            result[1].length > 1
+              ? Number(result[0]).toLocaleString() +
+                "." +
+                result[1].substr(0, 2)
+              : Number(result[0].toLocaleString());
+        }
+      }
+      return result.toString();
+    },
+    getBalanceHGEN() {
+      let result = 0;
+      if (this.$accessor.wallet.balanceHGEN) {
+        result = Number(this.$accessor.wallet.balanceHGEN)
+          .toString()
+          .split(".");
+        console.log("the gens is", result);
+        if (result.length > 1) {
+          result =
+            result[1].length > 1
+              ? Number(result[0]).toLocaleString() +
+                "." +
+                result[1].substr(0, 2)
+              : Number(result[0].toLocaleString());
+        }
+      }
+
+      return result.toString();
+    },
+    getBalanceGENS() {
+      let result = 0;
+      if (this.$accessor.wallet.balanceGENS) {
+        result = Number(this.$accessor.wallet.balanceGENS)
+          .toString()
+          .split(".");
+        if (result.length > 1) {
+          result =
+            result[1].length > 1
+              ? Number(result[0]).toLocaleString() +
+                "." +
+                result[1].substr(0, 2)
+              : Number(result[0].toLocaleString());
+        }
+      }
+      return result.toString();
+    },
   },
   watch: {
     currencyFrom: {
       deep: true,
       handler(val) {
-        this.tokenAacc = val.items.filter(
-          (item) => item.value == val.value
-        )[0].tokenAccgh;
-        this.tokenAMintAddr = val.items.filter(
-          (item) => item.value == val.value
-        )[0].mintAddr;
-        this.currencyFrom.name = val.items.filter(
-          (item) => item.value == val.value
-        )[0].label;
-        this.convert();
+        if (val.name != this.currencyTo.name) {
+          console.log(val.name, "||", this.currencyFrom.name);
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAccgh;
+          this.tokenAMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+          this.currencyFrom.name = val.items.filter(
+            (item) => item.value == val.value
+          )[0].label;
+
+          console.log(
+            val.items.filter((item) => item.value == val.value)[0].label,
+            "val for from"
+          );
+          console.log(this.currencyFrom.name, "check name for from");
+
+          // for balance
+          // TODO make it look for the account info using the mint address and ata of the account
+
+          if (this.currencyFrom.name == "HGEN") {
+            this.currencyFrom.balance = this.getBalanceHGEN;
+          }
+          if (this.currencyFrom.name == "GENS") {
+            this.currencyFrom.balance = this.getBalanceGENS;
+          }
+          if (this.currencyFrom.name == "SOL") {
+            this.currencyFrom.balance = this.getBalance;
+          }
+          this.convert();
+        }
       },
     },
     currencyTo: {
       deep: true,
       handler(val) {
-        this.tokenBacc = val.items.filter(
-          (item) => item.value == val.value
-        )[0].tokenAccgh;
+        if (val.name != this.currencyFrom.name) {
+          console.log(val.name, "|", this.currencyFrom.name);
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAccgh;
 
-        this.tokenBMintAddr = val.items.filter(
-          (item) => item.value == val.value
-        )[0].mintAddr;
-        this.currencyTo.name = val.items.filter(
-          (item) => item.value == val.value
-        )[0].label;
-        this.convert();
+          this.tokenBMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+          this.currencyTo.name = val.items.filter(
+            (item) => item.value == val.value
+          )[0].label;
+          console.log(
+            val.items.filter((item) => item.value == val.value)[0].label,
+            "val for to"
+          );
+          console.log(this.currencyTo.name, "check name for to");
+
+          // for balance
+          // TODO make it look for the account info using the mint address and ata of the account
+
+          if (this.currencyTo.name == "HGEN") {
+            this.currencyTo.balance = this.getBalanceHGEN;
+          }
+          if (this.currencyTo.name == "GENS") {
+            this.currencyTo.balance = this.getBalanceGENS;
+          }
+          if (this.currencyTo.name == "SOL") {
+            this.currencyTo.balance = this.getBalance;
+          }
+          this.convert();
+        }
       },
     },
     from(val) {
@@ -435,8 +550,12 @@ export default {
       this.raySwap = !this.raySwap;
     },
     toggleToken() {
-      let prev_curr_from = this.currencyFrom;
-      let prev_curr_to = this.currencyTo;
+      //   const prev_curr_from = this.currencyFrom;
+      //   console.log(prev_curr_from.name, "name");
+      //   this.currencyFrom = this.currencyTo;
+      //   console.log(this.currencyFrom.name, "name from in toggle");
+      //   this.currencyTo = prev_curr_from;
+      //   console.log(this.currencyTo.name, "name to in toggle");
     },
     setModalFunc(value) {
       if (this.loaderConnect) {
