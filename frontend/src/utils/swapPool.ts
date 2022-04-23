@@ -4,7 +4,8 @@ import {
     PublicKey,
     SystemProgram,
     Transaction,
-    Keypair
+    Keypair,
+    TransactionInstruction
 } from '@solana/web3.js';
 
 import { AccountLayout, Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -13,7 +14,7 @@ import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKE
 import { TokenSwap, CurveType, TOKEN_SWAP_PROGRAM_ID, Numberu64 } from '@/utils/tokenSwap';
 import { sendAndConfirmTransaction } from '@/utils/tokenSwap/util/send-and-confirm-transaction';
 import { newAccountWithLamports } from '@/utils/tokenSwap/util/new-account-with-lamports';
-import { url } from '@/utils/tokenSwap/util/url';
+import { url, walletUrl } from '@/utils/tokenSwap/util/url';
 import { sleep } from '@/utils/tokenSwap/util/sleep';
 
 import { Pool } from '@/store/interfaces/poolInterface';
@@ -25,6 +26,7 @@ import * as bs58 from "bs58";
 import { connect } from 'http2';
 
 import { getMintInfo, getAccountInfo } from "@/utils/accounts";
+import { sign } from 'crypto';
 
 
 // The following globals are created by `createTokenSwap` and used by subsequent tests
@@ -59,6 +61,10 @@ let poolInfo: Pool;
 // Hard-coded fee address, for testing production mode
 const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
     process.env.SWAP_PROGRAM_OWNER_FEE_ADDRESS || "54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t";
+
+const WSOL_ADDR = new PublicKey("So11111111111111111111111111111111111111112")
+const GENS_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8");
+
 
 // Pool fees
 const TRADING_FEE_NUMERATOR = 25;
@@ -205,12 +211,96 @@ export async function addToken(wallet: Wallet) {
     await sendAndConfirmTransaction("Add tokens", wallet, connection, tx, owner);
 }
 
+
+// helper function to create a wrapped account 
+//TODO add a clear up instrction for temporary wrapoed sol accounts
+async function getWrappedAccount(
+    wallet: Wallet,
+    amount: number,
+    owner,
+    instructions: TransactionInstruction[],
+    signers: Account[],
+) {
+    // fixed lamports of 50 sol, which is equivalent to 50 * 10e9 lamports
+    const account = new Account(); // for storing the sol 
+    console.log("new account from wrapper sol is ", account.publicKey.toBase58());
+    console.log("secret key for the wrap sol accoun is ", account.secretKey);
+    instructions.push(
+        SystemProgram.createAccount({
+            fromPubkey: wallet.publicKey,
+            newAccountPubkey: account.publicKey,
+            lamports: amount,
+            space: AccountLayout.span,
+            programId: TOKEN_PROGRAM_ID,
+        })
+    );
+
+    instructions.push(
+        Token.createInitAccountInstruction(
+            TOKEN_PROGRAM_ID,
+            WSOL_ADDR,
+            account.publicKey,
+            owner,
+        )
+    );
+    console.log(signers, "signers is retruning")
+
+    signers.push(account);
+
+    return account.publicKey;
+}
+
+// helper function to create a spl account 
+//TODO add a clear up instrction for temporary wrapoed sol accounts
+async function createSplAccount(
+    wallet: Wallet,
+    owner,
+    instructions: TransactionInstruction[],
+    rent,
+    signers: Account[],
+) {
+    // fixed lamports of 50 sol, which is equivalent to 50 * 10e9 lamports
+    const account = new Account(); // for storing the sol 
+    console.log("new account from spl account is ", account.publicKey.toBase58());
+    console.log("secret key for the spl account is ", account.secretKey);
+    instructions.push(
+        SystemProgram.createAccount({
+            fromPubkey: wallet.publicKey,
+            newAccountPubkey: account.publicKey,
+            lamports: rent,
+            space: AccountLayout.span,
+            programId: TOKEN_PROGRAM_ID,
+        })
+    );
+
+    instructions.push(
+        Token.createInitAccountInstruction(
+            TOKEN_PROGRAM_ID,
+            GENS_ADDR,
+            account.publicKey,
+            owner
+        )
+    );
+    console.log(signers, "signers is retruning")
+    signers.push(account);
+
+    return account.publicKey;
+}
+
 export async function createTokenSwap(
     curveType: number,
     wallet: Wallet,
     curveParameters?: Numberu64,
 ): Promise<any> {
+    const signers: Account[] = [];
+    const instructions: TransactionInstruction[] = [];
+
     const connection = await getConnection();
+
+    const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
+        AccountLayout.span
+    );
+
     // payer = await newAccountWithLamports(connection, 1000000000);
     let payer = Keypair.fromSecretKey(bs58.decode("1hDLdJbrt3UdQrkZTu2RRisUYWzTQCx7hQXTBk4uvCibdSAox6qHPTXj2Vw4RkB62ug6cGj5zW77ReWGA7kPRum"));
     let owner = Keypair.fromSecretKey(bs58.decode("C6G4xgk4e6gEKuaqjW9z5DJNnsEJeFiGf6CJ818yNTCjeTU1FRE3vQTHFKWqBGhKq3FfJZsL5RyVqgNU3XigoaE"));
@@ -240,7 +330,7 @@ export async function createTokenSwap(
         2,
         TOKEN_PROGRAM_ID,
     );
-    console.log(tokenPool.publicKey.toBase58(), "Pool token mint addr")
+    console.log(tokenPool.publicKey.toBase58(), "Pool token mint addr for gens and sol")
 
     console.log('creating pool account');
     tokenAccountPool = await tokenPool.createAccount(owner.publicKey);
@@ -260,85 +350,81 @@ export async function createTokenSwap(
     //     2,
     //     TOKEN_PROGRAM_ID,
     // );
-    let GENS_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8");
+
     console.log(GENS_ADDR.toBase58(), 'gens mint addr')
 
+    // user gens account (source)
+    let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        mint: GENS_ADDR,
+    });
+    let genATA = check_gens.value[0] ? check_gens.value[0].pubkey.toBase58() : "";
 
-    console.log('creating token GENS account');
-    let tokenAccountGENS = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        GENS_ADDR,
-        authority
-    );
-    // tokenAccountGENS = await GENS.createAccount(authority);
-    console.log(tokenAccountGENS.toBase58(), "pda GENS token account")
+    let tokenAccountGENS = await createSplAccount(wallet, authority, instructions, accountRentExempt, signers);
 
-    const GensAtaAccountTx = Token.createAssociatedTokenAccountInstruction(
-        ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-        TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-        GENS_ADDR, // mint
-        tokenAccountGENS, // ata
-        owner.publicKey, // owner of token account
-        wallet.publicKey // fee payer
-    )
-    console.log('gens account')
-    console.log('minting token GENS to swap');
-    let mintGensIx = Token.createMintToInstruction(
+    instructions.push(Token.createTransferInstruction(
         TOKEN_PROGRAM_ID,
-        GENS_ADDR,
+        new PublicKey(genATA),
         tokenAccountGENS,
-        owner.publicKey,
+        wallet.publicKey,
         [],
-        100000
+        4000 * 1e2
+    ));
+    // await GENS.mintTo(tokenAccountGENS, owner, [], currentSwapTokenA);
+
+    // console.log('creating token HGEN');
+    console.log('creating token account for wrapper sol');
+
+    let tokenAccountWSOL = await getWrappedAccount(wallet, accountRentExempt, authority, instructions, signers)
+
+    const from = await getWrappedAccount(wallet, 50 * 1e9 + accountRentExempt, wallet.publicKey, instructions, signers)
+
+    instructions.push(
+        Token.createTransferInstruction(
+            TOKEN_PROGRAM_ID,
+            from,
+            tokenAccountWSOL, // should be the wrapped account of the pool
+            wallet.publicKey,
+            [],
+            50 * 1e9
+        )
     );
-    await GENS.mintTo(tokenAccountGENS, owner, [], currentSwapTokenA);
-
-    console.log('creating token HGEN');
-    // HGEN = await Token.createMint(
-    //     connection,
-    //     payer,
-    //     owner.publicKey,
-    //     null,
-    //     2,
-    //     TOKEN_PROGRAM_ID,
-    // );
-    // console.log(HGEN.publicKey.toBase58(), 'hgen mint addr')
-
-    // console.log('creating token HGEN account');
-    // tokenAccountHGEN = await HGEN.createAccount(authority);
-    // console.log(tokenAccountHGEN.toBase58(), "pda HGEN token account")
-    // console.log('minting token HGEN to swap');
-    // await HGEN.mintTo(tokenAccountHGEN, owner, [], currentSwapTokenB);
 
     console.log('creating token swap');
     const swapPayer = wallet;
     console.log(swapPayer.publicKey.toBase58(), "payer for the token of swap pool")
-    tokenSwap = await TokenSwap.createTokenSwap(
-        connection,
-        swapPayer,
-        tokenSwapAccount,
-        authority,
-        tokenAccountGENS,
-        tokenAccountHGEN,
-        tokenPool.publicKey,
-        GENS.publicKey,
-        HGEN.publicKey,
-        feeAccount,
-        tokenAccountPool,
-        TOKEN_SWAP_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        TRADING_FEE_NUMERATOR,
-        TRADING_FEE_DENOMINATOR,
-        OWNER_TRADING_FEE_NUMERATOR,
-        OWNER_TRADING_FEE_DENOMINATOR,
-        OWNER_WITHDRAW_FEE_NUMERATOR,
-        OWNER_WITHDRAW_FEE_DENOMINATOR,
-        HOST_FEE_NUMERATOR,
-        HOST_FEE_DENOMINATOR,
-        curveType,
-        curveParameters,
-    );
+
+    console.log(TOKEN_SWAP_PROGRAM_ID.toBase58(), "token_swap_program_id")
+    try {
+        tokenSwap = await TokenSwap.createTokenSwap(
+            connection,
+            swapPayer,
+            tokenSwapAccount,
+            authority,
+            tokenAccountGENS,
+            tokenAccountWSOL,
+            tokenPool.publicKey,
+            GENS_ADDR, // mint for the gens addr
+            WSOL_ADDR, // for the wsol mint addr
+            feeAccount,
+            tokenAccountPool,
+            TOKEN_SWAP_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            TRADING_FEE_NUMERATOR,
+            TRADING_FEE_DENOMINATOR,
+            OWNER_TRADING_FEE_NUMERATOR,
+            OWNER_TRADING_FEE_DENOMINATOR,
+            OWNER_WITHDRAW_FEE_NUMERATOR,
+            OWNER_WITHDRAW_FEE_DENOMINATOR,
+            HOST_FEE_NUMERATOR,
+            HOST_FEE_DENOMINATOR,
+            curveType,
+            curveParameters,
+            instructions,
+            signers,
+        );
+    } catch (err) {
+        console.error(err, "Token swap creation error")
+    }
 
     console.log('loading token swap');
     const fetchedTokenSwap = await TokenSwap.loadTokenSwap(
@@ -350,11 +436,12 @@ export async function createTokenSwap(
 
     console.log(fetchedTokenSwap, "Token swap info")
 
+    // testing for the created pool
     assert(fetchedTokenSwap.tokenProgramId.equals(TOKEN_PROGRAM_ID));
     assert(fetchedTokenSwap.tokenAccountA.equals(tokenAccountGENS));
-    assert(fetchedTokenSwap.tokenAccountB.equals(tokenAccountHGEN));
+    assert(fetchedTokenSwap.tokenAccountB.equals(tokenAccountWSOL));
     assert(fetchedTokenSwap.mintA.equals(GENS.publicKey));
-    assert(fetchedTokenSwap.mintB.equals(HGEN.publicKey));
+    assert(fetchedTokenSwap.mintB.equals(WSOL_ADDR));
     assert(fetchedTokenSwap.poolToken.equals(tokenPool.publicKey));
     assert(fetchedTokenSwap.feeAccount.equals(feeAccount));
     assert(
@@ -385,8 +472,8 @@ export async function createTokenSwap(
     );
     assert(curveType == fetchedTokenSwap.curveType);
 
-    let gens_info = (await GENS.getAccountInfo(tokenAccountGENS)).amount;
-    let hgen_info = (await HGEN.getAccountInfo(tokenAccountHGEN)).amount;
+    let gens_info = (await getAccountInfo(connection, tokenAccountGENS)).info.amount;
+    let hgen_info = (await getAccountInfo(connection, tokenAccountWSOL)).info.amount;
 
     poolInfo = {
         authority,
@@ -401,6 +488,7 @@ export async function createTokenSwap(
         tokenAccountA: tokenAccountGENS, // pool gen account pubkey
         tokenAccountB: tokenAccountHGEN // pool hgen account pubkey
     }
+    console.log(poolInfo)
     return poolInfo;
 }
 

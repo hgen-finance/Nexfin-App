@@ -1,5 +1,5 @@
 import {
-    Token, TOKEN_PROGRAM_ID, AuthorityType, ASSOCIATED_TOKEN_PROGRAM_ID,
+    Token, TOKEN_PROGRAM_ID, AuthorityType, ASSOCIATED_TOKEN_PROGRAM_ID, AccountLayout
 } from "@solana/spl-token";
 import {
     Account,
@@ -8,6 +8,7 @@ import {
     SYSVAR_RENT_PUBKEY,
     Transaction,
     TransactionInstruction,
+
 } from "@solana/web3.js";
 import BN from "bn.js";
 import {
@@ -52,6 +53,7 @@ export const depositUtil = async (
         escrowProgramId
     );
     const depositAccount = depositAccountPDA;
+
     let ata;
     if (governanceToken == "") {
         ata = await Token.getAssociatedTokenAddress(
@@ -70,6 +72,8 @@ export const depositUtil = async (
     console.log("goven token acc", governanceTokenAcc.toBase58());
     console.log("tokenmint", tokenMintAcc.toBase58());
     let depositIx;
+    const account = new Account();
+    const test = new Account();
     try {
         depositIx = escrowProgram.instruction.addDeposit(new anchor.BN(amount), new anchor.BN(depositAccountBump),
             {
@@ -108,6 +112,8 @@ export const depositUtil = async (
     let { blockhash } = await connection.getRecentBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey;
+    tx.partialSign(account)
+    tx.partialSign(test)
 
     // to sign
     let signedTx = await wallet.signTransaction(tx);

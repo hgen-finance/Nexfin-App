@@ -121,6 +121,8 @@ export interface FarmingLayout {
     dayLeft: Uint8Array;
 }
 
+export const WSOL_ADDR = new PublicKey("So11111111111111111111111111111111111111112");
+
 // export const TOKEN_GENS = new PublicKey('JCnyD2wyimf5P3MBVAxB5yCVhotmswDhvrwXdS9xNbAq')
 //export const TOKEN_GENS = new PublicKey('C6tfES3TrhTzQnRopAyqHAjx4ixShAzJ16QeffWvoXBk')
 // export const TOKEN_GENS = new PublicKey(
@@ -161,15 +163,44 @@ export const CLUSTER = process.env.CLUSTER || 'devnet';
 
 export const TOKEN_A_MINT_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8");
 export const TOKEN_B_MINT_ADDR = new PublicKey("E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC");
-export const TOKEN_SWAP_ACCOUNT = new PublicKey("4Xjce6j7YAR9Rz1321oWJndxDWkh3vemUzzwT3XPW3yC");
+
+//for gens-hgen pool
 export const TOKEN_ACC_A = new PublicKey("HqESSnK1XaQ33Ww4YecraNxEXJEs6zVwxDgQ5vWkSutX");
 export const TOKEN_ACC_B = new PublicKey("CDAhGN7AoMzEmnfPKnAmpaH2HBKxg27MHwBrNmxMaQ8W");
 
+export const TOKEN_SWAP_ACCOUNT = new PublicKey("4Xjce6j7YAR9Rz1321oWJndxDWkh3vemUzzwT3XPW3yC");
+
 export const POOL_AUTHORITY = new PublicKey("AiaMQPdxqxjNvJm4MAW3yAjp3kJRqyrE9gUrRgRAPXu4");
+
 export const LP_TOKENS_HGEN_GENS = new PublicKey("3nHK28wsZvGpVj99XvEL5FgVUzh4dUcoP3MsN3pA38aV");
 export const LP_POOL_OWNER = new PublicKey("424v2hHJtDA879UfMikVWr7VTvJsFqE9XaZkkbe6Uv2J");
 
-// export const pda_account_for_mint = new PublicKey("");
+
+// for gens-sol pool
+export const TOKEN_ACC_GENS_GS = new PublicKey("9uA19MdcUKgbU3Uc5dwifigdoebG78qR6a8ycqoCDVua");
+export const TOKEN_ACC_SOL_GS = new PublicKey("5LVAjApVWfkKKiXe3ve4HosaJ3WrAroXzopZ5En4mRCS");
+
+export const TOKEN_SWAP_GEN_SOL_ACCOUNT = new PublicKey("rZe7AtEeej9yjFzvhzQT4Sby37DTwc5wB5ma7BioxBP");
+
+export const POOL_AUTHORITY_GS = new PublicKey("2eq5ia3cexzXFxFocJCtRBg5EkyBvAUQmMVBrhG1YAeE");
+
+export const LP_TOKENS_GS = new PublicKey("BCgsj9tygk6ANpna1Qy3x4eEcUF5RtVcS1pQG2o6NWZw");
+export const LP_TOOKS_GS_POOL_ACC = new PublicKey("LiJKg7UJVmDGFcF2NWdmgKTixD1DJGwyufohGg54qNu");
+export const LP_POOL_OWNER_GS = new PublicKey("424v2hHJtDA879UfMikVWr7VTvJsFqE9XaZkkbe6Uv2J");
+
+
+// for hgen-sol pool
+// export const TOKEN_ACC_HGEN_HS = new PublicKey("");
+// export const TOKEN_ACC_SOL_HS = new PublicKey("");
+
+// export const TOKEN_SWAP_HGEN_SOL_ACCOUNT = new PublicKey("");
+
+// export const LP_TOKENS_HS = new PublicKey("");
+// export const LP_TOOKS_HS_POOL_ACC = new PublicKey("");
+// export const LP_POOL_OWNER_HS = new PublicKey("");
+
+// export const POOL_AUTHORITY_HS = new PublicKey("");
+
 
 export const getCollateral = (gens: string, lamports: string, usd: string) => {
     // TODO might need to change the value later here

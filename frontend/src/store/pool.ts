@@ -205,7 +205,8 @@ export const actions = actionTree(
                             dispatch("getInfo", null, { root: true });
                         }
                         commit("setLoading", false);
-                    } catch {
+                    } catch (err) {
+                        console.log(err, "transaction error")
                         commit("setLoading", false);
                     }
                 }
@@ -302,7 +303,8 @@ export const actions = actionTree(
                         dispatch("getDeposit")
                         commit("setLoading", false);
                         dispatch("getInfo", null, { root: true });
-                    } catch {
+                    } catch (err) {
+                        console.error(err, "Transaction error")
                         commit("setLoading", false);
                     }
                 }

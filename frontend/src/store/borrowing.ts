@@ -3,6 +3,9 @@ import { getterTree, mutationTree, actionTree } from "typed-vuex";
 
 // TODO: Make sure the devnet amount isnt shown up in the devnet account
 
+import { AccountLayout, Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
+
+
 // Import Utils
 import { borrowUtil } from "@/utils/borrow";
 import { closeBorrowUtil } from "@/utils/closeBorrow";
@@ -119,6 +122,7 @@ export const actions = actionTree(
         },
         // Claim
         async confirmBorrow({ state, commit, dispatch }, value) {
+
             // calculate team fee and depositor fee
             let team_fee = (0.47 * value.to) / 100;
             team_fee = team_fee < 1 ? 1 : team_fee;
