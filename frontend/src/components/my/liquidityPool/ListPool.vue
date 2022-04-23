@@ -56,6 +56,12 @@
           >
             {{ getPoolInfo.tokenAmountGensGS || 0 }}
           </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountHgenHS || 0 }}
+          </div>
         </div>
         <div
           class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
@@ -72,6 +78,12 @@
           >
             {{ getPoolInfo.tokenAmountSOLGS || 0 }}
           </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountSOLHS || 0 }}
+          </div>
         </div>
         <div
           class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-mcolor-300"
@@ -86,16 +98,26 @@
                   (getPoolInfo.tokenAmountA / getPoolInfo.tokenAmountB) || 0
             }}
           </div>
+
           <div
             class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
             v-if="pool == 'GENS-SOL'"
           >
             {{
-              (getPoolInfo.tokenAmountGensGS +
+              getPoolInfo.tokenAmountGensGS +
                 getPoolInfo.tokenAmountSOLGS *
                   (getPoolInfo.tokenAmountGensGS /
-                    getPoolInfo.tokenAmountSOLGS)) *
-                getUsd || 0
+                    getPoolInfo.tokenAmountSOLGS) || 0
+            }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{
+              (getPoolInfo.tokenAmountHgenHS / getPoolInfo.tokenAmountSOLHS) *
+                getPoolInfo.tokenAmountSOLHS +
+                getPoolInfo.tokenAmountHgenHS || 0
             }}
           </div>
         </div>
@@ -125,6 +147,8 @@ export default {
         tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
         tokenAmountGensGS: this.$accessor.swapPool.tokenAmountGensGS || 0,
         tokenAmountSOLGS: this.$accessor.swapPool.tokenAmountSOLGS || 0,
+        tokenAmountHgenHS: this.$accessor.swapPool.tokenAmountHgenHS || 0,
+        tokenAmountSOLHS: this.$accessor.swapPool.tokenAmountSOLHS || 0,
       };
     },
   },

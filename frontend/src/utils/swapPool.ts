@@ -64,6 +64,7 @@ const SWAP_PROGRAM_OWNER_FEE_ADDRESS =
 
 const WSOL_ADDR = new PublicKey("So11111111111111111111111111111111111111112")
 const GENS_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8");
+const HGEN_ADDR = new PublicKey("E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC");
 
 
 // Pool fees
@@ -276,7 +277,7 @@ async function createSplAccount(
     instructions.push(
         Token.createInitAccountInstruction(
             TOKEN_PROGRAM_ID,
-            GENS_ADDR,
+            HGEN_ADDR,
             account.publicKey,
             owner
         )
@@ -351,11 +352,11 @@ export async function createTokenSwap(
     //     TOKEN_PROGRAM_ID,
     // );
 
-    console.log(GENS_ADDR.toBase58(), 'gens mint addr')
+    console.log(HGEN_ADDR.toBase58(), 'hgens mint addr')
 
     // user gens account (source)
     let check_gens = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-        mint: GENS_ADDR,
+        mint: HGEN_ADDR,
     });
     let genATA = check_gens.value[0] ? check_gens.value[0].pubkey.toBase58() : "";
 
@@ -367,7 +368,7 @@ export async function createTokenSwap(
         tokenAccountGENS,
         wallet.publicKey,
         [],
-        4000 * 1e2
+        10000 * 1e2
     ));
     // await GENS.mintTo(tokenAccountGENS, owner, [], currentSwapTokenA);
 
@@ -376,7 +377,7 @@ export async function createTokenSwap(
 
     let tokenAccountWSOL = await getWrappedAccount(wallet, accountRentExempt, authority, instructions, signers)
 
-    const from = await getWrappedAccount(wallet, 50 * 1e9 + accountRentExempt, wallet.publicKey, instructions, signers)
+    const from = await getWrappedAccount(wallet, 200 * 1e9 + accountRentExempt, wallet.publicKey, instructions, signers)
 
     instructions.push(
         Token.createTransferInstruction(
@@ -385,7 +386,7 @@ export async function createTokenSwap(
             tokenAccountWSOL, // should be the wrapped account of the pool
             wallet.publicKey,
             [],
-            50 * 1e9
+            200 * 1e9
         )
     );
 
@@ -403,7 +404,7 @@ export async function createTokenSwap(
             tokenAccountGENS,
             tokenAccountWSOL,
             tokenPool.publicKey,
-            GENS_ADDR, // mint for the gens addr
+            HGEN_ADDR, // mint for the hgen addr
             WSOL_ADDR, // for the wsol mint addr
             feeAccount,
             tokenAccountPool,
