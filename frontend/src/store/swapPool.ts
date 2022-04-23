@@ -11,7 +11,7 @@ import {
     withdrawSingleTokenTypeExactAmountOut,
 } from '@/utils/swapPool'
 
-import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B, LP_TOKENS_HGEN_GENS, LP_POOL_OWNER, TOKEN_SWAP_ACCOUNT } from '@/utils/layout';
+import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B, LP_TOKENS_HGEN_GENS, WSOL_ADDR, LP_POOL_OWNER, TOKEN_SWAP_ACCOUNT, POOL_AUTHORITY_GS, TOKEN_ACC_GENS_GS, TOKEN_ACC_SOL_GS, POOL_AUTHORITY_HS, TOKEN_ACC_HGEN_HS, TOKEN_ACC_SOL_HS } from '@/utils/layout';
 import { CurveType, Numberu64 } from '@/utils/tokenSwap';
 import { Pool } from '@/store/interfaces/poolInterface';
 
@@ -427,6 +427,10 @@ export const state = () => ({
     poolInfo: {},
     tokenAmountA: 0,
     tokenAmountB: 0,
+    tokenAmountGensGS: 0,
+    tokenAmountSOLGS: 0,
+    tokenAmountHgenHS: 0,
+    tokenAmountSOLHS: 0,
     withdrawOrDeposit: true,
     nativeAccount: null,
     tokenAccounts: [],
@@ -447,6 +451,23 @@ export const mutations = mutationTree(state, {
     setTokenAmountB(state, newValue: number) {
         state.tokenAmountB = newValue;
     },
+
+    setTokenAmountGensGS(state, newValue: number) {
+        state.tokenAmountGensGS = newValue;
+    },
+
+    setTokenAmountSOLGS(state, newValue: number) {
+        state.tokenAmountSOLGS = newValue;
+    },
+
+    setTokenAmountHgenHS(state, newValue: number) {
+        state.tokenAmountHgenHS = newValue;
+    },
+
+    setTokenAmountSOLHS(state, newValue: number) {
+        state.tokenAmountSOLHS = newValue;
+    },
+
     setLiquidityState(state, newValue: boolean) {
         state.withdrawOrDeposit = newValue;
     },
@@ -591,7 +612,15 @@ export const actions = actionTree(
                     this.$accessor.wallet.getHGENBalance();
 
                 } catch (err) {
-                    console.error(err, "Account error")
+                    console.error(err, "gens-hgen Account error")
+                }
+            }
+            if (value.tokenType == "GS") {
+                tokenSwapAccount = new PublicKey("rZe7AtEeej9yjFzvhzQT4Sby37DTwc5wB5ma7BioxBP");
+                try {
+
+                } catch (err) {
+                    console.error(err, "Gens-Sol account error")
                 }
             }
         },
@@ -607,6 +636,14 @@ export const actions = actionTree(
             let tokenA = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY, { mint: TOKEN_A_MINT_ADDR });
             let result: number = tokenA.value[0].account.data.parsed.info.tokenAmount.uiAmount;
             commit('setTokenAmountA', result);
+
+            tokenA = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY_GS, { mint: TOKEN_A_MINT_ADDR });
+            result = tokenA.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+            commit('setTokenAmountGensGS', result);
+
+            tokenA = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY_HS, { mint: TOKEN_B_MINT_ADDR });
+            result = tokenA.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+            commit('setTokenAmountHgenHS', result);
         },
 
         // getting info for pool token B
@@ -614,24 +651,52 @@ export const actions = actionTree(
             let tokenB = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY, { mint: TOKEN_B_MINT_ADDR });
             let result: number = tokenB.value[0].account.data.parsed.info.tokenAmount.uiAmount;
             commit('setTokenAmountB', result);
+
+            tokenB = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY_GS, { mint: WSOL_ADDR });
+            result = tokenB.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+            commit('setTokenAmountSOLGS', result);
+
+            tokenB = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY_HS, { mint: WSOL_ADDR });
+            result = tokenB.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+            commit('setTokenAmountSOLHS', result);
         },
 
         // subscribe for pool hgen and gen account
         // on account change for the tokenA account
         // TODO: set timeout on account change
+        // TODO separate it so only the specific account detail is rendered when their respective account changes, instead of rendering all of them.
         async onTokenAChange({ dispatch }, value) {
             this.$web3.onAccountChange(
                 (TOKEN_ACC_A),
                 () => dispatch("swapPool/getTokenAInfo", { authority: POOL_AUTHORITY, tokenAMintAddr: TOKEN_A_MINT_ADDR }, { root: true }),
             );
+
+            this.$web3.onAccountChange(
+                (TOKEN_ACC_GENS_GS),
+                () => dispatch("swapPool/getTokenAInfo", { authority: POOL_AUTHORITY_GS, tokenAMintAddr: TOKEN_A_MINT_ADDR }, { root: true }),
+            );
+
+            this.$web3.onAccountChange(
+                (TOKEN_ACC_HGEN_HS),
+                () => dispatch("swapPool/getTokenAInfo", { authority: POOL_AUTHORITY_HS, tokenAMintAddr: TOKEN_B_MINT_ADDR }, { root: true }),
+            );
         },
 
         // on account change for the tokenA account
         // TODO: set timeout on account change
+        // TODO separate it so only the specific account detail is rendered when their respective account changes, instead of rendering all of them.
         async onTokenBChange({ dispatch }, value) {
             this.$web3.onAccountChange(
                 (TOKEN_ACC_B),
                 () => dispatch("swapPool/getTokenBInfo", { authority: POOL_AUTHORITY, tokenBMintAddr: TOKEN_A_MINT_ADDR }, { root: true }),
+            );
+            this.$web3.onAccountChange(
+                (TOKEN_ACC_SOL_GS),
+                () => dispatch("swapPool/getTokenBInfo", { authority: POOL_AUTHORITY_GS, tokenBMintAddr: WSOL_ADDR }, { root: true }),
+            );
+            this.$web3.onAccountChange(
+                (TOKEN_ACC_SOL_HS),
+                () => dispatch("swapPool/getTokenBInfo", { authority: POOL_AUTHORITY_HS, tokenBMintAddr: WSOL_ADDR }, { root: true }),
             );
         },
 

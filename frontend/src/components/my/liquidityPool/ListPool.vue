@@ -28,7 +28,7 @@
         </span> -->
       </div>
     </div>
-    <div v-if="getPoolInfo.tokenAmountA > 0">
+    <div v-if="getPoolInfo">
       <div
         class="w-100 fd-r ai-s br-t-4 br-mcolor-400 select-pool hv mt-4-S mt-5-XS rad-fix-9"
         v-for="(pool, p) in pools"
@@ -44,22 +44,81 @@
         <div
           class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
         >
-          <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'GENS-HGEN'"
+          >
             {{ getPoolInfo.tokenAmountA || 0 }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'GENS-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountGensGS || 0 }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountHgenHS || 0 }}
           </div>
         </div>
         <div
           class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-gray-400"
         >
-          <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400">
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'GENS-HGEN'"
+          >
             {{ getPoolInfo.tokenAmountB || 0 }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'GENS-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountSOLGS || 0 }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-400"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{ getPoolInfo.tokenAmountSOLHS || 0 }}
           </div>
         </div>
         <div
           class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-mcolor-300"
         >
-          <div class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600">
-            {{ getPoolInfo.tokenAmountA + getPoolInfo.tokenAmountB || 0 }}
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'GENS-HGEN'"
+          >
+            {{
+              getPoolInfo.tokenAmountA +
+                getPoolInfo.tokenAmountB *
+                  (getPoolInfo.tokenAmountA / getPoolInfo.tokenAmountB) || 0
+            }}
+          </div>
+
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'GENS-SOL'"
+          >
+            {{
+              getPoolInfo.tokenAmountGensGS +
+                getPoolInfo.tokenAmountSOLGS *
+                  (getPoolInfo.tokenAmountGensGS /
+                    getPoolInfo.tokenAmountSOLGS) || 0
+            }}
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            {{
+              (getPoolInfo.tokenAmountHgenHS / getPoolInfo.tokenAmountSOLHS) *
+                getPoolInfo.tokenAmountSOLHS +
+                getPoolInfo.tokenAmountHgenHS || 0
+            }}
           </div>
         </div>
       </div>
@@ -79,21 +138,24 @@ export default {
   },
   layout: "my",
   computed: {
+    getUsd() {
+      return this.$accessor.usd || 0;
+    },
     getPoolInfo() {
-      console.log({
-        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
-        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
-      });
       return {
         tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
         tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
+        tokenAmountGensGS: this.$accessor.swapPool.tokenAmountGensGS || 0,
+        tokenAmountSOLGS: this.$accessor.swapPool.tokenAmountSOLGS || 0,
+        tokenAmountHgenHS: this.$accessor.swapPool.tokenAmountHgenHS || 0,
+        tokenAmountSOLHS: this.$accessor.swapPool.tokenAmountSOLHS || 0,
       };
     },
   },
   data() {
     return {
       headers: ["Pool name", "Token A", "Token B", "Liquidity"],
-      pools: ["GENS-HGEN"],
+      pools: ["GENS-HGEN", "GENS-SOL", "HGEN-SOL"],
     };
   },
   watch: {},

@@ -368,6 +368,8 @@ export class TokenSwap {
         hostFeeDenominator: number,
         curveType: number,
         curveParameters?: Numberu64,
+        instructions?: Array<TransactionInstruction>,
+        signers?: Array<Account>
     ): Promise<TokenSwap> {
         let transaction;
         const tokenSwap = new TokenSwap(
@@ -399,6 +401,7 @@ export class TokenSwap {
             connection,
         );
         transaction = new Transaction();
+        let tx = new Transaction();
         transaction.add(
             SystemProgram.createAccount({
                 fromPubkey: payer.publicKey,
@@ -432,12 +435,29 @@ export class TokenSwap {
         );
 
         transaction.add(instruction);
+
+        // check if there is any instructions 
+        if (instructions.length > 0) {
+            tx.add(...instructions);
+        }
+        console.log(instructions, "my instrctions");
+        await sendAndConfirmTransaction(
+            'createAccount and InitializeSwap',
+            payer,
+            connection,
+            tx,
+            ...signers
+        );
+
+        signers = [];
+        signers.push(tokenSwapAccount)
+
         await sendAndConfirmTransaction(
             'createAccount and InitializeSwap',
             payer,
             connection,
             transaction,
-            tokenSwapAccount,
+            ...signers
         );
 
         return tokenSwap;

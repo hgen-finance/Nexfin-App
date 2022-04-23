@@ -335,7 +335,7 @@ export default {
     return {
       tokenPrice: 0,
       priceImpact: 0,
-      slippageTolerance: null,
+      slippageTolerance: 0.5,
       slippagePrice: 0,
       raySwap: false,
       tokens: POOL_TOKENS,

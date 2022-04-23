@@ -158,7 +158,6 @@ export const borrowUtil = async (
     // tx.add(changeTx);
 
 
-
     // add data for signature generation
     // добавляем данне для возможност формирования подписи
     let { blockhash } = await connection.getRecentBlockhash();

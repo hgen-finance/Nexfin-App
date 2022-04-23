@@ -61,14 +61,14 @@ export default {
   data() {
     return {
       headers: ["Pool name", "Token A", "Token B", "Liquidity"],
-      pools: ["GENS-HGEN"],
+      pools: ["GENS-HGEN", "GENS-SOL"],
       poolUI: true,
     };
   },
   watch: {},
   methods: {
     createSwapPool() {
-      this.$accessor.swapPool.createTokenSwapPool();
+      //   this.$accessor.swapPool.createTokenSwapPool();
     },
     showPoolUI() {
       this.poolUI = true;
