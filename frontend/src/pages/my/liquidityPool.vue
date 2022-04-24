@@ -48,10 +48,6 @@ export default {
   layout: "my",
   computed: {
     getPoolInfo() {
-      console.log({
-        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
-        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
-      });
       return {
         tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
         tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,

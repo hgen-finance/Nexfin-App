@@ -877,6 +877,11 @@ export async function swap(
     amount: number,
     slippagePrice: number,
 ): Promise<void> {
+
+    const signers: Account[] = [];
+    const instructions: TransactionInstruction[] = [];
+    connection = await getConnection();
+
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
         [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
@@ -887,22 +892,30 @@ export async function swap(
     let tokenAATA;
     let tokenBATA;
     try {
-        const connection = await getConnection();
-        let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-            mint: tokenAMintAddr,
-        });
-        tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
-        console.log(tokenAATA, "tokenA ata")
-        console.log(tokenAMintAddr, "tokenAMintAddr")
+
+        // check if the token is for native (SOL)
+        if (tokenAMintAddr === WSOL_ADDR) {
+            tokenAATA = getWrappedAccount(wallet, amount, wallet.publicKey, instructions, signers);
+        }
+        else {
+            let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+                mint: tokenAMintAddr,
+            });
+            tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+            console.log(tokenAATA, "tokenA ata")
+            console.log(tokenAMintAddr, "tokenAMintAddr")
+        }
+        console.log("testing..")
+        console.log(tokenBMintAddr, "tokenVNubtr")
         let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
             mint: tokenBMintAddr,
         });
         tokenBATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
         console.log(tokenBATA, "tokenB ata")
-        console.log(tokenBMintAddr.toBase58(), "tokenBMintAddr")
     } catch (err) {
         console.log(err, "account mint token error")
     }
+
 
     let userTransferAuthority;
     try {
@@ -922,10 +935,10 @@ export async function swap(
         //     [],
         //     SWAP_AMOUNT_IN,
         // );
-        console.log('Creating swap token HGEN account');
+        // console.log('Creating swap token HGEN account');
 
-        if (tokenAATA == "")
-            userAccountGENS = await GENS.createAccount(wallet.publicKey);
+        // if (tokenAATA == "")
+        //     userAccountGENS = await GENS.createAccount(wallet.publicKey);
         //TODO: only for testing
         // let userAccountHGEN = await HGEN.createAccount(wallet.publicKey);
 
@@ -965,6 +978,8 @@ export async function swap(
 
     console.log('Swapping');
     console.log(SWAP_AMOUNT_IN, "swap amount in")
+
+
     if (tokenBATA == "") {
         tokenBATA = await Token.getAssociatedTokenAddress(
             ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
@@ -980,6 +995,8 @@ export async function swap(
             wallet.publicKey, // owner of token account
             wallet.publicKey // fee payer
         )
+
+        instructions.push(ataAccountTx);
         try {
             await TokenSwap.swap(
                 wallet,
@@ -996,7 +1013,8 @@ export async function swap(
                 userTransferAuthority,
                 SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT + 10,
-                ataAccountTx
+                signers,
+                instructions
             );
         } catch (err) {
             console.error(err, "swap error")
@@ -1020,6 +1038,8 @@ export async function swap(
                 userTransferAuthority,
                 SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT + 10,
+                signers,
+                instructions
             );
         } catch (err) {
             console.error(err, "swap error")

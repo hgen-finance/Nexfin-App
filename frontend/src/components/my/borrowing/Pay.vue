@@ -293,7 +293,7 @@ export default {
     },
     getDebt() {
       //   return this.$accessor.borrowing.debt || 0;
-      console.log("the debt is ", this.$accessor.borrowing.trove.amountToClose);
+
       return Number(this.$accessor.borrowing.trove.amountToClose) || "0";
     },
     getBorrowAmount() {
@@ -306,7 +306,6 @@ export default {
       return this.$store.state.usd;
     },
     getRatio() {
-      console.log("the trove value is ", this.$accessor.borrowing.trove);
       return this.$accessor.borrowing.trove.amountToClose > 0
         ? getCollateral(
             this.$accessor.borrowing.trove.amountToClose.toString(),
@@ -337,7 +336,7 @@ export default {
           result = 0;
         }
         this.repayCr = result;
-        console.log("repay cr in get | ", this.repayCr);
+
         return result;
       },
       set: function (newVal) {},
@@ -368,19 +367,14 @@ export default {
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
     },
     repayTo(val) {
-      console.log("checking the changes");
-      console.log(val, "check the repayTo val");
       this.$emit("repay", this.repayTo);
       this.$accessor.borrowing.closeBorrowAmount({ repayTo: val });
     },
     repaySol(val) {
       //   this.$emit("repaySol", this.repaySol);
       this.$emit("repaySol", this.repaySol);
-
-      console.log(this.repaySol);
     },
     repayCr(val) {
-      console.log(val, "my repaycr is");
       this.$emit("cr", this.repayCr);
       this.$accessor.borrowing.currentCollateralRatio(val);
     },
@@ -433,8 +427,6 @@ export default {
       }
     },
     payTroveFunc() {
-      console.log(this.collateralRatio, "repay cr");
-      console.log(this.repaySol, "repay sol");
       if (
         this.getGensBalance >= this.repayTo &&
         this.collateralRatio > 109 &&

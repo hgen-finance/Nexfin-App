@@ -115,7 +115,6 @@ export default {
   },
   methods: {
     payDebt() {
-      console.log("clicked");
       this.$accessor.borrowing.closeTrove();
     },
   },
