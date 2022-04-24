@@ -490,7 +490,8 @@ export class TokenSwap {
         userTransferAuthority: PublicKey, // TODO Change it to account for the testing
         amountIn: number | Numberu64,
         minimumAmountOut: number | Numberu64,
-        instruction?: TransactionInstruction,
+        signers?: Array<Account>,
+        instructions?: Array<TransactionInstruction>,
     ): Promise<TransactionSignature> {
 
         let tx = new Transaction();
@@ -510,13 +511,21 @@ export class TokenSwap {
             amountIn,
             minimumAmountOut,
         )
-        if (instruction) {
-            tx.add(
-                instruction,
-                swapIx
-            )
+
+        // check if there is any instructions 
+        if (instructions.length > 0) {
+            tx.add(...instructions, swapIx);
         } else {
             tx.add(swapIx)
+        }
+        if (signers.length > 0) {
+            return await sendAndConfirmTransaction(
+                'swap',
+                payer,
+                connection,
+                tx,
+                ...signers
+            );
         }
         return await sendAndConfirmTransaction(
             'swap',
@@ -526,6 +535,7 @@ export class TokenSwap {
             // TODO: Uncomment only for testing
             // userTransferAuthority,
         );
+
     }
 
     static swapInstruction(

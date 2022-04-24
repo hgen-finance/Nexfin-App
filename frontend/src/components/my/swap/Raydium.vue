@@ -216,6 +216,13 @@
         {{ slippagePrice }}
         <span class="f-white-200 pl-1">HGEN</span>
       </div>
+      <div
+        class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
+        v-if="currencyTo.value === tokens[2].value"
+      >
+        {{ slippagePrice }}
+        <span class="f-white-200 pl-1">SOL</span>
+      </div>
     </div>
     <div class="w-100 fd-r py-1-S py-5-XS">
       <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
@@ -270,6 +277,15 @@ import {
   TOKEN_ACC_B,
   LP_TOKENS_HGEN_GENS,
 } from "@/utils/layout";
+import {
+  LP_TOKENS_GS,
+  LP_TOKENS_HS,
+  LP_TOOKS_HS_POOL_ACC,
+  TOKEN_ACC_GENS_GS,
+  TOKEN_ACC_HGEN_HS,
+  TOKEN_ACC_SOL_GS,
+  TOKEN_ACC_SOL_HS,
+} from "../../../utils/layout";
 
 const POOL_TOKENS = [
   {
@@ -277,21 +293,22 @@ const POOL_TOKENS = [
     value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8",
     mintAddr: TOKEN_A_MINT_ADDR,
     tokenAccgh: TOKEN_ACC_A,
+    tokenAccgs: TOKEN_ACC_GENS_GS,
   },
   {
     label: "HGEN",
     value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC",
     mintAddr: TOKEN_B_MINT_ADDR,
     tokenAccgh: TOKEN_ACC_B,
+    tokenAcchs: TOKEN_ACC_HGEN_HS,
   },
   {
     label: "SOL",
     value: "So11111111111111111111111111111111111111112",
+    mintAddr: "So11111111111111111111111111111111111111112",
+    tokenAccgs: TOKEN_ACC_SOL_GS,
+    tokenAcchs: TOKEN_ACC_SOL_HS,
   },
-  //   {
-  //     label: "",
-  //     value: "",
-  //   },
 ];
 const POOL_TOKEN_TYPE = [
   {
@@ -301,18 +318,28 @@ const POOL_TOKEN_TYPE = [
   },
   {
     label: "HG",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
   },
   {
     label: "HS",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
   },
   {
     label: "SH",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
   },
   {
     label: "GS",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
   },
   {
     label: "SG",
+    tokenAacc: TOKEN_ACC_A,
+    tokenBacc: TOKEN_ACC_B,
   },
 ];
 
@@ -375,28 +402,86 @@ export default {
   computed: {
     ...mapState(["wallet", "swap", "url"]),
     getPrice() {
-      let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
-        new BN(100)
-      );
-      let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
-        new BN(100)
-      );
       let tokenPrice = 0;
+      if (this.tokenPoolType == "GH") {
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
+          new BN(100)
+        );
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
+          new BN(100)
+        );
 
-      if (this.currencyFrom.value == POOL_TOKENS[0].value) {
-        let price_before_add = Number(tokenB) / Number(tokenA);
-        tokenPrice = Number(price_before_add).toString().split(".");
-        if (tokenPrice[1] > 3) {
-          tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+        if (this.currencyFrom.value == POOL_TOKENS[0].value) {
+          let price_before_add = Number(tokenB) / Number(tokenA);
+          tokenPrice = Number(price_before_add).toString().split(".");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
+        }
+        if (this.currencyFrom.value == POOL_TOKENS[1].value) {
+          let price_before_add = Number(tokenA) / Number(tokenB);
+          tokenPrice = Number(price_before_add).toString().split(".");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
         }
       }
-      if (this.currencyFrom.value == POOL_TOKENS[1].value) {
-        let price_before_add = Number(tokenA) / Number(tokenB);
-        tokenPrice = Number(price_before_add).toString().split(".");
-        if (tokenPrice[1] > 3) {
-          tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+
+      if (this.tokenPoolType == "GS") {
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountGensGS);
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLGS);
+
+        if (this.currencyFrom.value == POOL_TOKENS[0].value) {
+          let price_before_add = Number(tokenB) / Number(tokenA);
+          console.log(price_before_add, "testing for gs");
+          tokenPrice = Number(price_before_add).toString().split(".");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
+        }
+        if (this.currencyFrom.value == POOL_TOKENS[2].value) {
+          let price_before_add = Number(tokenA) / Number(tokenB);
+          tokenPrice = Number(price_before_add).toString().split(".");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
         }
       }
+
+      if (this.tokenPoolType == "HS") {
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountHgenHS);
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLHS);
+
+        if (this.currencyFrom.value == POOL_TOKENS[1].value) {
+          let price_before_add = Number(tokenB) / Number(tokenA);
+          tokenPrice = Number(price_before_add).toString().split(".");
+          console.log(tokenPrice, "hgensol");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
+        }
+        if (this.currencyFrom.value == POOL_TOKENS[2].value) {
+          let price_before_add = Number(tokenA) / Number(tokenB);
+          tokenPrice = Number(price_before_add).toString().split(".");
+          console.log(tokenPrice, "hgensol");
+          if (tokenPrice[1] > 0) {
+            tokenPrice = tokenPrice[0] + "." + tokenPrice[1].substr(0, 3);
+          } else {
+            tokenPrice = tokenPrice[0];
+          }
+        }
+      }
+
       return tokenPrice;
     },
     getBalance() {
@@ -455,45 +540,69 @@ export default {
     currencyFrom: {
       deep: true,
       handler(val) {
-        if (val.name != this.currencyTo.name) {
-          console.log(val.name, "||", this.currencyFrom.name);
+        console.log(val.name, "||", this.currencyFrom.name);
+
+        this.currencyFrom.name = val.items.filter(
+          (item) => item.value == val.value
+        )[0].label;
+
+        let type = this.checkPool(this.currencyFrom.name, this.currencyTo.name);
+
+        if (type == "GH") {
           this.tokenAacc = val.items.filter(
             (item) => item.value == val.value
           )[0].tokenAccgh;
           this.tokenAMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
-          this.currencyFrom.name = val.items.filter(
-            (item) => item.value == val.value
-          )[0].label;
-
-          console.log(
-            val.items.filter((item) => item.value == val.value)[0].label,
-            "val for from"
-          );
-          console.log(this.currencyFrom.name, "check name for from");
-
-          // for balance
-          // TODO make it look for the account info using the mint address and ata of the account
-
-          if (this.currencyFrom.name == "HGEN") {
-            this.currencyFrom.balance = this.getBalanceHGEN;
-          }
-          if (this.currencyFrom.name == "GENS") {
-            this.currencyFrom.balance = this.getBalanceGENS;
-          }
-          if (this.currencyFrom.name == "SOL") {
-            this.currencyFrom.balance = this.getBalance;
-          }
-          this.convert();
         }
+
+        if (type == "GS") {
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAccgs;
+          this.tokenAMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+        }
+
+        if (type == "HS") {
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAcchs;
+          this.tokenAMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+        }
+
+        // for balance
+        // TODO make it look for the account info using the mint address and ata of the account
+
+        if (this.currencyFrom.name == "HGEN") {
+          this.currencyFrom.balance = this.getBalanceHGEN;
+        }
+        if (this.currencyFrom.name == "GENS") {
+          this.currencyFrom.balance = this.getBalanceGENS;
+        }
+        if (this.currencyFrom.name == "SOL") {
+          this.currencyFrom.balance = this.getBalance;
+        }
+
+        this.convert();
       },
     },
     currencyTo: {
       deep: true,
       handler(val) {
-        if (val.name != this.currencyFrom.name) {
-          console.log(val.name, "|", this.currencyFrom.name);
+        console.log(val.name, "|", this.currencyFrom.name);
+        this.currencyTo.name = val.items.filter(
+          (item) => item.value == val.value
+        )[0].label;
+
+        console.log(this.currencyFrom.name, "|", this.currencyTo.name);
+        let type = this.checkPool(this.currencyFrom.name, this.currencyTo.name);
+
+        if (type == "GH") {
           this.tokenBacc = val.items.filter(
             (item) => item.value == val.value
           )[0].tokenAccgh;
@@ -501,29 +610,40 @@ export default {
           this.tokenBMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
-          this.currencyTo.name = val.items.filter(
-            (item) => item.value == val.value
-          )[0].label;
-          console.log(
-            val.items.filter((item) => item.value == val.value)[0].label,
-            "val for to"
-          );
-          console.log(this.currencyTo.name, "check name for to");
-
-          // for balance
-          // TODO make it look for the account info using the mint address and ata of the account
-
-          if (this.currencyTo.name == "HGEN") {
-            this.currencyTo.balance = this.getBalanceHGEN;
-          }
-          if (this.currencyTo.name == "GENS") {
-            this.currencyTo.balance = this.getBalanceGENS;
-          }
-          if (this.currencyTo.name == "SOL") {
-            this.currencyTo.balance = this.getBalance;
-          }
-          this.convert();
         }
+
+        if (type == "GS") {
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAccgs;
+          this.tokenBMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+        }
+
+        if (type == "HS") {
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == val.value
+          )[0].tokenAcchs;
+          this.tokenBMintAddr = val.items.filter(
+            (item) => item.value == val.value
+          )[0].mintAddr;
+        }
+
+        // for balance
+        // TODO make it look for the account info using the mint address and ata of the account
+
+        if (this.currencyTo.name == "HGEN") {
+          this.currencyTo.balance = this.getBalanceHGEN;
+        }
+        if (this.currencyTo.name == "GENS") {
+          this.currencyTo.balance = this.getBalanceGENS;
+        }
+        if (this.currencyTo.name == "SOL") {
+          this.currencyTo.balance = this.getBalance;
+        }
+
+        this.convert();
       },
     },
     from(val) {
@@ -546,9 +666,37 @@ export default {
     },
   },
   methods: {
+    // TODO: refractor this code for extendibility
+    checkPool(currfrom, currto) {
+      console.log("this is running well");
+      if (
+        (currfrom == "GENS" && currto == "SOL") ||
+        (currfrom == "SOL" && currto == "GENS")
+      ) {
+        this.tokenPoolType = "GS";
+        this.tokenLP = LP_TOKENS_GS;
+      }
+      if (
+        (currfrom == "HGEN" && currto == "SOL") ||
+        (currfrom == "SOL" && currto == "HGEN")
+      ) {
+        this.tokenPoolType = "HS";
+        this.tokenLP = LP_TOKENS_HS;
+      }
+      if (
+        (currfrom == "GENS" && currto == "HGEN") ||
+        (currfrom == "HGEN" && currto == "GENS")
+      ) {
+        this.tokenPoolType = "GH";
+        this.tokenLP = LP_TOKENS_HGEN_GENS;
+      }
+      return this.tokenPoolType;
+    },
+
     toggleSwap() {
       this.raySwap = !this.raySwap;
     },
+
     toggleToken() {
       //   const prev_curr_from = this.currencyFrom;
       //   console.log(prev_curr_from.name, "name");
@@ -577,18 +725,14 @@ export default {
         let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
           new BN(100)
         );
-        console.log(tokenA, "tokenA");
-        console.log(tokenB, "tokenB");
+
         let invariant = tokenA.mul(new BN(tokenB));
         let numerator = invariant;
         let denominator = tokenA.add(new BN(this.from * 100));
-        console.log(numerator.toString(), "numerator");
-        console.log(denominator.toString(), "denominator");
 
         // new swap price for the token A->B
         let swapTokenB = numerator.div(denominator);
         swapTokenB = tokenB.sub(swapTokenB);
-        console.log(swapTokenB.toString(), "swap value for token B");
 
         // swaptokenB with fees
         let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
@@ -599,7 +743,6 @@ export default {
           .div(new BN(OWNER_FEE_DENOMINATOR));
         let swap_fees = trade_fees.add(owner_fees);
         swapTokenBWithFees = swapTokenB.sub(swap_fees);
-        console.log(swapTokenBWithFees.toString(), "swap token B with fees");
 
         // pool price before add
         denominator = tokenA.add(new BN(1).mul(new BN(100)));
@@ -636,13 +779,9 @@ export default {
       let numerator = invariant;
       let denominator = tokenB.add(new BN(this.from * 100));
 
-      console.log("token A", Number(tokenA));
-      console.log("token B", Number(tokenB));
-
       // new swap price for the token A->B
       let swapTokenA = numerator.div(denominator);
       swapTokenA = new BN(tokenA).sub(swapTokenA);
-      console.log(swapTokenA.toString(), "swap value for token B");
 
       // swaptokenB with fees
       let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
@@ -652,9 +791,7 @@ export default {
         .mul(new BN(swapTokenA))
         .div(new BN(OWNER_FEE_DENOMINATOR));
       let swap_fees = trade_fees.add(owner_fees);
-      console.log(swap_fees, "swapfee");
       let swapTokenAWithFees = swapTokenA.sub(swap_fees);
-      console.log(swapTokenAWithFees.toString(), "swap token B with fees");
 
       // pool price before add
       denominator = tokenB.add(new BN(1).mul(new BN(100)));
@@ -675,31 +812,266 @@ export default {
 
       return swapTokenAWithFees / 100 || 0; // 2 decimal
     },
+
+    // TODO refractor this code for extendibility
+    calculateTokenGensToSol() {
+      let swapTokenBWithFees;
+      if (this.from > 0) {
+        const TRADE_FEE_NUMBERATOR = 0; //25
+        const TRADE_FEE_DENOMINATOR = 10000;
+        const OWNER_FEE_NUMBERATOR = 0; // 5
+        const OWNER_FEE_DENOMINATOR = 10000;
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountGensGS);
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLGS);
+
+        console.log(tokenA, tokenB, "token Gens and SOL");
+
+        let invariant = tokenA.mul(new BN(tokenB));
+        let numerator = invariant;
+        let denominator = tokenA.add(new BN(this.from * 100));
+
+        // new swap price for the token A->B
+        let swapTokenB = numerator.div(denominator);
+        swapTokenB = tokenB.sub(swapTokenB);
+
+        // swaptokenB with fees
+        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(TRADE_FEE_DENOMINATOR));
+        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(OWNER_FEE_DENOMINATOR));
+        let swap_fees = trade_fees.add(owner_fees);
+        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+
+        // pool price before add
+        denominator = tokenA.add(new BN(1).mul(new BN(100)));
+        let swapTokeB_for_one = numerator.div(denominator);
+        let price_impact = tokenB.sub(swapTokeB_for_one);
+        price_impact =
+          Math.abs(Number(swapTokenB) - Number(price_impact)) /
+          Number(price_impact) /
+          100;
+        if (price_impact <= 0.1) {
+          price_impact = 0.1;
+        }
+        price_impact = price_impact.toString().split(".");
+        if (price_impact[1] > 0) {
+          price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+        }
+        this.priceImpact = price_impact;
+      }
+
+      return swapTokenBWithFees / 100 || 0; // 2 decimal
+    },
+    calculateTokenSolToGens() {
+      const TRADE_FEE_NUMBERATOR = 0; // 25
+      const TRADE_FEE_DENOMINATOR = 10000;
+      const OWNER_FEE_NUMBERATOR = 0; // 5
+      const OWNER_FEE_DENOMINATOR = 10000;
+      let tokenA = new BN(this.$accessor.swapPool.tokenAmountGensGS);
+      let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLGS);
+
+      let invariant = new BN(tokenA).mul(new BN(tokenB));
+      let numerator = invariant;
+      let denominator = tokenB.add(new BN(this.from * 100));
+
+      // new swap price for the token A->B
+      let swapTokenA = numerator.div(denominator);
+      swapTokenA = new BN(tokenA).sub(swapTokenA);
+
+      // swaptokenB with fees
+      let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(TRADE_FEE_DENOMINATOR));
+      let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(OWNER_FEE_DENOMINATOR));
+      let swap_fees = trade_fees.add(owner_fees);
+      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+
+      // pool price before add
+      denominator = tokenB.add(new BN(1).mul(new BN(100)));
+      let swapTokeA_for_one = numerator.div(denominator);
+      let price_impact = tokenA.sub(swapTokeA_for_one);
+      price_impact =
+        Math.abs(Number(swapTokenA) - Number(price_impact)) /
+        Number(price_impact) /
+        100;
+      if (price_impact <= 0.1) {
+        price_impact = 0.1;
+      }
+      price_impact = price_impact.toString().split(".");
+      if (price_impact[1] > 0) {
+        price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+      }
+      this.priceImpact = price_impact;
+
+      return swapTokenAWithFees / 100 || 0; // 2 decimal
+    },
+
+    // TODO refractor this code for extendibility
+    calculateTokenHgenToSol() {
+      let swapTokenBWithFees;
+      if (this.from > 0) {
+        const TRADE_FEE_NUMBERATOR = 0; //25
+        const TRADE_FEE_DENOMINATOR = 10000;
+        const OWNER_FEE_NUMBERATOR = 0; // 5
+        const OWNER_FEE_DENOMINATOR = 10000;
+        let tokenA = new BN(this.$accessor.swapPool.tokenAmountHgenHS);
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLHS);
+
+        console.log(tokenA.toNumber(), tokenB.toNumber(), "token Hgen and SOL");
+
+        let invariant = tokenA.mul(new BN(tokenB));
+        let numerator = invariant;
+        let denominator = tokenA.add(new BN(this.from * 100));
+
+        // new swap price for the token A->B
+        let swapTokenB = numerator.div(denominator);
+        swapTokenB = tokenB.sub(swapTokenB);
+
+        // swaptokenB with fees
+        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(TRADE_FEE_DENOMINATOR));
+        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+          .mul(swapTokenB)
+          .div(new BN(OWNER_FEE_DENOMINATOR));
+        let swap_fees = trade_fees.add(owner_fees);
+        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+
+        // pool price before add
+        denominator = tokenA.add(new BN(1).mul(new BN(100)));
+        let swapTokeB_for_one = numerator.div(denominator);
+        let price_impact = tokenB.sub(swapTokeB_for_one);
+        price_impact =
+          Math.abs(Number(swapTokenB) - Number(price_impact)) /
+          Number(price_impact) /
+          100;
+        if (price_impact <= 0.1) {
+          price_impact = 0.1;
+        }
+        price_impact = price_impact.toString().split(".");
+        if (price_impact[1] > 0) {
+          price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+        }
+        this.priceImpact = price_impact;
+      }
+
+      return swapTokenBWithFees / 100 || 0; // 2 decimal
+    },
+
+    calculateTokenSolToHgen() {
+      const TRADE_FEE_NUMBERATOR = 0; // 25
+      const TRADE_FEE_DENOMINATOR = 10000;
+      const OWNER_FEE_NUMBERATOR = 0; // 5
+      const OWNER_FEE_DENOMINATOR = 10000;
+      let tokenA = new BN(this.$accessor.swapPool.tokenAmountHgenHS);
+      let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLHS);
+
+      let invariant = new BN(tokenA).mul(new BN(tokenB));
+      let numerator = invariant;
+      let denominator = tokenB.add(new BN(this.from * 100));
+
+      // new swap price for the token A->B
+      let swapTokenA = numerator.div(denominator);
+      swapTokenA = new BN(tokenA).sub(swapTokenA);
+
+      // swaptokenB with fees
+      let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(TRADE_FEE_DENOMINATOR));
+      let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
+        .mul(new BN(swapTokenA))
+        .div(new BN(OWNER_FEE_DENOMINATOR));
+      let swap_fees = trade_fees.add(owner_fees);
+      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+
+      // pool price before add
+      denominator = tokenB.add(new BN(1).mul(new BN(100)));
+      let swapTokeA_for_one = numerator.div(denominator);
+      let price_impact = tokenA.sub(swapTokeA_for_one);
+      price_impact =
+        Math.abs(Number(swapTokenA) - Number(price_impact)) /
+        Number(price_impact) /
+        100;
+      if (price_impact <= 0.1) {
+        price_impact = 0.1;
+      }
+      price_impact = price_impact.toString().split(".");
+      if (price_impact[1] > 0) {
+        price_impact = price_impact[0] + "." + price_impact[1].substr(0, 3);
+      }
+      this.priceImpact = price_impact;
+
+      return swapTokenAWithFees / 100 || 0; // 2 decimal
+    },
+
+    // TODO refactor this code for reusability
     convert() {
-      if (this.currencyFrom.value === this.tokens[0].value) {
+      // gens to hgen
+      if (
+        this.currencyFrom.value === this.tokens[0].value &&
+        this.currencyTo.value === this.tokens[1].value
+      ) {
         this.to = this.calculateTokenGensToHgen() || 0;
-      } else if (
+        return;
+      }
+
+      // hgen to gens
+      if (
         this.currencyFrom.value === this.tokens[1].value &&
         this.currencyTo.value === this.tokens[0].value &&
         this.from > 0
       ) {
         this.to = this.calculateTokenHgenToGens() || 0;
       }
+
+      // gens to sol
+      if (
+        this.currencyFrom.value === this.tokens[0].value &&
+        this.currencyTo.value === this.tokens[2].value
+      ) {
+        this.to = this.calculateTokenGensToSol() || 0;
+      }
+
+      // sol to gens
+      if (
+        this.currencyFrom.value === this.tokens[2].value &&
+        this.currencyTo.value === this.tokens[0].value
+      ) {
+        this.to = this.calculateTokenSolToGens() || 0;
+      }
+
+      // hgen to sol
+      if (
+        this.currencyFrom.value === this.tokens[1].value &&
+        this.currencyTo.value === this.tokens[2].value
+      ) {
+        this.to = this.calculateTokenHgenToSol() || 0;
+      }
+
+      // sol to hgen
+      if (
+        this.currencyFrom.value === this.tokens[2].value &&
+        this.currencyTo.value === this.tokens[1].value
+      ) {
+        this.to = this.calculateTokenSolToHgen() || 0;
+      }
     },
     confirm() {
       if (this.from > 0) {
-        if (this.tokenPoolType == "GH") {
-          this.$accessor.swapPool.swap({
-            tokenLP: this.tokenLP,
-            tokenAacc: this.tokenAacc,
-            tokenBacc: this.tokenBacc,
-            tokenAMintAddr: this.tokenAMintAddr,
-            tokenBMintAddr: this.tokenBMintAddr,
-            from: Number(this.from) * 100,
-            tokenType: this.tokenPoolType,
-            slippagePrice: this.slippagePrice,
-          }); // 2 decimal
-        }
+        this.$accessor.swapPool.swap({
+          tokenLP: this.tokenLP,
+          tokenAacc: this.tokenAacc,
+          tokenBacc: this.tokenBacc,
+          tokenAMintAddr: this.tokenAMintAddr,
+          tokenBMintAddr: this.tokenBMintAddr,
+          from: Number(this.from) * 100,
+          tokenType: this.tokenPoolType,
+          slippagePrice: this.slippagePrice,
+        }); // 2 decimal
       }
       this.to = null;
       this.from = null;
@@ -721,7 +1093,7 @@ export default {
         tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
           this.currencyFrom.value
         );
-        console.log(tokenDetail, "token amount ");
+
         this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
       }
     },
@@ -734,6 +1106,7 @@ export default {
       this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
       this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
     }
+
     this.$accessor.swapPool.getTokenAInfo();
     this.$accessor.swapPool.getTokenBInfo();
     this.$accessor.swapPool.onTokenAChange();

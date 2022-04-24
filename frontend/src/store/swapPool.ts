@@ -11,7 +11,7 @@ import {
     withdrawSingleTokenTypeExactAmountOut,
 } from '@/utils/swapPool'
 
-import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B, LP_TOKENS_HGEN_GENS, WSOL_ADDR, LP_POOL_OWNER, TOKEN_SWAP_ACCOUNT, POOL_AUTHORITY_GS, TOKEN_ACC_GENS_GS, TOKEN_ACC_SOL_GS, POOL_AUTHORITY_HS, TOKEN_ACC_HGEN_HS, TOKEN_ACC_SOL_HS } from '@/utils/layout';
+import { TOKEN_A_MINT_ADDR, TOKEN_B_MINT_ADDR, POOL_AUTHORITY, TOKEN_ACC_A, TOKEN_ACC_B, LP_TOKENS_HGEN_GENS, WSOL_ADDR, LP_POOL_OWNER, TOKEN_SWAP_ACCOUNT, POOL_AUTHORITY_GS, TOKEN_ACC_GENS_GS, TOKEN_ACC_SOL_GS, POOL_AUTHORITY_HS, TOKEN_ACC_HGEN_HS, TOKEN_ACC_SOL_HS, LP_TOKENS_GS, TOKEN_SWAP_HGEN_SOL_ACCOUNT, LP_TOKENS_HS, TOKEN_SWAP_GEN_SOL_ACCOUNT } from '@/utils/layout';
 import { CurveType, Numberu64 } from '@/utils/tokenSwap';
 import { Pool } from '@/store/interfaces/poolInterface';
 
@@ -601,8 +601,7 @@ export const actions = actionTree(
                         mint: LP_TOKENS_HGEN_GENS,
                     });
                     let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
-                    console.log(tokenATA, "tokenATA")
-                    console.log(tokenATAFee, "token fee ata")
+
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
 
@@ -611,14 +610,56 @@ export const actions = actionTree(
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
 
+                    return;
+
                 } catch (err) {
                     console.error(err, "gens-hgen Account error")
                 }
             }
             if (value.tokenType == "GS") {
-                tokenSwapAccount = new PublicKey("rZe7AtEeej9yjFzvhzQT4Sby37DTwc5wB5ma7BioxBP");
+                tokenSwapAccount = TOKEN_SWAP_GEN_SOL_ACCOUNT;
                 try {
+                    let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
+                        mint: LP_TOKENS_GS,
+                    });
+                    let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
+                    let LP_TOKEN_FEE = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
+                        mint: LP_TOKENS_GS,
+                    });
+                    let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
+                    ownerTokenPoolAccount = new PublicKey(tokenATA);
+                    hostFeeAccount = new PublicKey(tokenATAFee);
+                    console.log(tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
 
+                    await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
+                    this.$accessor.wallet.getBalance();
+                    this.$accessor.wallet.getGENSBalance();
+                    this.$accessor.wallet.getHGENBalance();
+                } catch (err) {
+                    console.error(err, "Gens-Sol account error")
+                }
+            }
+            if (value.tokenType == "HS") {
+                tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
+                try {
+                    let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
+                        mint: LP_TOKENS_HS,
+                    });
+                    let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
+                    let LP_TOKEN_FEE = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
+                        mint: LP_TOKENS_HS,
+                    });
+                    let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
+                    ownerTokenPoolAccount = new PublicKey(tokenATA);
+                    hostFeeAccount = new PublicKey(tokenATAFee);
+                    console.log(tokenSwapAccount.toBase58(), value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, (value.tokenAMintAddr), (value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice)
+                    await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
+
+                    this.$accessor.wallet.getBalance();
+                    this.$accessor.wallet.getGENSBalance();
+                    this.$accessor.wallet.getHGENBalance();
+
+                    return;
                 } catch (err) {
                     console.error(err, "Gens-Sol account error")
                 }

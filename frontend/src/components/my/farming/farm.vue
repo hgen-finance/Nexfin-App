@@ -284,12 +284,10 @@ export default {
         this.getTo !== null &&
         this.getDay !== null
       ) {
-        console.log(Number(this.$accessor.wallet.balanceHGEN), "|", this.getTo);
         if (
           this.getFrom < Number(this.$accessor.wallet.balance) &&
           this.getTo < Number(this.$accessor.wallet.balanceHGEN)
         ) {
-          console.log("this is working");
           farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
           this.$accessor.wallet.getBalance();
           this.$accessor.wallet.getGENSBalance();
