@@ -901,6 +901,7 @@ export async function swap(
         if (tokenAMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
 
             tokenAATA = await getWrappedAccount(wallet, amount * 1e7 + accountRentExempt, wallet.publicKey, instructions, signers);
+            SWAP_AMOUNT_IN = amount * 1e7
             console.log(tokenAATA, "tokenA ata")
         }
         else {
@@ -1035,7 +1036,7 @@ export async function swap(
                 ownertokenAccountPool,
                 hostFeeAccount,
                 userTransferAuthority,
-                SWAP_AMOUNT_IN * 1e7,
+                SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT,
                 signers,
                 instructions
@@ -1062,7 +1063,7 @@ export async function swap(
                 ownertokenAccountPool,
                 hostFeeAccount,
                 userTransferAuthority,
-                SWAP_AMOUNT_IN * 1e7,
+                SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT,
                 signers,
                 instructions
