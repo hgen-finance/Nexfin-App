@@ -892,7 +892,7 @@ export default {
       }
       this.priceImpact = price_impact;
 
-      return swapTokenAWithFees / 100 || 0; // 2 decimal
+      return swapTokenAWithFees || 0; // 2 decimal
     },
 
     // TODO refractor this code for extendibility
@@ -910,7 +910,7 @@ export default {
 
         let invariant = tokenA.mul(new BN(tokenB));
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from));
+        let denominator = tokenA.add(new BN(this.from * 100));
 
         // new swap price for the token A->B
         let swapTokenB = numerator.div(denominator);
@@ -957,7 +957,7 @@ export default {
 
       let invariant = new BN(tokenA).mul(new BN(tokenB));
       let numerator = invariant;
-      let denominator = tokenB.add(new BN(this.from * 100));
+      let denominator = tokenB.add(new BN(this.from));
 
       // new swap price for the token A->B
       let swapTokenA = numerator.div(denominator);
@@ -990,7 +990,7 @@ export default {
       }
       this.priceImpact = price_impact;
 
-      return swapTokenAWithFees / 100 || 0; // 2 decimal
+      return swapTokenAWithFees || 0; // 2 decimal
     },
 
     // TODO refactor this code for reusability
