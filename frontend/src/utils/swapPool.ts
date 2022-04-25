@@ -223,7 +223,9 @@ async function getWrappedAccount(
     signers: Account[],
 ) {
     // fixed lamports of 50 sol, which is equivalent to 50 * 10e9 lamports
+
     const account = new Account(); // for storing the sol 
+
     console.log("new account from wrapper sol is ", account.publicKey.toBase58());
     console.log("secret key for the wrap sol accoun is ", account.secretKey);
     instructions.push(
@@ -877,6 +879,9 @@ export async function swap(
     amount: number,
     slippagePrice: number,
 ): Promise<void> {
+    const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
+        AccountLayout.span
+    );
 
     const signers: Account[] = [];
     const instructions: TransactionInstruction[] = [];
@@ -892,26 +897,34 @@ export async function swap(
     let tokenAATA;
     let tokenBATA;
     try {
-
         // check if the token is for native (SOL)
-        if (tokenAMintAddr === WSOL_ADDR) {
-            tokenAATA = getWrappedAccount(wallet, amount, wallet.publicKey, instructions, signers);
+        if (tokenAMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+
+            tokenAATA = await getWrappedAccount(wallet, amount * 1e7 + accountRentExempt, wallet.publicKey, instructions, signers);
+            console.log(tokenAATA, "tokenA ata")
         }
         else {
             let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
                 mint: tokenAMintAddr,
             });
             tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+            tokenAATA = new PublicKey(tokenAATA);
             console.log(tokenAATA, "tokenA ata")
             console.log(tokenAMintAddr, "tokenAMintAddr")
         }
-        console.log("testing..")
-        console.log(tokenBMintAddr, "tokenVNubtr")
-        let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-            mint: tokenBMintAddr,
-        });
-        tokenBATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
-        console.log(tokenBATA, "tokenB ata")
+        if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+            tokenBATA = await getWrappedAccount(wallet, accountRentExempt, wallet.publicKey, instructions, signers);
+            console.log(tokenBATA, "tokenB ata")
+        }
+        else {
+            let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+                mint: tokenBMintAddr,
+            });
+            tokenBATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
+            tokenBATA = new PublicKey(tokenBATA);
+            console.log(tokenBATA, "tokenB ata")
+        }
+
     } catch (err) {
         console.log(err, "account mint token error")
     }
@@ -957,10 +970,19 @@ export async function swap(
         // Calculating for constant product curve x * y = k(variant)
         // For swap A->B, (token_a_amount + swap_a_amount) * (token_b_amount - swap_b_amount) = invariant
         let swapAmountA = await (await getAccountInfo(connection, poolTokenAccountA)).info.amount;
+        // TODO: remove this later
+        if (tokenAMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+            swapAmountA = new BN(swapAmountA).div(new BN(10000000))
+        }
         let swapAmountB = await (await getAccountInfo(connection, poolTokenAccountB)).info.amount;
+        if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+            swapAmountB = new BN(swapAmountB).div(new BN(10000000))
+        }
+        console.log(swapAmountA.toNumber(), swapAmountB.toNumber(), "swap values")
         let invariant = new BN(swapAmountA).mul(new BN(swapAmountB));
         let numerator = invariant;
         let denominator = new BN(swapAmountA).add(new BN(SWAP_AMOUNT_IN));
+        console.log(denominator.toNumber(), "denom value")
 
         // new swap price for the token A->B
         let swapTokenB = new BN(swapAmountB).sub(numerator.div(denominator));
@@ -979,7 +1001,6 @@ export async function swap(
     console.log('Swapping');
     console.log(SWAP_AMOUNT_IN, "swap amount in")
 
-
     if (tokenBATA == "") {
         tokenBATA = await Token.getAssociatedTokenAddress(
             ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
@@ -987,6 +1008,7 @@ export async function swap(
             tokenBMintAddr, // mint
             wallet.publicKey // owner
         );
+
         const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
             ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
             TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
@@ -997,22 +1019,24 @@ export async function swap(
         )
 
         instructions.push(ataAccountTx);
+        console.log(instructions)
         try {
+
             await TokenSwap.swap(
                 wallet,
                 connection,
                 tokenSwapAccount,
                 authority,
-                new PublicKey(tokenAATA),
+                tokenAATA,
                 poolTokenAccountA,
                 poolTokenAccountB,
-                new PublicKey(tokenBATA),
+                tokenBATA,
                 lp_tokens,
                 ownertokenAccountPool,
                 hostFeeAccount,
                 userTransferAuthority,
-                SWAP_AMOUNT_IN,
-                SWAP_AMOUNT_OUT + 10,
+                SWAP_AMOUNT_IN * 1e7,
+                SWAP_AMOUNT_OUT,
                 signers,
                 instructions
             );
@@ -1023,21 +1047,23 @@ export async function swap(
     }
     else {
         try {
+            console.log(instructions)
+
             await TokenSwap.swap(
                 wallet,
                 connection,
                 tokenSwapAccount,
                 authority,
-                new PublicKey(tokenAATA),
+                (tokenAATA),
                 poolTokenAccountA,
                 poolTokenAccountB,
-                new PublicKey(tokenBATA),
+                (tokenBATA),
                 lp_tokens,
                 ownertokenAccountPool,
                 hostFeeAccount,
                 userTransferAuthority,
-                SWAP_AMOUNT_IN,
-                SWAP_AMOUNT_OUT + 10,
+                SWAP_AMOUNT_IN * 1e7,
+                SWAP_AMOUNT_OUT,
                 signers,
                 instructions
             );

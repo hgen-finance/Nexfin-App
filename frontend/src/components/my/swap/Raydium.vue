@@ -310,43 +310,6 @@ const POOL_TOKENS = [
     tokenAcchs: TOKEN_ACC_SOL_HS,
   },
 ];
-const POOL_TOKEN_TYPE = [
-  {
-    label: "GH",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-  {
-    label: "HG",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-  {
-    label: "HS",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-  {
-    label: "SH",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-  {
-    label: "GS",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-  {
-    label: "SG",
-    tokenAacc: TOKEN_ACC_A,
-    tokenBacc: TOKEN_ACC_B,
-  },
-];
-
-const TOKENS = [
-  { label: "RAY", value: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R" },
-  { label: "SOL", value: "So11111111111111111111111111111111111111112" },
-];
 
 export default {
   components: {
@@ -540,8 +503,6 @@ export default {
     currencyFrom: {
       deep: true,
       handler(val) {
-        console.log(val.name, "||", this.currencyFrom.name);
-
         this.currencyFrom.name = val.items.filter(
           (item) => item.value == val.value
         )[0].label;
@@ -552,18 +513,27 @@ export default {
           this.tokenAacc = val.items.filter(
             (item) => item.value == val.value
           )[0].tokenAccgh;
+
           this.tokenAMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == this.currencyTo.value
+          )[0].tokenAccgh;
         }
 
         if (type == "GS") {
           this.tokenAacc = val.items.filter(
             (item) => item.value == val.value
           )[0].tokenAccgs;
+
           this.tokenAMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == this.currencyTo.value
+          )[0].tokenAccgs;
         }
 
         if (type == "HS") {
@@ -573,6 +543,9 @@ export default {
           this.tokenAMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+          this.tokenBacc = val.items.filter(
+            (item) => item.value == this.currencyTo.value
+          )[0].tokenAcchs;
         }
 
         // for balance
@@ -610,15 +583,24 @@ export default {
           this.tokenBMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == this.currencyFrom.value
+          )[0].tokenAccgh;
         }
 
         if (type == "GS") {
           this.tokenBacc = val.items.filter(
             (item) => item.value == val.value
           )[0].tokenAccgs;
+
           this.tokenBMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == this.currencyFrom.value
+          )[0].tokenAccgs;
         }
 
         if (type == "HS") {
@@ -628,6 +610,9 @@ export default {
           this.tokenBMintAddr = val.items.filter(
             (item) => item.value == val.value
           )[0].mintAddr;
+          this.tokenAacc = val.items.filter(
+            (item) => item.value == this.currencyFrom.value
+          )[0].tokenAcchs;
         }
 
         // for balance
@@ -874,7 +859,7 @@ export default {
 
       let invariant = new BN(tokenA).mul(new BN(tokenB));
       let numerator = invariant;
-      let denominator = tokenB.add(new BN(this.from * 100));
+      let denominator = tokenB.add(new BN(this.from));
 
       // new swap price for the token A->B
       let swapTokenA = numerator.div(denominator);
@@ -925,7 +910,7 @@ export default {
 
         let invariant = tokenA.mul(new BN(tokenB));
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from * 100));
+        let denominator = tokenA.add(new BN(this.from));
 
         // new swap price for the token A->B
         let swapTokenB = numerator.div(denominator);

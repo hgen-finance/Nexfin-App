@@ -618,6 +618,7 @@ export const actions = actionTree(
             }
             if (value.tokenType == "GS") {
                 tokenSwapAccount = TOKEN_SWAP_GEN_SOL_ACCOUNT;
+                console.log(tokenSwapAccount.toBase58(), "gens sol token swap account")
                 try {
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
                         mint: LP_TOKENS_GS,
@@ -629,7 +630,6 @@ export const actions = actionTree(
                     let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
-                    console.log(tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
 
                     await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
                     this.$accessor.wallet.getBalance();
@@ -641,6 +641,8 @@ export const actions = actionTree(
             }
             if (value.tokenType == "HS") {
                 tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
+                console.log(tokenSwapAccount.toBase58(), "hgen sol token swap account")
+
                 try {
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
                         mint: LP_TOKENS_HS,
@@ -652,7 +654,6 @@ export const actions = actionTree(
                     let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
-                    console.log(tokenSwapAccount.toBase58(), value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, (value.tokenAMintAddr), (value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice)
                     await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
 
                     this.$accessor.wallet.getBalance();

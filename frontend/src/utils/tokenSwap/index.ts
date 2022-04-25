@@ -495,6 +495,22 @@ export class TokenSwap {
     ): Promise<TransactionSignature> {
 
         let tx = new Transaction();
+        console.log(
+            tokenSwap.toBase58(),
+            authority.toBase58(),
+            userTransferAuthority.toBase58(),
+            userSource.toBase58(),
+            poolSource.toBase58(),
+            poolDestination.toBase58(),
+            userDestination.toBase58(),
+            poolToken.toBase58(),
+            feeAccount.toBase58(),
+            hostFeeAccount.toBase58(),
+            TOKEN_SWAP_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            amountIn,
+            minimumAmountOut,
+        )
         let swapIx = TokenSwap.swapInstruction(
             tokenSwap,
             authority,
