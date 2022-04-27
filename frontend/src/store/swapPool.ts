@@ -621,6 +621,7 @@ export const actions = actionTree(
                     this.$accessor.wallet.getBalance();
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
+
                     commit("setLoading", false);
                     console.log(swapTx, "txId..")
                     // pass wait transaction notification
@@ -633,10 +634,6 @@ export const actions = actionTree(
                             txId: swapTx
                         });
                     }
-
-
-
-
 
                 } catch (err) {
                     console.error(err, "gens-hgen Account error")

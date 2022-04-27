@@ -94,10 +94,16 @@
             <span
               class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
               >B.
-              <span class="f-green-500">{{
-                currencyFrom.balance || 0
-              }}</span></span
-            >
+              <span class="f-green-500" v-if="currencyFrom.name == 'GENS'">
+                {{ getBalanceGENS || 0 }}
+              </span>
+              <span class="f-green-500" v-if="currencyFrom.name == 'HGEN'">
+                {{ getBalanceHGEN || 0 }}
+              </span>
+              <span class="f-green-500" v-if="currencyFrom.name == 'SOL'">
+                {{ getBalance || 0 }}
+              </span>
+            </span>
           </div>
         </div>
         <div
@@ -141,10 +147,16 @@
             <span
               class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
               >B.
-              <span class="f-green-500">
-                {{ currencyTo.balance || 0 }}</span
-              ></span
-            >
+              <span class="f-green-500" v-if="currencyTo.name == 'GENS'">
+                {{ getBalanceGENS || 0 }}
+              </span>
+              <span class="f-green-500" v-if="currencyTo.name == 'HGEN'">
+                {{ getBalanceHGEN || 0 }}
+              </span>
+              <span class="f-green-500" v-if="currencyTo.name == 'SOL'">
+                {{ getBalance || 0 }}
+              </span>
+            </span>
           </div>
         </div>
         <div
