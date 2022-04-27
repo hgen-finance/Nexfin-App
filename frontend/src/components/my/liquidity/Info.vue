@@ -182,6 +182,7 @@ export default {
       return (
         (this.$accessor.liquidity.lpTokens /
           this.$accessor.liquidity.lpTotalSupply) *
+        100 *
         100
       ).toFixed(2);
     },

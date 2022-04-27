@@ -4,8 +4,8 @@
       <div class="w-100 fd-r jc-sb ai-c my-3-S">
         <div class="fs-4-S f-white-200 ai-s br-mcolor-400 rad-fix-5">
           <span class="hv d-n-XS fsh-0" @click="showPoolUI"> Pools </span>
-          |
-          <span class="hv d-n-XS fsh-0" @click="showMyPoolUI"> My pool </span>
+          <!-- |
+          <span class="hv d-n-XS fsh-0" @click="showMyPoolUI"> My pool </span> -->
         </div>
         <div class="fd-r buttons">
           <Tooltip>
