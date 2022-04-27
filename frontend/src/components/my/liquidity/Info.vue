@@ -30,7 +30,7 @@
             </div>
             <span
               class="fw-600 fs-6-L fs-5-S fs-20-XS f-white-200 mr-2 ml-2 my-10-XS ml-10-XS mr-10-XS ai-c fd-r"
-              >HGEN-GENS</span
+              >GENS-HGEN</span
             >
           </div>
           <div
@@ -47,7 +47,7 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            1000000
+            {{ lpTotalSupply }}
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
@@ -58,7 +58,8 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            10000 <span class="f-white-200 pl-1">HGEN</span>
+            {{ getPoolInfo.tokenAmountB }}
+            <span class="f-white-200 pl-1">HGEN</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
@@ -69,7 +70,8 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            1000 <span class="f-white-200 pl-1">GENS</span>
+            {{ getPoolInfo.tokenAmountA }}
+            <span class="f-white-200 pl-1">GENS</span>
           </div>
         </div>
       </div>
@@ -93,18 +95,18 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            ≈ 100 <span class="f-white-200 pl-1">HGEN</span>
+            ≈ {{ getTokenB }} <span class="f-white-200 pl-1">HGEN</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            GENS in Pool
+            Your GENS in Pool
             <Hint> Your share of GENS in pool </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            ≈ 10<span class="f-white-200 pl-1">GENS</span>
+            ≈ {{ getTokenA }}<span class="f-white-200 pl-1">GENS</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
@@ -115,7 +117,7 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            10
+            {{ getMyLpToken }}
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
@@ -126,7 +128,7 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            10<span class="f-white-200 pl-1">%</span>
+            {{ getPoolShare }}<span class="f-white-200 pl-1">%</span>
           </div>
         </div>
       </div>
@@ -144,5 +146,61 @@ export default {
     Hint,
   },
   layout: "my",
+  data() {
+    return {
+      lpTokenType: "GH",
+    };
+  },
+  computed: {
+    getPoolInfo() {
+      return {
+        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
+        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
+        tokenAmountGensGS: this.$accessor.swapPool.tokenAmountGensGS || 0,
+        tokenAmountSOLGS: this.$accessor.swapPool.tokenAmountSOLGS || 0,
+        tokenAmountHgenHS: this.$accessor.swapPool.tokenAmountHgenHS || 0,
+        tokenAmountSOLHS: this.$accessor.swapPool.tokenAmountSOLHS || 0,
+      };
+    },
+    getTokenA() {
+      return (
+        (this.$accessor.liquidity.lpTokens /
+          this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountA *
+        100
+      ).toFixed(2);
+    },
+    getTokenB() {
+      return (
+        (this.$accessor.liquidity.lpTokens /
+          this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountB *
+        100
+      ).toFixed(2);
+    },
+    getPoolShare() {
+      return (
+        (this.$accessor.liquidity.lpTokens /
+          this.$accessor.liquidity.lpTotalSupply) *
+        100
+      ).toFixed(2);
+    },
+    lpTotalSupply() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      return this.$accessor.liquidity.lpTotalSupply;
+    },
+    getMyLpToken() {
+      return this.$accessor.liquidity.lpTokens;
+    },
+  },
+  mounted() {
+    this.$accessor.swapPool.getTokenAInfo();
+    this.$accessor.swapPool.getTokenBInfo();
+    this.$accessor.swapPool.onTokenAChange();
+    this.$accessor.swapPool.onTokenBChange();
+
+    this.$accessor.liquidity.getLpTokens();
+    this.$accessor.liquidity.updateLpToken(this.lpTokenType);
+  },
 };
 </script>
