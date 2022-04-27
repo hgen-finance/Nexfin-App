@@ -374,7 +374,9 @@ export default {
       return this.$accessor.borrowing.troveId;
     },
     getTroveCollateral() {
-      return this.$accessor.borrowing.trove.lamports;
+      return (
+        ((this.$accessor.borrowing.trove.lamports || 0) / 1e9).toFixed(2) || 0
+      );
     },
     getTroveAmount() {
       return this.$accessor.borrowing.trove

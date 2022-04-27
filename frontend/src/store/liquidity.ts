@@ -11,6 +11,7 @@ import { PublicKey } from "@solana/web3.js";
 export const state = () => ({
     lpTotalSupply: 0,
     lpTokens: 0,
+    loading: false,
 });
 
 // Getters
@@ -23,6 +24,9 @@ export const mutations = mutationTree(state, {
     },
     setLpTokens(state, newValue: number) {
         state.lpTokens = newValue;
+    },
+    setLoading(state, newValue: boolean) {
+        state.loading = newValue;
     }
 });
 

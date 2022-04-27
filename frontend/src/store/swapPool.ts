@@ -438,6 +438,8 @@ export const state = () => ({
     gensHgenLPsupply: 0,
     hgenSolLPsupply: 0,
     gensSolLPsupply: 0,
+    loading: false,
+    clearTime: 3000,
 });
 
 // Getters
@@ -482,6 +484,10 @@ export const mutations = mutationTree(state, {
     },
     setUserAccounts(state, newValue: TokenAccount[]) {
         state.userAccounts = newValue;
+    },
+
+    setLoading(state, newValue: boolean) {
+        state.loading = newValue;
     }
 
 });
@@ -585,16 +591,18 @@ export const actions = actionTree(
         },
 
         // swap tokens for the pool
-        async swap({ }, value) {
+        async swap({ state, commit }, value) {
             console.log('swapping');
             let ownerTokenPoolAccount;
             let tokenSwapAccount;
             let hostFeeAccount;
+            let swapTx;
             if (value.tokenType == "GH") {
                 tokenSwapAccount = new Account([71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43]);
 
                 try {
 
+                    commit("setLoading", true);
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
                         mint: LP_TOKENS_HGEN_GENS,
                     });
@@ -608,12 +616,24 @@ export const actions = actionTree(
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
 
-                    await swap(this.$wallet, this.$web3, tokenSwapAccount.publicKey, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
+
+                    swapTx = await swap(this.$wallet, this.$web3, tokenSwapAccount.publicKey, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
                     this.$accessor.wallet.getBalance();
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
 
-                    return;
+                    commit("setLoading", false);
+                    console.log(swapTx, "txId..")
+                    // pass wait transaction notification
+
+                    if (swapTx) {
+                        this.$accessor.notification.notify({
+                            title: "Transaction sent",
+                            description: "Transaction Successful",
+                            type: "confirm",
+                            txId: swapTx
+                        });
+                    }
 
                 } catch (err) {
                     console.error(err, "gens-hgen Account error")
@@ -623,6 +643,7 @@ export const actions = actionTree(
                 tokenSwapAccount = TOKEN_SWAP_GEN_SOL_ACCOUNT;
                 console.log(tokenSwapAccount.toBase58(), "gens sol token swap account")
                 try {
+                    commit("setLoading", true);
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
                         mint: LP_TOKENS_GS,
                     });
@@ -634,10 +655,20 @@ export const actions = actionTree(
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
 
-                    await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
+                    swapTx = await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
                     this.$accessor.wallet.getBalance();
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
+                    commit("setLoading", false);
+                    if (swapTx) {
+                        this.$accessor.notification.notify({
+                            title: "Transaction sent",
+                            description: "Transaction Successful",
+                            type: "confirm",
+                            txId: swapTx,
+                        });
+                    }
+
                 } catch (err) {
                     console.error(err, "Gens-Sol account error")
                 }
@@ -647,6 +678,7 @@ export const actions = actionTree(
                 console.log(tokenSwapAccount.toBase58(), "hgen sol token swap account")
 
                 try {
+                    commit("setLoading", true);
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
                         mint: LP_TOKENS_HS,
                     });
@@ -657,12 +689,21 @@ export const actions = actionTree(
                     let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
                     ownerTokenPoolAccount = new PublicKey(tokenATA);
                     hostFeeAccount = new PublicKey(tokenATAFee);
-                    await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
+                    swapTx = await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, new PublicKey(value.tokenAMintAddr), new PublicKey(value.tokenBMintAddr), hostFeeAccount, value.from, value.slippagePrice);
 
                     this.$accessor.wallet.getBalance();
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
+                    commit("setLoading", false);
 
+                    if (swapTx) {
+                        this.$accessor.notification.notify({
+                            title: "Transaction sent",
+                            description: "Transaction Successful",
+                            type: "confirm",
+                            txId: swapTx
+                        });
+                    }
                     return;
                 } catch (err) {
                     console.error(err, "Gens-Sol account error")
