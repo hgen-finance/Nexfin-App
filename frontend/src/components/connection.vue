@@ -43,7 +43,7 @@ export default {
         this.$accessor.notification.notify({
           title: "Transaction failed",
           description: err,
-          type: "confirm",
+          type: "error",
           txId: "",
         });
         console.error(err, "my error");

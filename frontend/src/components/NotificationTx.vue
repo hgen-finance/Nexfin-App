@@ -2,13 +2,18 @@
   <div class="notification-box">
     <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all pt-0-XS notification-inner"
-      v-if="
-        getTotalNotifications > 0 && handleTxNotifications.type == 'confirm'
-      "
+      v-if="getTotalNotifications > 0"
     >
       <!-- TODO: check for the type of message  -->
       <div class="fd-r ai-c jc-c" v-if="true">
-        <Loading :width="'2em'" :height="'2em'" />
+        <!-- <Loading :width="'2em'" :height="'2em'" /> -->
+
+        <div v-if="handleTxNotifications.type == 'confirm'">
+          <Icon class="pr-3" type="check" />
+        </div>
+        <div v-if="handleTxNotifications.type == 'error'">
+          <Icon class="pr-3" type="close" />
+        </div>
         <div class="d-f fd-c ai-l ml-2-S">
           <div class="fs-6-M fs-5-S fs-25-XS f-white-200 fw-500">
             {{ handleTxNotifications.title }}
