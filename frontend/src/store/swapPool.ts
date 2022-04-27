@@ -435,6 +435,9 @@ export const state = () => ({
     nativeAccount: null,
     tokenAccounts: [],
     userAccounts: [],
+    gensHgenLPsupply: 0,
+    hgenSolLPsupply: 0,
+    gensSolLPsupply: 0,
 });
 
 // Getters
@@ -689,6 +692,7 @@ export const actions = actionTree(
         },
 
         // getting info for pool token B
+        // TODO: use the value paramter instead of harcoding the values
         async getTokenBInfo({ state, commit }, value) {
             let tokenB = await this.$web3.getParsedTokenAccountsByOwner(POOL_AUTHORITY, { mint: TOKEN_B_MINT_ADDR });
             let result: number = tokenB.value[0].account.data.parsed.info.tokenAmount.uiAmount;
