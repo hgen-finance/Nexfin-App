@@ -22,7 +22,7 @@ export const state = () => ({
     // TODO: set the max limit for the notification
     counterId: 0, // increment when new notification is added
     totalNotificaitons: 0,
-    clearTime: 10000,
+    clearTime: 5000,
 });
 
 // Getters
