@@ -56,36 +56,39 @@
         <div
           class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
         >
-          <div class="w-100 fd-r jc-sb">
-            <div
-              class="fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS t"
-            >
-              Set amount you want to add
-            </div>
-            <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
-              <span
-                class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-                >B.
-                <span class="f-green-500">
-                  {{ 0 }}
-                </span>
-              </span>
-            </div>
-          </div>
-          <div class="w-100 pb-3-S pb-0 fd-r jc-r">
-            <input
-              class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
-              placeholder="0"
-              v-model="from"
-              maxlength="15"
-              type="text"
-            />
-            <div class="p-a-S p-r-XS l-0 b-0 w-fix-60-S w-35-XS">
+          <div class="w-100 fd-r jc-r">
+            <div class="p-a-S p-r-XS l-0 t-0 w-fix-50-S w-35-XS">
               <AmSelectbox
                 v-bind:data.sync="currencyFrom"
                 :update="true"
                 :shadow="false"
                 :padding="false"
+              />
+            </div>
+              <div
+                class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS"
+              >
+                <span
+                  class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
+                  >B.
+                  <span class="f-green-500">
+                    {{ 10 }}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div class="w-100 pb-3-S pb-0 fd-r jc-sb">
+              <span
+                class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 z-1"
+                @click="setMax"
+                >max</span
+              >
+              <input
+                class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
+                placeholder="0"
+                v-model="from"
+                maxlength="15"
+                type="text"
               />
             </div>
           </div>
