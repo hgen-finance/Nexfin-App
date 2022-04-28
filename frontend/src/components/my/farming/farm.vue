@@ -33,13 +33,11 @@
           <div class="fd-r ai-c">
             <span class="fw-600"
               ><img
-                src="@/assets/svg/sol-logo.png"
+                src="@/assets/svg/symbol-hgen.png"
                 class="h-fix-10-S h-fix-55-XS mr-2"
-              />
-            </span>
-            <span> SOL </span>
+            /></span>
+            <span> HGEN </span>
           </div>
-
           <span
             class="fw-600 fs-6-L fs-5-S fs-20-XS f-mcolor-100 mr-2 ml-2 my-10-XS ml-10-XS mr-10-XS"
             >:</span
@@ -48,10 +46,11 @@
           <div class="fd-r ai-c">
             <span class="fw-600"
               ><img
-                src="@/assets/svg/symbol-hgen.png"
+                src="@/assets/svg/sol-logo.png"
                 class="h-fix-10-S h-fix-55-XS mr-2"
-            /></span>
-            <span> HGEN </span>
+              />
+            </span>
+            <span> SOL </span>
           </div>
         </div>
         <div
@@ -146,7 +145,7 @@ import Farming from "../../../utils/farming";
 const farming = new Farming();
 
 const TOKENS = [
-  { label: "HGEN-SOL", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
+  { label: "LP TOKEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
 // conversion fo the hgen and sol
