@@ -86,6 +86,15 @@
       </div>
       <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+          Deposited LP Tokens
+        </div>
+        <div class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c">
+          {{ depositedSol }}
+          <span class="f-white-200 pl-1-S pl-5-XS">HGEN-SOL</span>
+        </div>
+      </div>
+      <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
+        <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Deposited SOL
         </div>
         <div class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c">
