@@ -553,6 +553,7 @@ export const actions = actionTree(
             this.$accessor.wallet.getBalance();
             this.$accessor.wallet.getGENSBalance();
             this.$accessor.wallet.getHGENBalance();
+            this.$accessor.liquidity.getLpTokens();
         },
 
         // Remove Liquidity
@@ -588,6 +589,7 @@ export const actions = actionTree(
             this.$accessor.wallet.getBalance();
             this.$accessor.wallet.getGENSBalance();
             this.$accessor.wallet.getHGENBalance();
+            this.$accessor.liquidity.getLpTokens();
         },
 
         // swap tokens for the pool

@@ -36,8 +36,9 @@ export const actions = actionTree(
     { state, getters, mutations },
     {
         // Addliquidity
-        async addLiquidity({ commit }, value) {
+        async addLiquidity({ commit, dispatch, state }, value) {
             if (value && value.from) {
+                console.log("is called")
                 await addLiquidityUtil(
                     this.$wallet,
                     Number(value.from),
@@ -63,27 +64,31 @@ export const actions = actionTree(
             }
         },
 
-        async getLpTokens({ state, commit }, value) {
+        async getLpTokens({ state, commit, dispatch }, value) {
             // TODO make it take multiple paramter for mint address instead of single hardcoded value
             let lpToken = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, { mint: LP_TOKENS_HGEN_GENS });
 
             let result: number = await lpToken.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+            console.log("cakkubg lfsadf")
             commit('setLpTokens', result);
         },
         // update the cached balance price
         async updateLpToken({ commit, dispatch }, value) {
             let lp_tokens;
             let tokenATA;
-            if (value == "GH") {
-                lp_tokens = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
-                    mint: LP_TOKENS_HGEN_GENS,
-                });
-                tokenATA = lp_tokens.value[0] ? lp_tokens.value[0].pubkey.toBase58() : "";
-            }
+
+            lp_tokens = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
+                mint: LP_TOKENS_HGEN_GENS,
+            });
+            tokenATA = lp_tokens.value[0] ? lp_tokens.value[0].pubkey.toBase58() : "";
+
 
             this.$web3.onAccountChange(
                 (new PublicKey(tokenATA)),
-                () => dispatch("getLPsupplyInfo", value),
+                () => {
+                    dispatch("getLPsupplyInfo", value)
+                    dispatch("getLpTokens")
+                },
             );
         },
     }
