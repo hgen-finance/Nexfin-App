@@ -56,10 +56,21 @@
         <div
           class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
         >
-          <div
-            class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS ta-r"
-          >
-            Set amount you want to add
+          <div class="w-100 fd-r jc-sb">
+            <div
+              class="fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS t"
+            >
+              Set amount you want to add
+            </div>
+            <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
+              <span
+                class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
+                >B.
+                <span class="f-green-500">
+                  {{ 0 }}
+                </span>
+              </span>
+            </div>
           </div>
           <div class="w-100 pb-3-S pb-0 fd-r jc-r">
             <input
@@ -84,7 +95,7 @@
           v-if="getDepositKey"
         >
           <div
-            class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-10-XS ta-r"
+            class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-10-XS"
           >
             Set farming duration
           </div>
