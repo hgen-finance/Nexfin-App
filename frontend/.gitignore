@@ -96,4 +96,4 @@ sw.*
 test-ledger/
 
 #ignore
-/frontend (copy)
+frontend (copy)/
