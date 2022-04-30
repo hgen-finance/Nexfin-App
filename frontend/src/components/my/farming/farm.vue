@@ -33,11 +33,13 @@
           <div class="fd-r ai-c">
             <span class="fw-600"
               ><img
-                src="@/assets/svg/symbol-hgen.png"
+                src="@/assets/svg/sol-logo.png"
                 class="h-fix-10-S h-fix-55-XS mr-2"
-            /></span>
-            <span> HGEN </span>
+              />
+            </span>
+            <span> SOL </span>
           </div>
+
           <span
             class="fw-600 fs-6-L fs-5-S fs-20-XS f-mcolor-100 mr-2 ml-2 my-10-XS ml-10-XS mr-10-XS"
             >:</span
@@ -46,60 +48,71 @@
           <div class="fd-r ai-c">
             <span class="fw-600"
               ><img
-                src="@/assets/svg/sol-logo.png"
+                src="@/assets/svg/symbol-hgen.png"
                 class="h-fix-10-S h-fix-55-XS mr-2"
-              />
-            </span>
-            <span> SOL </span>
-          </div>
-        </div>
-        <div
-          class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
-        >
-          <div class="w-100 fd-r jc-r">
-            <div class="p-a-S p-r-XS l-0 t-0 w-fix-50-S w-35-XS">
-              <AmSelectbox
-                v-bind:data.sync="currencyFrom"
-                :update="true"
-                :shadow="false"
-                :padding="false"
-              />
-            </div>
-              <div
-                class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS"
-              >
-                <span
-                  class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-                  >B.
-                  <span class="f-green-500">
-                    {{ 10 }}
-                  </span>
-                </span>
-              </div>
-            </div>
-            <div class="w-100 pb-3-S pb-0 fd-r jc-sb">
-              <span
-                class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3 z-1"
-                @click="setMax"
-                >max</span
-              >
-              <input
-                class="w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
-                placeholder="0"
-                v-model="from"
-                maxlength="15"
-                type="text"
-              />
-            </div>
+            /></span>
+            <span> HGEN </span>
           </div>
         </div>
         <div
           class="w-100 my-2-S my-10-XS mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
           v-if="getDepositKey"
         >
-          <div
-            class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-10-XS"
-          >
+          <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
+            Set amount you want to deposit
+          </div>
+          <div class="w-100 fd-r ai-c">
+            <span
+              class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
+              >SOL</span
+            >
+            <input
+              type="text"
+              id="from"
+              class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
+              placeholder="0.0000"
+              v-model="from"
+              maxlength="12"
+            />
+            <span
+              class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
+              @click="setMax"
+              >max</span
+            >
+          </div>
+        </div>
+        <div
+          class="w-100 my-2-S my-10-XS mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+          v-if="getDepositKey"
+        >
+          <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
+            Set amount you want to deposit
+          </div>
+          <div class="w-100 fd-r ai-c">
+            <span
+              class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
+              >HGEN</span
+            >
+            <input
+              type="text"
+              id="to"
+              class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
+              placeholder="0"
+              v-model="to"
+              disabled
+            />
+            <span
+              class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
+              @click="setMax"
+              >max</span
+            >
+          </div>
+        </div>
+        <div
+          class="w-100 my-2-S my-10-XS mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+          v-if="getDepositKey"
+        >
+          <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
             Set farming duration
           </div>
           <div class="w-100 fd-r ai-c">
@@ -109,7 +122,7 @@
             >
             <input
               type="text"
-              class="w-100 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300 ta-r"
+              class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
               placeholder="0"
               v-model="day"
             />
@@ -124,7 +137,6 @@
               opacityEffect
               full
               v-if="getDepositKey"
-              @click="reset()"
             >
               Reset
             </AmButton>
@@ -157,15 +169,13 @@ import Loading from "@/components/Loading";
 import { Icon, Tooltip } from "ant-design-vue";
 import Farming from "../../../utils/farming";
 const farming = new Farming();
-
 const TOKENS = [
-  { label: "LP TOKEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
+  { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" }, // need to add the mint address of the hgen token
+  { label: "SOL", value: "So11111111111111111111111111111111111111112" },
 ];
-
 // conversion fo the hgen and sol
 const CONVERT_HGEN = 150;
 const CONVERT_SOL = 0.005;
-
 export default {
   components: {
     Loading,
@@ -183,6 +193,15 @@ export default {
       currencyFrom: {
         theme: "default",
         value: TOKENS[0].value,
+        items: TOKENS,
+        colorDefault: "mcolor-700",
+        colorFocus: "mcolor-700",
+        colorBackground: "mcolor-700",
+        colorTitle: "white-200",
+      },
+      currencyTo: {
+        theme: "default",
+        value: TOKENS[1].value,
         items: TOKENS,
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
@@ -248,7 +267,6 @@ export default {
     reset() {
       this.from = null;
       this.to = null;
-      this.day = null;
     },
     farmFunc() {},
     openList() {
