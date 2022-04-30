@@ -162,7 +162,7 @@ export const actions = actionTree(
                 if (adapter.publicKey) {
                     commit("setPublicKey", adapter.publicKey.toBase58());
                     this.app.$accessor.setModal("");
-                    this.$router.push("/my");
+                    this.$router.push("/");
                 }
                 commit("setLoaderConnect", false);
                 if (this.$wallet.publicKey) {
