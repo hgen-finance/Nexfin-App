@@ -497,7 +497,7 @@ export async function createTokenSwap(
 
 export async function depositAllTokenTypes(
     wallet: Wallet,
-    tokenSwapAccount: Account,
+    tokenSwapAccount: PublicKey,
     lp_tokens: PublicKey,
     poolTokenAccountA: PublicKey,
     poolTokenAccountB: PublicKey,
@@ -508,7 +508,7 @@ export async function depositAllTokenTypes(
 ): Promise<void> {
     const connection = await getConnection();
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
-        [tokenSwapAccount.publicKey.toBuffer()],
+        [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
 
@@ -579,7 +579,7 @@ export async function depositAllTokenTypes(
             await TokenSwap.depositAllTokenTypes(
                 wallet,
                 connection,
-                tokenSwapAccount.publicKey,
+                tokenSwapAccount,
                 authority,
                 new PublicKey(aATA),
                 new PublicKey(bATA),
@@ -603,7 +603,7 @@ export async function depositAllTokenTypes(
         await TokenSwap.depositAllTokenTypes(
             wallet,
             connection,
-            tokenSwapAccount.publicKey,
+            tokenSwapAccount,
             authority,
             new PublicKey(aATA),
             new PublicKey(bATA),
@@ -637,7 +637,7 @@ export async function depositAllTokenTypes(
 
 export async function withdrawAllTokenTypes(
     wallet: Wallet,
-    tokenSwapAccount: Account,
+    tokenSwapAccount: PublicKey,
     lp_tokens: PublicKey,
     ownertokenAccountPool: PublicKey,
     poolTokenAccountA: PublicKey,
@@ -650,7 +650,7 @@ export async function withdrawAllTokenTypes(
 ): Promise<void> {
     const connection = await getConnection();
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
-        [tokenSwapAccount.publicKey.toBuffer()],
+        [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
     const poolMintInfo = await getMintInfo(connection, lp_tokens);
@@ -712,7 +712,7 @@ export async function withdrawAllTokenTypes(
     await TokenSwap.withdrawAllTokenTypes(
         wallet,
         connection,
-        tokenSwapAccount.publicKey,
+        tokenSwapAccount,
         authority,
         userAccountA,
         userAccountB,

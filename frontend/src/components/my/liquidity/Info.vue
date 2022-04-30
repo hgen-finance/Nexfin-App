@@ -14,6 +14,13 @@
             class="w-100 fs-5-S fs-20-XS f-gray-500 pt-1-S mb-2-S pb-5-XS ta-c-XS jc-c-XS fd-r jc-l rad-fix-3"
           >
             <div class="fd-r ai-c">
+              <span class="fw-600"
+                ><img
+                  src="@/assets/svg/symbol-gens.png"
+                  class="h-fix-10-S h-fix-55-XS mr-1"
+              /></span>
+            </div>
+            <div class="fd-r ai-c">
               <span class="fw-600">
                 <img
                   src="@/assets/svg/symbol-hgen.png"
@@ -21,13 +28,7 @@
                 />
               </span>
             </div>
-            <div class="fd-r ai-c">
-              <span class="fw-600"
-                ><img
-                  src="@/assets/svg/symbol-gens.png"
-                  class="h-fix-10-S h-fix-55-XS mr-1"
-              /></span>
-            </div>
+
             <span
               class="fw-600 fs-6-L fs-5-S fs-20-XS f-white-200 mr-2 ml-2 my-10-XS ml-10-XS mr-10-XS ai-c fd-r"
               >GENS-HGEN</span

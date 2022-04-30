@@ -27,16 +27,15 @@
         <div
           class="w-100 tt-u fs-11-S fs-25-XS f-white-200 fw-600 ta-l-S ta-c-XS pt-0-M pt-2-S pt-2-XS"
         >
-          Q1 of 2022
+          Q2 of 2022
         </div>
         <div
           class="w-100 fs-6-S fs-20-XS f-gray-500 fw-400 f-lh-18-S f-lh-45-XS pt-4-S pt-15-XS ta-l-S ta-c-XS pb-15-XS"
         >
-          We are almost ready. Be one of the first to experience it by entering
-          presale.
+          We are ready on solana Devnet.
           <br />
-          You can participate in the testing soon, we will soon announce when it
-          is ready for test.
+          Be one of the first to experience it by participating in Devnet and
+          receive rewards.
 
           <!-- We have a strong integrated solution to bring our world to DeFi online
           platform, greatly reduces risks and environmental pollution, and
