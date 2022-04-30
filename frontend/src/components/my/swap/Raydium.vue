@@ -91,16 +91,15 @@
           </div>
 
           <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
-            <span
-              class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-              >B.
-              <span class="f-green-500" v-if="currencyFrom.name == 'GENS'">
+            <span class="p-a-S p-r-XS r-0 t-0 pb-1 f-white-200 py-3 ta-r fd-r"
+              >Bal.
+              <span class="f-green-500 pl-1" v-if="currencyFrom.name == 'GENS'">
                 {{ getBalanceGENS || 0 }}
               </span>
-              <span class="f-green-500" v-if="currencyFrom.name == 'HGEN'">
+              <span class="f-green-500 pl-1" v-if="currencyFrom.name == 'HGEN'">
                 {{ getBalanceHGEN || 0 }}
               </span>
-              <span class="f-green-500" v-if="currencyFrom.name == 'SOL'">
+              <span class="f-green-500 pl-1" v-if="currencyFrom.name == 'SOL'">
                 {{ getBalance || 0 }}
               </span>
             </span>
@@ -144,16 +143,15 @@
           </div>
 
           <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
-            <span
-              class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-              >B.
-              <span class="f-green-500" v-if="currencyTo.name == 'GENS'">
+            <span class="p-a-S p-r-XS r-0 t-0 fd-r pb-1 f-white-200 py-3 ta-r"
+              >Bal.
+              <span class="f-green-500 pl-1" v-if="currencyTo.name == 'GENS'">
                 {{ getBalanceGENS || 0 }}
               </span>
-              <span class="f-green-500" v-if="currencyTo.name == 'HGEN'">
+              <span class="f-green-500 pl-1" v-if="currencyTo.name == 'HGEN'">
                 {{ getBalanceHGEN || 0 }}
               </span>
-              <span class="f-green-500" v-if="currencyTo.name == 'SOL'">
+              <span class="f-green-500 pl-1" v-if="currencyTo.name == 'SOL'">
                 {{ getBalance || 0 }}
               </span>
             </span>
@@ -1127,7 +1125,6 @@ export default {
       }
     },
 
-    getBlanceGens() {},
     async setMax() {
       let tokenDetail;
       console.log("clicked");
@@ -1137,7 +1134,7 @@ export default {
           this.currencyFrom.value
         );
 
-        this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
+        this.from = tokenDetail ? Number(tokenDetail) : 0;
       }
     },
   },

@@ -4,7 +4,7 @@
       class="w-100 fd-r jc-c ai-c fs-17-S fs-30-XS f-white-200 fw-800 tt-u glow"
       data-aos="zoom-in"
     >
-      <i>Advisors</i>
+      <i>Team</i>
     </div>
     <div class="w-100 pt-15-S pt-20-XS fd-c jc-c fw-w px-5-S px-0-XS">
       <div

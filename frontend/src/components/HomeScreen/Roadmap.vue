@@ -55,7 +55,7 @@ export default {
     return {
       items: [
         {
-          name: "2021 second half<br/>(Launch)",
+          name: "2022 second half<br/>(Launch)",
           img: "roadMap1.png",
           items: [
             { img: "checkOn.svg", name: "DeFi Platform Launch" },
@@ -66,7 +66,7 @@ export default {
           ],
         },
         {
-          name: "2022 (Growth)",
+          name: "2023 (Growth)",
           img: "roadMap2.png",
           items: [
             {
@@ -90,7 +90,7 @@ export default {
           ],
         },
         {
-          name: "2023 (Expansion)",
+          name: "2024 (Expansion)",
           img: "roadMap3.png",
           items: [
             { img: "checkOffBlack.svg", name: "80 Million+ Market Cap" },
