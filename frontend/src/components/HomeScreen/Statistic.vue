@@ -188,11 +188,11 @@ export default {
   },
   data() {
     return {
-      sellTax: { value: 5 },
-      buyTax: { value: 5 },
+      sellTax: { value: 11 },
+      buyTax: { value: 9 },
       items: [
         { name: "BuyBack", count: 3 },
-        { name: "Marketing", count: 2 },
+        { name: "Marketing", count: 3 },
         { name: "Burn", count: 3 },
       ],
       items2: [

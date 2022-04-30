@@ -163,24 +163,8 @@ import {
 } from "@/utils/layout";
 
 const TOKENS = [
-  {
-    label: "GENS",
-    value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8",
-  },
-
-  {
-    label: "HGEN",
-    value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC",
-    // mintAddr: TOKEN_B_MINT_ADDR,
-    // tokenAccgh: TOKEN_ACC_B,
-    // tokenAcchs: TOKEN_ACC_HGEN_HS,
-  },
-  {
-    label: "SOL",
-    value: "So11111111111111111111111111111111111111112",
-    // mintAddr: new PublicKey("So11111111111111111111111111111111111111112"),
-    // tokenAcchs: TOKEN_ACC_SOL_HS,
-  },
+  { label: "GENS", value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8" },
+  { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
 // TODO: Fetch these value from the pool, currently the values are hardcoded
@@ -206,7 +190,6 @@ export default {
         theme: "default",
         value: TOKENS[0].value,
         items: TOKENS,
-        name: "GENS",
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
@@ -217,7 +200,6 @@ export default {
         theme: "default",
         value: TOKENS[1].value,
         items: TOKENS,
-        name: "HGEN",
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",

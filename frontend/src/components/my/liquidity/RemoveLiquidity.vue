@@ -114,20 +114,13 @@ import {
   TOKEN_ACC_A,
   TOKEN_ACC_B,
   LP_TOKENS_HGEN_GENS,
-  LP_TOKENS_HS,
 } from "@/utils/layout";
 
 const TOKENS = [
-  {
-    label: "GENS-HGEN",
-    value: LP_TOKENS_HGEN_GENS.toBase58(),
-  },
-  {
-    label: "HGEN-SOL",
-    value: LP_TOKENS_HS.toBase58(),
-  },
+  { label: "GENS-HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
+// TODO: add liquidity when choosed hgen/gens or gens/hgen
 export default {
   components: {
     Hint,
