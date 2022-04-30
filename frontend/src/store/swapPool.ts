@@ -549,14 +549,7 @@ export const actions = actionTree(
                     console.error(err, "Account creation error");
                 }
             }
-            if (value.tokenType == "HS") {
-                try {
-                    tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
-                } catch (err) {
-                    console.error(err, "Account error")
-                }
-            }
-            await depositAllTokenTypes(this.$wallet, tokenSwapAccount.publicKey, value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, value.to);
+            await depositAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, value.to);
             this.$accessor.wallet.getBalance();
             this.$accessor.wallet.getGENSBalance();
             this.$accessor.wallet.getHGENBalance();
@@ -592,30 +585,7 @@ export const actions = actionTree(
                 }
             }
 
-            if (value.tokenType == "HS") {
-                try {
-                    tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
-                    let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
-                        mint: LP_TOKENS_HS,
-                    });
-                    let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
-                    console.log(tokenATA, "tokenATA")
-
-                    let LP_TOKEN_FEE = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
-                        mint: LP_TOKENS_HS,
-                    });
-                    console.log(LP_TOKEN_FEE, "owner")
-                    let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";
-                    console.log(tokenATAFee, "tokenATAFee")
-
-                    feeAccount = new PublicKey(tokenATAFee);
-                    ownerTokenPoolAccount = new PublicKey(tokenATA);
-                } catch (err) {
-                    console.error(err, "Account error")
-                }
-            }
-
-            await withdrawAllTokenTypes(this.$wallet, tokenSwapAccount.PublicKey, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, feeAccount);
+            await withdrawAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, feeAccount);
             this.$accessor.wallet.getBalance();
             this.$accessor.wallet.getGENSBalance();
             this.$accessor.wallet.getHGENBalance();
