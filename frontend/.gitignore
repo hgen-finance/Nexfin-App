@@ -94,3 +94,6 @@ sw.*
 
 #test validator ledger
 test-ledger/
+
+#ignore
+/frontend (copy)
