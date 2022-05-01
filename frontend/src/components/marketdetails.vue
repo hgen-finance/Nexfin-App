@@ -17,7 +17,7 @@
       <div class="fs-4 fw-400 f-gray-600">Market Price</div>
       <div class="fs-4 fw-600 f-white-200">${{ getPrice }}</div>
     </div>
-    <div class="fd-c my-2 mx-3">
+    <!-- <div class="fd-c my-2 mx-3">
       <div class="fs-4 fw-400 f-gray-600">Daily Change</div>
       <div
         v-bind:class="
@@ -31,7 +31,7 @@
     <div class="fd-c my-2 mx-3">
       <div class="fs-4 fw-400 f-gray-600">24hr Volume</div>
       <div class="fs-4 fw-600 f-white-200">${{ volume }}</div>
-    </div>
+    </div> -->
     <DailyHighAndLow :high="150" :low="70" :latest="getPrice" />
     <Connection />
   </div>

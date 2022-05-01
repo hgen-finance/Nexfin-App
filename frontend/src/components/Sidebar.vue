@@ -137,13 +137,20 @@ export default {
       items: [
         { id: 1, name: "Dashboard", to: "/", class: "my" },
 
-        { id: 3, name: "Swap", to: "/swap", class: "my-swap" },
-
         { id: 2, name: "Borrow", to: "/borrowing", class: "my-borrowing" },
 
-        { id: 4, name: "Stake", to: "/pool", class: "my-pool" },
+        { id: 4, name: "GENS Staking", to: "/pool", class: "my-pool" },
+
+        { id: 3, name: "Swap", to: "/swap", class: "my-swap" },
 
         { id: 6, name: "Farm", to: "/farming", class: "my-farming" },
+
+        {
+          id: 8,
+          name: "Liquidity",
+          to: "/liquidity",
+          class: "my-liquidity",
+        },
 
         {
           id: 7,
@@ -159,12 +166,6 @@ export default {
           class: "my-risky",
         },
 
-        {
-          id: 8,
-          name: "Liquidity",
-          to: "/liquidity",
-          class: "my-liquidity",
-        },
         {
           id: 9,
           name: "Liquidity Pool",

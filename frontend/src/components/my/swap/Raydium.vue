@@ -1132,12 +1132,15 @@ export default {
       let tokenDetail;
       console.log("clicked");
       if (this.$accessor.wallet.publicKey) {
-        console.log("this is running");
-        tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
-          this.currencyFrom.value
-        );
+        if (this.currencyFrom.name == "SOL") {
+          this.from = this.getBalance;
+        } else {
+          tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
+            this.currencyFrom.value
+          );
 
-        this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
+          this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
+        }
       }
     },
   },
