@@ -170,7 +170,7 @@ import { Icon, Tooltip } from "ant-design-vue";
 import Farming from "../../../utils/farming";
 const farming = new Farming();
 const TOKENS = [
-  { label: "HGEN", value: "97MxeDbRgc6vYP1Sty2XdPXks3QhMD97EVYJ9pP4XcR3" }, // need to add the mint address of the hgen token
+  { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
   { label: "SOL", value: "So11111111111111111111111111111111111111112" },
 ];
 // conversion fo the hgen and sol
