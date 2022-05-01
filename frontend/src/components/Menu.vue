@@ -112,7 +112,10 @@ export default {
   data() {
     return {
       items: [
-        { title: "Beginners Guide", to: "/" },
+        {
+          title: "Beginners Guide",
+          to: "https://docs.hgen.finance/beginners-guide",
+        },
         { title: "Documentation", to: "https://docs.hgen.finance" },
       ],
       languages: {
