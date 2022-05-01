@@ -8,6 +8,9 @@
       >
         Stake
       </div>
+      <div class="w-100" v-if="getTotalNotifications > 0">
+        <NotificaitonsTx />
+      </div>
       <div class="w-100 fs-5-S fs-20-XS f-gray-500 pb-1-S pb-5-XS ta-c-XS">
         Your current pool share
       </div>
@@ -193,11 +196,13 @@
 import Loading from "@/components/Loading";
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Modal } from "ant-design-vue";
+import NotificaitonsTx from "@/components/NotificationTx.vue";
 
 export default {
   components: {
     Loading,
     Hint,
+    NotificaitonsTx,
     Icon,
     Tooltip,
     Modal,
