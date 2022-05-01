@@ -135,6 +135,7 @@
               opacityEffect
               full
               v-if="getDepositKey"
+              @click="reset()"
             >
               Reset
             </AmButton>
@@ -265,6 +266,7 @@ export default {
     reset() {
       this.from = null;
       this.to = null;
+      this.day = null;
     },
     farmFunc() {},
     openList() {
