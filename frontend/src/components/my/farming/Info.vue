@@ -84,7 +84,7 @@
           <span class="f-white-200 pl-1-S pl-5-XS">{{ endDate }}</span>
         </div>
       </div>
-      <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
+      <!-- <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Deposited LP Tokens
         </div>
@@ -92,7 +92,7 @@
           {{ depositedSol }}
           <span class="f-white-200 pl-1-S pl-5-XS">HGEN-SOL</span>
         </div>
-      </div>
+      </div> -->
       <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Deposited SOL
