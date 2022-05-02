@@ -67,14 +67,14 @@
             class="fd-r jc-c ai-c"
           />
         </Tooltip> -->
-          <Tooltip>
+          <!-- <Tooltip>
             <Icon
               type="switcher"
               @click="toggleSwap"
               :style="{ width: '40px', height: '40px' }"
               class="fd-r jc-c ai-c"
             />
-          </Tooltip>
+          </Tooltip> -->
         </div>
       </div>
       <div
@@ -127,7 +127,8 @@
         <div
           class="fd-r jc-c f-white-200 ai-c micon-L micon-M micon-S micon-XS"
         >
-          <Icon type="swap" :rotate="90" @click="toggleToken" />
+          <!-- <Icon type="swap" :rotate="90" @click="toggleToken" /> -->
+          <Icon type="arrow-down" :rotate="0" @click="toggleToken" />
         </div>
       </div>
       <div
