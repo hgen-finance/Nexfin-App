@@ -93,7 +93,7 @@
           <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
             <span
               class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-              >B.
+              >Bal.
               <span class="f-green-500" v-if="currencyFrom.name == 'GENS'">
                 {{ getBalanceGENS || 0 }}
               </span>
@@ -146,7 +146,7 @@
           <div class="w-10 h-fix-s-28min-S h-fix-s-100min-XS fs-5-S fs-20-XS">
             <span
               class="p-a-S p-r-XS r-0 t-0 w-fix-35-S w-35-XS pb-1 f-white-200 py-3 ta-r"
-              >B.
+              >Bal.
               <span class="f-green-500" v-if="currencyTo.name == 'GENS'">
                 {{ getBalanceGENS || 0 }}
               </span>
@@ -359,7 +359,7 @@ export default {
       from: null,
       currencyFrom: {
         theme: "default",
-        value: POOL_TOKENS[0].value,
+        value: "",
         items: POOL_TOKENS,
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
@@ -371,7 +371,7 @@ export default {
       to: 0,
       currencyTo: {
         theme: "default",
-        value: POOL_TOKENS[1].value,
+        value: "",
         items: POOL_TOKENS,
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
@@ -539,132 +539,155 @@ export default {
     currencyFrom: {
       deep: true,
       handler(val) {
-        this.currencyFrom.name = val.items.filter(
-          (item) => item.value == val.value
-        )[0].label;
-
-        let type = this.checkPool(this.currencyFrom.name, this.currencyTo.name);
-
-        if (type == "GH") {
-          this.tokenAacc = val.items.filter(
+        let temp = val.items.filter((item) => item.value == val.value)[0];
+        if (temp) {
+          this.currencyFrom.name = val.items.filter(
             (item) => item.value == val.value
-          )[0].tokenAccgh;
+          )[0].label;
 
-          this.tokenAMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
-          this.tokenBacc = val.items.filter(
-            (item) => item.value == this.currencyTo.value
-          )[0].tokenAccgh;
+          // remove the token name from the currencyTo selectbox
+          let temp_to = val.items.filter((item) => item.value != val.value);
+
+          this.currencyTo.items = temp_to;
+          let type = this.checkPool(
+            this.currencyFrom.name,
+            this.currencyTo.name
+          );
+
+          if (type == "GH") {
+            this.tokenAacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAccgh;
+
+            this.tokenAMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+
+            // this.tokenBacc = val.items.filter(
+            //   (item) => item.value == this.currencyTo.value
+            // )[0].tokenAccgh;
+          }
+
+          if (type == "GS") {
+            this.tokenAacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAccgs;
+
+            this.tokenAMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+
+            // this.tokenBacc = val.items.filter(
+            //   (item) => item.value == this.currencyTo.value
+            // )[0].tokenAccgs;
+          }
+
+          if (type == "HS") {
+            this.tokenAacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAcchs;
+            this.tokenAMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+            // this.tokenBacc = val.items.filter(
+            //   (item) => item.value == this.currencyTo.value
+            // )[0].tokenAcchs;
+          }
+
+          // for balance
+          // TODO make it look for the account info using the mint address and ata of the account
+
+          if (this.currencyFrom.name == "HGEN") {
+            this.currencyFrom.balance = this.getBalanceHGEN;
+          }
+          if (this.currencyFrom.name == "GENS") {
+            this.currencyFrom.balance = this.getBalanceGENS;
+          }
+          if (this.currencyFrom.name == "SOL") {
+            this.currencyFrom.balance = this.getBalance;
+          }
+
+          this.convert();
         }
-
-        if (type == "GS") {
-          this.tokenAacc = val.items.filter(
-            (item) => item.value == val.value
-          )[0].tokenAccgs;
-
-          this.tokenAMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
-
-          this.tokenBacc = val.items.filter(
-            (item) => item.value == this.currencyTo.value
-          )[0].tokenAccgs;
-        }
-
-        if (type == "HS") {
-          this.tokenAacc = val.items.filter(
-            (item) => item.value == val.value
-          )[0].tokenAcchs;
-          this.tokenAMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
-          this.tokenBacc = val.items.filter(
-            (item) => item.value == this.currencyTo.value
-          )[0].tokenAcchs;
-        }
-
-        // for balance
-        // TODO make it look for the account info using the mint address and ata of the account
-
-        if (this.currencyFrom.name == "HGEN") {
-          this.currencyFrom.balance = this.getBalanceHGEN;
-        }
-        if (this.currencyFrom.name == "GENS") {
-          this.currencyFrom.balance = this.getBalanceGENS;
-        }
-        if (this.currencyFrom.name == "SOL") {
-          this.currencyFrom.balance = this.getBalance;
-        }
-
-        this.convert();
       },
     },
     currencyTo: {
       deep: true,
       handler(val) {
+        console.log(val.items, "valOItem");
+        console.log(this.currencyTo.items, "items");
         console.log(val.name, "|", this.currencyFrom.name);
-        this.currencyTo.name = val.items.filter(
-          (item) => item.value == val.value
-        )[0].label;
 
-        console.log(this.currencyFrom.name, "|", this.currencyTo.name);
-        let type = this.checkPool(this.currencyFrom.name, this.currencyTo.name);
+        let temp = val.items.filter((item) => item.value == val.value)[0];
+        if (temp) {
+          //   let temp_from = val.items.filter((item) => item.value != val.value);
+          //   this.currencyFrom.items = temp_from;
 
-        if (type == "GH") {
-          this.tokenBacc = val.items.filter(
+          this.currencyTo.name = val.items.filter(
             (item) => item.value == val.value
-          )[0].tokenAccgh;
+          )[0].label;
 
-          this.tokenBMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
+          console.log(this.currencyFrom.name, "|", this.currencyTo.name);
+          let type = this.checkPool(
+            this.currencyFrom.name,
+            this.currencyTo.name
+          );
 
-          this.tokenAacc = val.items.filter(
-            (item) => item.value == this.currencyFrom.value
-          )[0].tokenAccgh;
+          if (type == "GH") {
+            this.tokenBacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAccgh;
+
+            this.tokenBMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+
+            //   this.tokenAacc = val.items.filter(
+            //     (item) => item.value == this.currencyFrom.value
+            //   )[0].tokenAccgh;
+          }
+
+          if (type == "GS") {
+            this.tokenBacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAccgs;
+
+            this.tokenBMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+
+            //   this.tokenAacc = val.items.filter(
+            //     (item) => item.value == this.currencyFrom.value
+            //   )[0].tokenAccgs;
+          }
+
+          if (type == "HS") {
+            this.tokenBacc = val.items.filter(
+              (item) => item.value == val.value
+            )[0].tokenAcchs;
+            this.tokenBMintAddr = val.items.filter(
+              (item) => item.value == val.value
+            )[0].mintAddr;
+            //   this.tokenAacc = val.items.filter(
+            //     (item) => item.value == this.currencyFrom.value
+            //   )[0].tokenAcchs;
+          }
+
+          // for balance
+          // TODO make it look for the account info using the mint address and ata of the account
+
+          if (this.currencyTo.name == "HGEN") {
+            this.currencyTo.balance = this.getBalanceHGEN;
+          }
+          if (this.currencyTo.name == "GENS") {
+            this.currencyTo.balance = this.getBalanceGENS;
+          }
+          if (this.currencyTo.name == "SOL") {
+            this.currencyTo.balance = this.getBalance;
+          }
+
+          this.convert();
         }
-
-        if (type == "GS") {
-          this.tokenBacc = val.items.filter(
-            (item) => item.value == val.value
-          )[0].tokenAccgs;
-
-          this.tokenBMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
-
-          this.tokenAacc = val.items.filter(
-            (item) => item.value == this.currencyFrom.value
-          )[0].tokenAccgs;
-        }
-
-        if (type == "HS") {
-          this.tokenBacc = val.items.filter(
-            (item) => item.value == val.value
-          )[0].tokenAcchs;
-          this.tokenBMintAddr = val.items.filter(
-            (item) => item.value == val.value
-          )[0].mintAddr;
-          this.tokenAacc = val.items.filter(
-            (item) => item.value == this.currencyFrom.value
-          )[0].tokenAcchs;
-        }
-
-        // for balance
-        // TODO make it look for the account info using the mint address and ata of the account
-
-        if (this.currencyTo.name == "HGEN") {
-          this.currencyTo.balance = this.getBalanceHGEN;
-        }
-        if (this.currencyTo.name == "GENS") {
-          this.currencyTo.balance = this.getBalanceGENS;
-        }
-        if (this.currencyTo.name == "SOL") {
-          this.currencyTo.balance = this.getBalance;
-        }
-
-        this.convert();
       },
     },
     from(val) {

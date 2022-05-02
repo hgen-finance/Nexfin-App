@@ -62,6 +62,8 @@
     "typed-vuex": "^0.2.0",
     "v-mask": "^2.2.4",
     "vue": "^2.6.14",
+    "vue-cookie": "^1.1.4",
+    "vue-cookies": "^1.8.1",
     "vuescroll": "^4.17.3",
     "web3": "^1.5.2",
     "yaml": "^1.10.2"
