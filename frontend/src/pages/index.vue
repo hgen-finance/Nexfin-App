@@ -13,6 +13,15 @@
 
     <!-- <div class="w-100"> -->
     <!-- <div class="w-100 fd-r-S fd-c-XS ai-s jc-sb"> -->
+    <AmModal
+      :show="modalSession == 'new'"
+      :shadow="'bs-sb-all'"
+      max="w-fix-250-S w-90-XS "
+      background="gradient-7001"
+      @closed="setModalFunc('old')"
+    >
+      <WelcomePopup @cancel="setModalFunc" max="w-fix-250-S w-90-XS" />
+    </AmModal>
     <div class="w-75">
       <input type="radio" name="slider" id="item-1" checked />
       <input type="radio" name="slider" id="item-2" />
@@ -85,6 +94,7 @@ import Farming from "@/components/my/index/Farming";
 import Borrowing from "@/components/my/index/Borrowing";
 import Pool from "@/components/my/index/Pool";
 import Balance from "@/components/my/Balance.vue";
+import WelcomePopup from "../components/modals/WelcomePopup.vue";
 
 export default {
   components: {
@@ -93,8 +103,14 @@ export default {
     Borrowing,
     Pool,
     Balance,
+    WelcomePopup,
   },
   layout: "my",
+  data() {
+    return {
+      modalSession: "",
+    };
+  },
   computed: {
     getTotal() {
       let res = "000000000000";
@@ -108,6 +124,28 @@ export default {
       }
       return res.toString().replace(/(.)(?=(\d{3})+$)/g, "$1,");
     },
+  },
+  methods: {
+    modal() {
+      if (this.$cookie.get("user") == "old") {
+        this.$accessor.checkSession(true);
+      } else {
+        this.$accessor.checkSession(false);
+        this.$cookie.set("user", "old", { expires: "1Y" });
+      }
+      return this.$accessor.session;
+    },
+    setModalFunc(value) {
+      this.$accessor.setSession(value);
+      this.modalSession = value;
+      console.log(this.$accessor.session);
+      console.log(value, "test");
+    },
+  },
+  mounted() {
+    this.modalSession = this.modal();
+    console.log(this.modalSession, "checking");
+    console.log(this.$cookie.get("user"), "Cookie");
   },
 };
 </script>

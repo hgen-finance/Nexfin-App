@@ -6,8 +6,8 @@
     >
       <div class="w-100 h-100 p-a l-0 t-0 gradient-600 ts-3" @click="closed" />
       <div
-        class="mcolor-500 p-10-S p-20-XS rad-fix-10 amBody ts-3"
-        :class="[max, shadow]"
+        class="p-10-S p-20-XS rad-fix-10 amBody ts-3"
+        :class="[max, shadow, background]"
       >
         <slot />
         <img
@@ -26,6 +26,7 @@ export default {
     show: { type: Boolean, default: false },
     max: { type: String, default: "w-80" },
     shadow: { type: String, default: "shadow-purple-100" },
+    background: { type: String, default: "mcolor-500" },
   },
   methods: {
     closed() {

@@ -24,7 +24,7 @@ export const url =
 
 const web3Plugin: Plugin = async (ctx, inject) => {
     const web3 = new Connection(url, "confirmed");
-    //   ctx.$web3 = web3
+    ctx.$web3 = web3
     inject("web3", web3);
     console.log(web3, "| web3 connection status");
 };

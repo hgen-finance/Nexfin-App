@@ -25,6 +25,7 @@ import * as solFaucet from "./faucet";
 // State
 export const state = () => ({
     modal: "",
+    session: "new",
     totalDeposit: 0,
     debtRatio: false,
     gasFee: 0,
@@ -48,6 +49,9 @@ export const getters = getterTree(state, {});
 export const mutations = mutationTree(state, {
     setModal(state, newValue: string) {
         state.modal = newValue;
+    },
+    setSession(state, newValue: string) {
+        state.session = newValue;
     },
     setTotalDeposit(state, newValue: number) {
         state.totalDeposit = newValue;
@@ -90,6 +94,14 @@ export const actions = actionTree(
     {
         checkReward({ commit }, value) {
             commit("setNewToken", value);
+        },
+        checkSession({ commit }, value) {
+            if (value) {
+                commit("setSession", "old")
+            }
+            else {
+                commit("setSession", "new")
+            }
         },
         async getInfo({ commit }) {
             await this.$axios.get("/api/info").then(({ data }) => {

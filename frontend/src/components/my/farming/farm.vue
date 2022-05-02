@@ -6,7 +6,7 @@
       <div class="w-100 fd-r ai-c pb-4-S pb-10-XS jc-sb">
         <!-- <span class="fs-6 f-mcolor-100  ts-3 hv d-n-XS fsh-0">Close</span> -->
         <div class="w-80 fs-8-S fs-25-XS fw-600 f-white-200 ta-l-S ta-l-XS">
-          Farms
+          Farm
         </div>
         <span
           class="fs-6-S fs-25-XS f-white-200 ts-3 hv fsh-0 ta-r-S"

@@ -5,7 +5,7 @@
       <div
         class="w-80 fs-8-S fs-25-XS fw-600 f-white-200 pb-4-S pb-10-XS ta-l-S ta-l-XS"
       >
-        Farms
+        Farm
       </div>
       <!-- <span
         class="fs-6-S fs-25-XS f-white-200  ts-3 hv fsh-0 ta-r-S"
