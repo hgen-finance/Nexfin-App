@@ -742,12 +742,14 @@ export default {
     },
 
     toggleToken() {
-      //   const prev_curr_from = this.currencyFrom;
-      //   console.log(prev_curr_from.name, "name");
-      //   this.currencyFrom = this.currencyTo;
-      //   console.log(this.currencyFrom.name, "name from in toggle");
-      //   this.currencyTo = prev_curr_from;
-      //   console.log(this.currencyTo.name, "name to in toggle");
+      if (this.currencyFrom.value && this.currencyTo.value) {
+        const prev_curr_from = this.currencyFrom;
+        console.log(prev_curr_from.name, "name");
+        this.currencyFrom = this.currencyTo;
+        // console.log(this.currencyFrom.name, "name from in toggle");
+        // this.currencyTo = prev_curr_from;
+        // console.log(this.currencyTo.name, "name to in toggle");
+      }
     },
     setModalFunc(value) {
       if (this.loaderConnect) {
