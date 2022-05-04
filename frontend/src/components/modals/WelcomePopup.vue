@@ -91,7 +91,7 @@ export default {
               name: "Collateralised borrowing defi plaform",
             },
             { img: "checkOn.svg", name: "Zero interest fee on borrow" },
-            { img: "checkOn.svg", name: "Lending borrowed tokens for rewards" },
+            { img: "checkOn.svg", name: "Lend borrowed tokens for rewards" },
             {
               img: "checkOn.svg",
               name: "Add liquidity to earn rewards and Lp tokens",

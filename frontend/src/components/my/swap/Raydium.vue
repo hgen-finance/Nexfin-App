@@ -157,6 +157,7 @@
               <span class="f-green-500" v-if="currencyTo.name == 'SOL'">
                 {{ getBalance || 0 }}
               </span>
+              <span class="f-green-500" v-if="currencyTo.name == ''"> </span>
             </span>
           </div>
         </div>
@@ -688,6 +689,9 @@ export default {
           }
 
           this.convert();
+        } else {
+          this.currencyTo.name = "";
+          this.currencyTo.value = "";
         }
       },
     },
@@ -1157,15 +1161,17 @@ export default {
     async setMax() {
       let tokenDetail;
       console.log("clicked");
-      if (this.$accessor.wallet.publicKey) {
+      if (this.$accessor.wallet) {
         if (this.currencyFrom.name == "SOL") {
           this.from = this.getBalance;
         } else {
-          tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
-            this.currencyFrom.value
-          );
+          if (this.currencyFrom.value) {
+            tokenDetail = await this.$accessor.wallet.getTokenFromBalance(
+              this.currencyFrom.value
+            );
 
-          this.from = tokenDetail ? Number(tokenDetail).toFixed(0) : 0;
+            this.from = tokenDetail ? Number(tokenDetail) : 0;
+          }
         }
       }
     },

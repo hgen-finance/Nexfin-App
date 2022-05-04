@@ -4,12 +4,14 @@ import { NuxtNotifyInstance } from "./notify";
 
 import { accessorType } from "@/store";
 import { NuxtCookieInstance } from "./cookie";
+import { NuxtTourInstance } from "./tour";
 
 declare module "@nuxt/types" {
     interface Context {
         $web3: NuxtWeb3Instance;
         $notify: NuxtNotifyInstance;
         $cookie: NuxtCookieInstance;
+        $tour: NuxtTourInstance
         $accessor: typeof accessorType;
     }
 
@@ -17,6 +19,7 @@ declare module "@nuxt/types" {
         $web3: NuxtWeb3Instance;
         $accessor: typeof accessorType;
         $cookie: NuxtCookieInstance;
+        $tour: NuxtTourInstance;
         $wallet: WalletAdapter | null;
     }
 }
@@ -26,6 +29,7 @@ declare module "vue/types/vue" {
         $web3: NuxtWeb3Instance;
         $notify: NuxtNotifyInstance;
         $cookie: NuxtCookieInstance;
+        $tour: NuxtTourInstance
         $accessor: typeof accessorType;
         $wallet: WalletAdapter | null;
     }
@@ -38,6 +42,7 @@ declare module "vuex/types/index" {
         $web3: NuxtWeb3Instance;
         $cookie: NuxtCookieInstance;
         $notify: NuxtNotifyInstance;
+        $tour: NuxtTourInstance;
         $accessor: typeof accessorType;
         $wallet: WalletAdapter | null;
     }
