@@ -303,12 +303,10 @@ export default {
     },
     setMax() {
       this.from = this.$accessor.wallet.balance
-        ? this.$accessor.wallet.balance
+        ? Number(this.$accessor.wallet.balanceHGEN) / this.$accessor.usd
         : 0;
       // remove this when you change the value on watch
-      this.to = this.$accessor.wallet.balance
-        ? this.$accessor.wallet.balance * this.$accessor.usd
-        : 0;
+      this.to = this.from * this.$accessor.usd || 0;
     },
   },
 };

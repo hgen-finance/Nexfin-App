@@ -53,7 +53,7 @@
           <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
         </div>
       </div>
-      <div
+      <!-- <div
         class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 pb-2-S pb-10-XS fd-r ai-c pt-3 jc-l-S jc-c-XS"
       >
         Rewards
@@ -102,7 +102,7 @@
           <span class="f-mcolor-300 pr-2">{{ getHgen }}</span>
           <span class="f-white-200 pl-1-S pr-5-XS">HGEN</span>
         </div>
-      </div>
+      </div> -->
       <div class="my-5-S my-10-XS">
         <AmButton
           color="mcolor-100"
