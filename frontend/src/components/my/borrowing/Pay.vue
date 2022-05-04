@@ -250,6 +250,7 @@
     <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
       <Loading />
     </div>
+    <v-tour name="borrowGuide" :steps="steps" :options="myOptions"> </v-tour>
   </div>
 </template>
 
@@ -257,6 +258,7 @@
 import Loading from "@/components/Loading";
 import { getCollateral } from "@/utils/layout";
 import NotificaitonsTx from "@/components/NotificationTx.vue";
+import "vue-tour/dist/vue-tour.css";
 
 export default {
   components: {
@@ -276,6 +278,41 @@ export default {
       debtAmout: 0,
       borrowVal: 0,
       TotalNotificationTx: 0,
+      myOptions: {
+        useKeyboardNavigation: false,
+        labels: {
+          buttonSkip: "Skip tour",
+          buttonPrevious: "Previous",
+          buttonNext: "Next",
+          buttonStop: "Finish",
+        },
+      },
+      callbacks: {
+        onPreviousStep: this.myCustomPreviousStepCallback,
+        onNextStep: this.myCustomNextStepCallback,
+      },
+      steps: [
+        {
+          // I prefer using data attributes, but you can use
+          // classes, ids, or whatever else you want!
+          // (So long as document.querySelector() likes it.)
+          target: '[data-tour-step="1"]',
+          content: `This button doesn't actually do anything.`,
+        },
+        {
+          target: '[data-tour-step="2"]',
+          // You can even use HTML!
+          content: `This link will take you to <a href="https://alligator.io">https://alligator.io</a>!`,
+        },
+        {
+          target: '[data-tour-step="3"]',
+          content: `This is a header element. It's big. Not much else to say about it.`,
+          params: {
+            // You can control the position of the tour popup easily.
+            placement: "bottom",
+          },
+        },
+      ],
     };
   },
   computed: {
@@ -445,7 +482,38 @@ export default {
         this.$accessor.borrowing.borrowOrPay
       );
     },
+    nextStep() {
+      this.$tours["myTour"].nextStep();
+    },
+
+    showLastStep() {
+      this.$tours["myTour"].currentStep = this.steps.length - 1;
+    },
+
+    myCustomPreviousStepCallback(currentStep) {
+      console.log(
+        "[Vue Tour] A custom previousStep callback has been called on step " +
+          (currentStep + 1)
+      );
+    },
+
+    myCustomNextStepCallback(currentStep) {
+      console.log(
+        "[Vue Tour] A custom nextStep callback has been called on step " +
+          (currentStep + 1)
+      );
+
+      if (currentStep === 1) {
+        console.log(
+          "[Vue Tour] A custom nextStep callback has been called from step 2 to step 3"
+        );
+      }
+    },
   },
-  mounted() {},
+  mounted() {
+    // TODO: Hide me after the first visit so returning users don't get annoyed!
+    this.$tours["borrowGuide"].start();
+    console.log(this.$tours["borrowGuide"], "testing");
+  },
 };
 </script>

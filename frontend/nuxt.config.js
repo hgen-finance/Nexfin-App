@@ -24,10 +24,10 @@ export default {
     //   loading: "@/components/loader.vue",
 
     // Global CSS: https://go.nuxtjs.dev/config-css
-    css: ["@/scss/base.scss"],
+    css: ["@/scss/base.scss", "vue-tour/dist/vue-tour.css"],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: ["@/plugins/web3.ts", "@/plugins/notify.ts", { src: '@/plugins/vue-cookie.ts', ssr: false, injectAs: 'cookie' }
+    plugins: ["@/plugins/web3.ts", "@/plugins/notify.ts", "@/plugins/vue-tour.ts", { src: '@/plugins/vue-cookie.ts', ssr: false, injectAs: 'cookie' },
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components

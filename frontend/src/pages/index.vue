@@ -144,8 +144,9 @@ export default {
   },
   mounted() {
     this.modalSession = this.modal();
-    console.log(this.modalSession, "checking");
-    console.log(this.$cookie.get("user"), "Cookie");
+    // console.log(this.modalSession, "checking");
+    // console.log(this.$cookie.get("user"), "Cookie");
+    console.log(this.$cookie, "testin1");
   },
 };
 </script>
