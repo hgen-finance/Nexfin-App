@@ -72,8 +72,6 @@ export const depositUtil = async (
     console.log("goven token acc", governanceTokenAcc.toBase58());
     console.log("tokenmint", tokenMintAcc.toBase58());
     let depositIx;
-    const account = new Account();
-    const test = new Account();
     try {
         depositIx = escrowProgram.instruction.addDeposit(new anchor.BN(amount), new anchor.BN(depositAccountBump),
             {
@@ -112,8 +110,6 @@ export const depositUtil = async (
     let { blockhash } = await connection.getRecentBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey;
-    tx.partialSign(account)
-    tx.partialSign(test)
 
     // to sign
     let signedTx = await wallet.signTransaction(tx);
