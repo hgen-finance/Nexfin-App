@@ -6,7 +6,7 @@
       <Balance />
     </div>
     <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS gradient-1400 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
     >
       <div class="w-100">
         <div class="w-100 fd-c py-10-XS">
@@ -77,7 +77,7 @@
       </div>
     </div>
     <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS gradient-1400 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
     >
       <div class="w-100">
         <div class="w-100 fd-r py-2-S py-10-XS">

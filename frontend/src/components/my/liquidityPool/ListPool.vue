@@ -28,7 +28,7 @@
         </span> -->
       </div>
     </div>
-    <div v-if="getPoolInfo">
+    <div v-if="getPoolInfo.tokenAmountA !== 0">
       <div
         class="w-100 fd-r ai-s br-t-4 br-mcolor-400 select-pool hv mt-4-S mt-5-XS rad-fix-9"
         v-for="(pool, p) in pools"
@@ -83,6 +83,29 @@
             v-if="pool == 'HGEN-SOL'"
           >
             {{ getPoolInfo.tokenAmountSOLHS || 0 }}
+          </div>
+        </div>
+        <div
+          class="d-i fs-5 ta-c px-1 py-3 br-r-4 br-mcolor-400 fd-r ai-c jc-c w-100 f-mcolor-300"
+        >
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'GENS-HGEN'"
+          >
+            0
+          </div>
+
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'GENS-SOL'"
+          >
+            0
+          </div>
+          <div
+            class="w-100 h-100 fd-r ai-c jc-c ta-c fw-600"
+            v-if="pool == 'HGEN-SOL'"
+          >
+            0
           </div>
         </div>
         <div
@@ -154,7 +177,7 @@ export default {
   },
   data() {
     return {
-      headers: ["Pool name", "Token A", "Token B", "Liquidity"],
+      headers: ["Pool name", "Token A", "Token B", "APR%", "Liquidity"],
       pools: ["GENS-HGEN", "GENS-SOL", "HGEN-SOL"],
     };
   },

@@ -7,7 +7,7 @@
     </div>
 
     <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS gradient-1400 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
       v-if="withdrawOrDeposit"
     >
       <div class="w-100" v-if="withdrawOrDeposit">
@@ -53,7 +53,7 @@
             {{ liquidationPrice.toLocaleString() }}
           </div>
         </div>
-        <!-- <div class="w-100 f-mcolor-500 fs-13-S fs-30-XS fw-600 ta-l-S ta-c-XS">
+        <!-- <div class="w-100 f-gradient-1400 fs-13-S fs-30-XS fw-600 ta-l-S ta-c-XS">
           0 %
         </div>
         <div
@@ -84,7 +84,7 @@
       </div>
     </div>
     <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS gradient-1400 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
       v-if="!withdrawOrDeposit"
     >
       <div class="w-100" v-if="!withdrawOrDeposit">
@@ -116,7 +116,7 @@
       </div>
     </div>
     <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500"
+      class="w-100 gradient-1400 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-gradient-1400"
       v-if="
         (Number(getDebt) < getMaxRatio || Number(to) < 100) &&
         from &&
@@ -133,14 +133,14 @@
       </div>
     </div>
     <!-- <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      class="w-100 gradient-1400 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-gradient-1400 mb-4-S mb-10-XS"
       v-if="
         Number(getDebt) - Number(repayTo) > 0 ||
           Number(getDebt) - Number(repayTo) < 0
       "
     > -->
     <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      class="w-100 gradient-1400 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-gradient-1400 mb-4-S mb-10-XS"
       v-if="(disputeDebt > 0 && getTroveAmount) || disputeDebt < 0"
     >
       <div
@@ -155,7 +155,7 @@
       </div>
     </div>
     <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      class="w-100 gradient-1400 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-gradient-1400 mb-4-S mb-10-XS"
       v-if="CheckWalletBalance"
     >
       <div class="w-100 pb-2-S pb-10-XS" v-if="CheckWalletBalance">
@@ -163,7 +163,7 @@
       </div>
     </div>
     <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
+      class="w-100 gradient-1400 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-gradient-1400 mb-4-S mb-10-XS"
       v-if="getCurrentRatio < 130 && this.repayCr"
     >
       <div class="w-100 pb-2-S pb-10-XS">
@@ -171,7 +171,7 @@
       </div>
     </div>
     <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS gradient-1400 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
     >
       <div class="w-100 fd-r">
         <div class="w-100-S w-100-XS">

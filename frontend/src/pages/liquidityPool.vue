@@ -1,5 +1,5 @@
 <template>
-  <div class="w-90 p-5-S p-10-XS mcolor-500 rad-fix-8 bs-sb-all ft-h inner">
+  <div class="w-90 p-5-S p-10-XS gradient-1400 rad-fix-8 bs-sb-all ft-h inner">
     <div class="w-100">
       <div class="w-100 fd-r jc-sb ai-c my-3-S">
         <div class="fs-4-S f-white-200 ai-s br-mcolor-400 rad-fix-5">
@@ -8,13 +8,13 @@
           <span class="hv d-n-XS fsh-0" @click="showMyPoolUI"> My pool </span> -->
         </div>
         <div class="fd-r buttons">
-          <Tooltip>
+          <!-- <Tooltip>
             <Icon
               type="search"
               :style="{ width: '40px', height: '40px' }"
               class="fd-r jc-c ai-c f-white-200"
             />
-          </Tooltip>
+          </Tooltip> -->
           <Tooltip>
             <Icon
               type="sync"
@@ -56,7 +56,7 @@ export default {
   },
   data() {
     return {
-      headers: ["Pool name", "Token A", "Token B", "Liquidity"],
+      headers: ["Pool name", "Token A", "Token B", "APR %", "Liquidity"],
       pools: ["GENS-HGEN", "GENS-SOL"],
       poolUI: true,
     };
@@ -82,7 +82,7 @@ export default {
 }
 
 .inner {
-  border: 3px solid #151441;
+  border: 3px solid #4b0385;
 }
 
 .select-pool:hover {

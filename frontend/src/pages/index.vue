@@ -1,18 +1,5 @@
 <template>
-  <div class="w-100 fd-r">
-    <!-- <div
-      class="w-100 f-mcolor-300 fw-800 fs-15-S fs-30-XS ta-c pt-20-XS pb-1-S pb-3-XS"
-    >
-      <span class="f-white-200 pr-3">$</span>{{ getTotal }}
-    </div>
-    <div class="w-100 f-white-200 fw-400 fs-6-S fs-20-XS ta-c pb-10-S pb-30-XS">
-      Total Deposited Value (Total Value Locked)
-    </div> -->
-
-    <!-- making a carousel -->
-
-    <!-- <div class="w-100"> -->
-    <!-- <div class="w-100 fd-r-S fd-c-XS ai-s jc-sb"> -->
+  <div class="w-90 p-5-S p-10-XS gradient-1400 rad-fix-8 bs-sb-all ft-h inner">
     <AmModal
       :show="modalSession == 'new'"
       :shadow="'bs-sb-all'"
@@ -22,69 +9,15 @@
     >
       <WelcomePopup @cancel="setModalFunc" max="w-fix-250-S w-90-XS" />
     </AmModal>
-    <div class="w-75">
-      <input type="radio" name="slider" id="item-1" checked />
-      <input type="radio" name="slider" id="item-2" />
-      <input type="radio" name="slider" id="item-3" />
-      <div class="cards cards-M cards-S">
-        <label
-          class="w-45-S w-100-XS br-6 gradient-1000 rad-fix-8 p-6-S p-20-XS card"
-          id="card-1"
-          for="item-1"
-        >
-          <Borrowing />
-        </label>
-        <label
-          class="w-45-S w-100-XS gradient-1000 rad-fix-8 p-6-S p-20-XS fsh-0 mt-20-XS card"
-          id="card-2"
-          for="item-2"
-        >
-          <Pool />
-        </label>
-        <label
-          class="w-45-S w-100-XS gradient-1000 p-6-S p-20-XS rad-fix-8-S rad-fix-20-XS mt-12-S mt-20-XS card"
-          id="card-3"
-          for="item-3"
-        >
-          <Farming />
-          <!-- <img src="@/static/my-farming.png" class="h-100 p-a r-0 t-0" /> -->
-        </label>
-      </div>
-    </div>
-    <div class="w-25 d-b-XS mr-10-S">
-      <div
-        class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all pt-5-S pt-10-XS"
-      >
-        <div
-          class="w-100 f-mcolor-300 fw-800 fs-10-S fs-30-XS ta-c pt-20-XS pb-1-S pb-3-XS"
-        >
-          <span class="f-white-200 pr-3">$</span>{{ getTotal }}
-        </div>
-        <div
-          class="w-100 f-white-200 fw-400 fs-4-S fs-20-XS ta-c pb-5-S pb-10-XS"
-        >
-          Total Deposited Value (Total Value Locked)
+    <div class="w-100">
+      <div class="w-100 fd-r jc-sb ai-c mb-3-S">
+        <div class="fs-4-S f-white-200 ai-s br-mcolor-400 rad-fix-5">
+          <span class="hv d-n-XS fsh-0 glow" @click="true"> Stats </span>
+          <span class="hv d-n-XS fsh-0" @click="true"> Transactions </span>
         </div>
       </div>
     </div>
-    <!-- <div class="w-100 f-mcolor-300 fw-800 fs-15-S fs-35-XS ta-c pt-12-S pt-30-XS pb-2-S pb-5-XS">
-      <span class="f-white-200 pr-3">$</span>{{ getTotal }}
-    </div>
-    <div class="w-100 f-white-200 fw-400 fs-6-S fs-25-XS ta-c pb-10-S pb-30-XS">
-      Total Deposited Value (Total Value Locked)
-    </div> -->
-    <!-- <div class="w-100 fd-r-S fd-c-XS ai-s">
-       <div class="w-50-S w-100-XS br-6 brs-s br-mcolor-300 shadow-purple-100 p-6-S p-20-XS rad-fix-8-S rad-fix-20-XS mr-2-S">
-        <Current />
-      </div> 
-        <div
-          class="w-45-S w-100-XS gradient-600 p-6-S p-20-XS rad-fix-8-S rad-fix-20-XS  mt-12-S mt-20-XS"
-        >
-          <Farming />
-          <img src="@/static/my-farming.png" class="h-100 p-a r-0 t-0" />
-        </div> 
-      </div> -->
-    <!-- </div> -->
+    <all-stats />
   </div>
 </template>
 
@@ -95,6 +28,7 @@ import Borrowing from "@/components/my/index/Borrowing";
 import Pool from "@/components/my/index/Pool";
 import Balance from "@/components/my/Balance.vue";
 import WelcomePopup from "../components/modals/WelcomePopup.vue";
+import AllStats from "@/components/stats/AllStats.vue";
 
 export default {
   components: {
@@ -104,6 +38,8 @@ export default {
     Pool,
     Balance,
     WelcomePopup,
+    AllStats,
+    AllStats,
   },
   layout: "my",
   data() {
@@ -199,5 +135,13 @@ export default {
 // hide the input type
 input[type="radio"] {
   display: none;
+}
+
+.ft-h {
+  height: fit-content;
+}
+
+.inner {
+  border: 3px solid #4b0385;
 }
 </style>

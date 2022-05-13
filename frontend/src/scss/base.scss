@@ -184,6 +184,8 @@ html {
     mask-composite: exclude;
   }
 }
+
+
 .gradient-300 {
   background: linear-gradient(
     100.8deg,
@@ -298,6 +300,35 @@ html {
     mask-composite: exclude;
   }
 }
+
+.gradient-1300 {
+    background: linear-gradient(103.86deg, #230952 1.36%, #2d0349 99.58%);
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1vw;
+      padding: 0.1rem;
+    }
+  }
+
+  .gradient-1400 {
+    background: linear-gradient(103.86deg, #1f1e40 1.36%, #181838 99.58%);
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1vw;
+      padding: 0.1rem;
+    }
+  }
+  
 
 .gradient-5000{
 //     background: #f12711;  /* fallback for old browsers */
