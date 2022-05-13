@@ -84,7 +84,7 @@
         bColor="mcolor-100"
         opacityEffect
         full
-        to="/my/pool"
+        to="/pool"
       >
         GO
       </AmButton>

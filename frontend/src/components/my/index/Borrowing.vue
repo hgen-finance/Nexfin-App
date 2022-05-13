@@ -59,7 +59,7 @@
           bColor="mcolor-100"
           opacityEffect
           full
-          to="/my/borrowing"
+          to="/borrowing"
         >
           GO
         </AmButton>

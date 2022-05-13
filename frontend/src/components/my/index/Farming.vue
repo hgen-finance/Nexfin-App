@@ -151,7 +151,7 @@
             bColor="mcolor-100"
             opacityEffect
             full
-            to="/my/farming"
+            to="/farming"
           >
             GO
           </AmButton>
