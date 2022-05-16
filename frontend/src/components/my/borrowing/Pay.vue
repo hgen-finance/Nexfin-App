@@ -467,7 +467,7 @@ export default {
       if (
         this.getGensBalance >= this.repayTo &&
         this.collateralRatio > 109 &&
-        this.repayTo > 0
+        this.repayTo != null
       ) {
         this.$accessor.borrowing.payTrove({
           mint: "EdvHEGQ2sqC4ZofLpj2xE5BQefgewWFY5nHe9aMcReC1",

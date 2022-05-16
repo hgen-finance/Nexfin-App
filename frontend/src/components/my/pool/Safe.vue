@@ -269,7 +269,7 @@ export default {
       // TODO change the deposit set max to add certain value
       if (this.$accessor.wallet.balanceGENS > 0) {
         this.from = this.$accessor.wallet.balanceGENS
-          ? Number(this.$accessor.wallet.balanceGENS).toFixed(0)
+          ? Math.floor(Number(this.$accessor.wallet.balanceGENS))
           : 0;
       } else {
         this.form = null;

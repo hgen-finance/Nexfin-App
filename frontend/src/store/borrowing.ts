@@ -493,6 +493,7 @@ export const actions = actionTree(
             const exceedAmount =
                 state.trove.amountToClose >= Number(value.amount) ? false : true;
 
+            console.log(value.amount, exceedAmount, "testing for borrow")
             if (state.troveId && !exceedAmount) {
                 commit("setLoading", true);
                 try {
