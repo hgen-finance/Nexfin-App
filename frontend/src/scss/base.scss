@@ -812,3 +812,19 @@ background: linear-gradient(to bottom, #360654, #0d0221); /* W3C, IE 10+/ Edge, 
     }
   }
 }
+
+
+// for vue tour
+.v-step{
+    background: #2c2967 !important;   
+}
+
+.v-step__content{
+    font-size: 0.8em !important;
+    margin-top:1.5% !important;
+}
+
+.v-step__button {
+    // box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.4);
+    border: none !important;
+}

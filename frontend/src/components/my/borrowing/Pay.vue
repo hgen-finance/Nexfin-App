@@ -5,6 +5,7 @@
     <div class="w-100" :class="{ 'op-0': getLoading }">
       <div
         class="w-100 fs-8-S fs-25-XS fw-600 f-white-200 pb-4-S pb-15-XS ta-c-XS"
+        data-tour-step="0"
       >
         Borrow
       </div>
@@ -15,7 +16,8 @@
         Your Current Debt
       </div>
       <div
-        class="w-100 fs-7-S fs-20-XS f-white-200 ta-c-XS pb-2-S pb-10-XS ta-c-XS mb-10-XS fw-600"
+        class="fs-7-S fs-20-XS f-white-200 ta-c-XS pb-2-S pb-10-XS ta-c-XS mb-10-XS fw-600"
+        data-tour-step="1"
       >
         <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{ getDebt }}</span>
         <span class="mr-1"> GENS </span>(<span class="fw-800 f-mcolor-100">
@@ -76,6 +78,7 @@
 
       <div
         class="w-100 mt-4 mb-2 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        data-tour-step="2"
         v-if="getBorrowOrPay"
       >
         <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
@@ -101,6 +104,7 @@
       </div>
       <div
         class="w-100 mb-4 mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        data-tour-step="3"
         v-if="getBorrowOrPay"
       >
         <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
@@ -120,7 +124,7 @@
         </div>
       </div>
       <div class="w-100 fd-r-S fd-c-XS mt-0-S mt-15-XS" v-if="getBorrowOrPay">
-        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS" data-tour-step="4">
           <AmButton
             color="mcolor-200"
             bColor="mcolor-100"
@@ -131,7 +135,10 @@
             reset
           </AmButton>
         </div>
-        <div class="w-50-S w-100-XS ml-2-L ml-2-S ml-0-XS mt-0-S mt-8-XS">
+        <div
+          class="w-50-S w-100-XS ml-2-L ml-2-S ml-0-XS mt-0-S mt-8-XS"
+          data-tour-step="5"
+        >
           <AmButton
             color="mcolor-100"
             bColor="mcolor-100"
@@ -258,7 +265,6 @@
 import Loading from "@/components/Loading";
 import { getCollateral } from "@/utils/layout";
 import NotificaitonsTx from "@/components/NotificationTx.vue";
-import "vue-tour/dist/vue-tour.css";
 
 export default {
   components: {
@@ -267,6 +273,7 @@ export default {
   },
   data() {
     return {
+      modalSession: "",
       from: null,
       to: null,
       repayTo: null, // this.$accessor.borrowing.trove.amountToClose, // TO DO change this later
@@ -293,24 +300,73 @@ export default {
       },
       steps: [
         {
-          // I prefer using data attributes, but you can use
-          // classes, ids, or whatever else you want!
-          // (So long as document.querySelector() likes it.)
           target: '[data-tour-step="1"]',
-          content: `This button doesn't actually do anything.`,
+          content: `Displays your borrowed amount and Collateral Ratio(CR) for the borrowed amount.`,
+          params: {
+            placement: "left",
+            enableScrolling: false,
+          },
         },
         {
           target: '[data-tour-step="2"]',
-          // You can even use HTML!
-          content: `This link will take you to <a href="https://alligator.io">https://alligator.io</a>!`,
+          content: `Add desired sol amount as a collateral. You can click on max button to set the maximum amount of SOL in your wallet as a collateral.`,
+          params: {
+            placement: "right",
+            enableScrolling: false,
+          },
         },
         {
           target: '[data-tour-step="3"]',
-          content: `This is a header element. It's big. Not much else to say about it.`,
+          content: `Add the amount of GENS you would like to borrow. The borrowed amount in GENS and collateral SOL, should be above 110% Collateral Ratio (CR).`,
           params: {
-            // You can control the position of the tour popup easily.
-            placement: "bottom",
+            placement: "right",
+            enableScrolling: false,
           },
+          before: (type) =>
+            new Promise((resolve, reject) => {
+              // Time-consuming UI/async operation here
+              if (Number(this.from) > 0) {
+                resolve("Ready");
+              }
+            }),
+        },
+        {
+          target: '[data-tour-step="4"]',
+          content: `Clear the input values`,
+          params: {
+            placement: "right",
+            enableScrolling: false,
+          },
+          before: (type) =>
+            new Promise((resolve, reject) => {
+              // Time-consuming UI/async operation here
+              if (
+                Number(this.from) > 0 &&
+                Number(this.to) > 0 &&
+                this.collateralRatio > 109
+              ) {
+                resolve("Ready");
+              }
+            }),
+        },
+        {
+          target: '[data-tour-step="5"]',
+          content: `Click on confirm after you have input the desired collateral and borrowed amount.`,
+          params: {
+            placement: "right",
+            enableScrolling: false,
+          },
+          before: (type) =>
+            new Promise((resolve, reject) => {
+              // Time-consuming UI/async operation here
+              if (
+                Number(this.from) > 0 &&
+                Number(this.to) > 0 &&
+                this.collateralRatio > 109
+              ) {
+                resolve("Ready");
+              }
+            }),
         },
       ],
     };
@@ -509,11 +565,28 @@ export default {
         );
       }
     },
+    modal() {
+      if (this.$cookie.get("borrow") == "old") {
+        this.$accessor.checkSession(true);
+      } else {
+        this.$accessor.checkSession(false);
+        this.$cookie.set("borrow", "old", { expires: "1Y" });
+      }
+      return this.$accessor.session;
+    },
+    setModalFunc(value) {
+      this.$accessor.setSession(value);
+      this.modalSession = value;
+      console.log(this.$accessor.session);
+      console.log(value, "test");
+    },
   },
   mounted() {
     // TODO: Hide me after the first visit so returning users don't get annoyed!
-    this.$tours["borrowGuide"].start();
-    console.log(this.$tours["borrowGuide"], "testing");
+    if (this.$cookie.get("borrow") != "old") {
+      this.$tours["borrowGuide"].start();
+      this.modalSession = this.modal();
+    }
   },
 };
 </script>
