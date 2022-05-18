@@ -273,6 +273,7 @@ export default {
   },
   data() {
     return {
+      modalSession: "",
       from: null,
       to: null,
       repayTo: null, // this.$accessor.borrowing.trove.amountToClose, // TO DO change this later
@@ -564,11 +565,28 @@ export default {
         );
       }
     },
+    modal() {
+      if (this.$cookie.get("borrow") == "old") {
+        this.$accessor.checkSession(true);
+      } else {
+        this.$accessor.checkSession(false);
+        this.$cookie.set("borrow", "old", { expires: "1Y" });
+      }
+      return this.$accessor.session;
+    },
+    setModalFunc(value) {
+      this.$accessor.setSession(value);
+      this.modalSession = value;
+      console.log(this.$accessor.session);
+      console.log(value, "test");
+    },
   },
   mounted() {
     // TODO: Hide me after the first visit so returning users don't get annoyed!
-    this.$tours["borrowGuide"].start();
-    console.log(this.$tours["borrowGuide"], "testing");
+    if (this.$cookie.get("borrow") != "old") {
+      this.$tours["borrowGuide"].start();
+      this.modalSession = this.modal();
+    }
   },
 };
 </script>
