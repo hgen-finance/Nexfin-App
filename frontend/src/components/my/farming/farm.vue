@@ -276,14 +276,16 @@ export default {
       this.open = false;
     },
     setFarmingData() {
+      console.log(this.from, this.to, this.day, "without computed");
+      console.log(this.getFrom, this.getTo, this.getDay, "with computed");
       if (
         this.getFrom !== null &&
         this.getTo !== null &&
         this.getDay !== null
       ) {
         if (
-          this.getFrom < Number(this.$accessor.wallet.balance) &&
-          this.getTo < Number(this.$accessor.wallet.balanceHGEN)
+          this.getFrom <= Number(this.$accessor.wallet.balance) &&
+          this.getTo <= Number(this.$accessor.wallet.balanceHGEN)
         ) {
           farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
           this.$accessor.wallet.getBalance();
@@ -309,8 +311,10 @@ export default {
       console.log(this.$accessor.wallet.balance, "sol balance");
       if (this.from > this.$accessor.wallet.balance) {
         this.from = this.$accessor.wallet.balance - 0.1;
+        this.to = this.from * this.$accessor.usd || 0;
+      } else {
+        this.to = this.from * this.$accessor.usd || 0;
       }
-      this.to = this.from * this.$accessor.usd || 0;
     },
   },
 };
