@@ -310,10 +310,10 @@ export default {
       // remove this when you change the value on watch
       console.log(this.$accessor.wallet.balance, "sol balance");
       if (this.from > this.$accessor.wallet.balance) {
-        this.from = this.$accessor.wallet.balance - 0.1;
-        this.to = this.from * this.$accessor.usd || 0;
+        this.from = this.$accessor.wallet.balance - 1;
+        this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
       } else {
-        this.to = this.from * this.$accessor.usd || 0;
+        this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
       }
     },
   },
