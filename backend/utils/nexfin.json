@@ -211,9 +211,19 @@
         "name": "liquidateTrove",
         "accounts": [
           {
-            "name": "adminAccountAuthority",
+            "name": "authority",
             "isMut": true,
             "isSigner": true
+          },
+          {
+            "name": "adminAccountAuthority",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "config",
+            "isMut": true,
+            "isSigner": false
           },
           {
             "name": "trove",
@@ -493,6 +503,11 @@
         "name": "addDepositReward",
         "accounts": [
           {
+            "name": "authority",
+            "isMut": true,
+            "isSigner": true
+          },
+          {
             "name": "deposit",
             "isMut": true,
             "isSigner": false
@@ -632,9 +647,14 @@
         "name": "changeConfig",
         "accounts": [
           {
-            "name": "adminAccountAuthority",
+            "name": "authority",
             "isMut": true,
             "isSigner": true
+          },
+          {
+            "name": "adminAccountAuthority",
+            "isMut": true,
+            "isSigner": false
           },
           {
             "name": "configAccount",
@@ -650,6 +670,36 @@
           {
             "name": "mintAccountAuthority",
             "type": "publicKey"
+          },
+          {
+            "name": "adminAccountAuthority",
+            "type": "publicKey"
+          }
+        ]
+      },
+      {
+        "name": "initializeAdmin",
+        "accounts": [
+          {
+            "name": "authority",
+            "isMut": true,
+            "isSigner": true
+          },
+          {
+            "name": "adminAccount",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "systemProgram",
+            "isMut": false,
+            "isSigner": false
+          }
+        ],
+        "args": [
+          {
+            "name": "adminAccountBump",
+            "type": "u8"
           },
           {
             "name": "adminAccountAuthority",
@@ -821,6 +871,22 @@
             {
               "name": "solAmount",
               "type": "u64"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Admin",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "bump",
+              "type": "u8"
+            },
+            {
+              "name": "authority",
+              "type": "publicKey"
             }
           ]
         }

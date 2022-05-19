@@ -106,6 +106,7 @@ export const actions = actionTree(
         async getInfo({ commit }) {
             await this.$axios.get("/api/info").then(({ data }) => {
                 commit("setTotalDeposit", data.depositTotal || 0);
+                console.log(data.depositTotal, "testing for deposit............")
                 commit("setGasFee", data.gasFee || 0);
                 commit("setGovernanceReward", data.governanceReward || 0);
                 commit("setSolReward", data.solReward || 0);

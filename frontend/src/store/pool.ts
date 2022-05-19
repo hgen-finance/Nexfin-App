@@ -330,14 +330,6 @@ export const actions = actionTree(
                 if (state.depositKey) {
                     commit("setLoading", true);
                     try {
-                        await this.$axios
-                            .post("/api/deposit/withdraw", {
-                                deposit: state.depositKey.deposit,
-                                amount: Number(value),
-                            })
-                            .then(({ data }) => {
-                                console.log(data, "closeDeposit");
-                            });
 
                         const data = await withdrawUtil(
                             this.$wallet,
@@ -374,6 +366,16 @@ export const actions = actionTree(
                         this.$accessor.wallet.getGENSBalance();
                         dispatch("getDeposit")
                         commit("setLoading", false);
+
+                        await this.$axios
+                            .post("/api/deposit/withdraw", {
+                                deposit: state.depositKey.deposit,
+                                amount: Number(value),
+                            })
+                            .then(({ data }) => {
+                                console.log(data, "closeDeposit");
+                            });
+
 
                     } catch (e) {
                         console.log(Error, e);
