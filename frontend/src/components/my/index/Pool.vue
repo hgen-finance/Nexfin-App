@@ -105,6 +105,7 @@ export default {
       return this.$accessor.pool.depositAmount;
     },
     getPercent() {
+      console.log(this.$accessor.pool.totalDeposit, "total pool deposit");
       return Number.parseInt(
         (this.$accessor.pool.depositAmount / this.$accessor.totalDeposit || 0) *
           100
@@ -129,6 +130,9 @@ export default {
         this.$accessor.dashboard.claim();
       }
     },
+  },
+  mounted() {
+    this.$accessor.getInfo();
   },
 };
 </script>

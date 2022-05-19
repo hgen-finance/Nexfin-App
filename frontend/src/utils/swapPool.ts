@@ -899,6 +899,7 @@ export async function swap(
         console.log('Creating swap token GENS account');
         // TODO only for testing
 
+        console.log("reached here")
         // change it for testing
         // let userAccountGENS = await GENS.createAccount(wallet.publicKey);
         // await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
@@ -922,8 +923,10 @@ export async function swap(
         let check_pool_token = await connection.getParsedTokenAccountsByOwner(owner.publicKey, {
             mint: lp_tokens,
         });
+        console.log("pool token", check_pool_token)
         let poolATA = check_pool_token.value[0] ? check_pool_token.value[0].pubkey.toBase58() : "";
 
+        console.log("get pool ATA", poolATA)
 
         let poolAccount = SWAP_PROGRAM_OWNER_FEE_ADDRESS && !poolATA
             ? await tokenPool.createAccount(owner.publicKey)
@@ -943,6 +946,7 @@ export async function swap(
             swapAmountB = new BN(swapAmountB).div(new BN(10000000))
         }
         console.log(swapAmountA.toNumber(), swapAmountB.toNumber(), "swap values")
+
         let invariant = new BN(swapAmountA).mul(new BN(swapAmountB));
         let numerator = invariant;
         let denominator = new BN(swapAmountA).add(new BN(SWAP_AMOUNT_IN));
@@ -964,6 +968,7 @@ export async function swap(
 
     console.log('Swapping');
     console.log(SWAP_AMOUNT_IN, "swap amount in")
+    console.log(tokenSwapAccount.toBase58(), "token swap account")
     let swap;
     if (tokenBATA == "") {
         tokenBATA = await Token.getAssociatedTokenAddress(
