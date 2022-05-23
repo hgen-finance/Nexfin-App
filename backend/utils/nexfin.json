@@ -508,16 +508,6 @@
             "isSigner": true
           },
           {
-            "name": "adminAccountAuthority",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
-            "name": "config",
-            "isMut": true,
-            "isSigner": false
-          },
-          {
             "name": "deposit",
             "isMut": true,
             "isSigner": false
@@ -764,14 +754,6 @@
             },
             {
               "name": "adminAccountAuthority",
-              "type": "publicKey"
-            },
-            {
-              "name": "gensMintPubkey",
-              "type": "publicKey"
-            },
-            {
-              "name": "hgenMintPubkey",
               "type": "publicKey"
             }
           ]
@@ -1177,6 +1159,6 @@
       }
     ],
     "metadata": {
-        "address": "HPwvr8B9KtM3CZwQg7V8pevfgsZfZBLiR3gL1HcEsGiD"
-      }
+      "address": "HPwvr8B9KtM3CZwQg7V8pevfgsZfZBLiR3gL1HcEsGiD"
+    }
   }

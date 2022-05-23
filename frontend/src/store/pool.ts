@@ -136,6 +136,7 @@ export const actions = actionTree(
                             program
                         );
 
+                        console.log(data, "getting data")
                         console.log(
                             `https://explorer.solana.com/tx/${data.txId}?cluster=${CLUSTER}`,
                             "transaction id "

@@ -101,6 +101,7 @@ export const depositUtil = async (
             wallet.publicKey, // owner of token account
             wallet.publicKey // fee payer
         )
+        console.log("THis tx is called")
         tx = tx.add(ataAccountTx, depositIx);
     } else {
         tx = tx.add(depositIx);

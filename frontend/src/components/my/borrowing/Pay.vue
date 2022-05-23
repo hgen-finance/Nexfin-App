@@ -317,7 +317,7 @@ export default {
         },
         {
           target: '[data-tour-step="3"]',
-          content: `Add the amount of GENS you would like to borrow. The borrowed amount in GENS and collateral SOL, should be above 110% Collateral Ratio (CR).`,
+          content: `Add the amount of GENS you would like to borrow. The borrowed amount in GENS and collateral SOL, should be above 115% Collateral Ratio (CR).`,
           params: {
             placement: "right",
             enableScrolling: false,
@@ -343,7 +343,7 @@ export default {
               if (
                 Number(this.from) > 0 &&
                 Number(this.to) > 0 &&
-                this.collateralRatio > 109
+                this.collateralRatio > 114
               ) {
                 resolve("Ready");
               }
@@ -362,7 +362,7 @@ export default {
               if (
                 Number(this.from) > 0 &&
                 Number(this.to) > 0 &&
-                this.collateralRatio > 109
+                this.collateralRatio > 114
               ) {
                 resolve("Ready");
               }
@@ -483,7 +483,7 @@ export default {
     },
     setMax() {
       this.from = this.$accessor.wallet.balance
-        ? this.$accessor.wallet.balance - 1
+        ? this.$accessor.wallet.balance - 0.05
         : 0;
     },
     reset() {
@@ -495,7 +495,7 @@ export default {
       this.repayTo = null;
     },
     confirmFunc() {
-      if (Number(this.from) > 0) {
+      if (Number(this.from) > 0 && this.collateralRatio > 114) {
         this.$accessor.borrowing.confirmBorrow({
           from: this.from,
           to: this.to,
@@ -522,7 +522,7 @@ export default {
     payTroveFunc() {
       if (
         this.getGensBalance >= this.repayTo &&
-        this.collateralRatio > 109 &&
+        this.collateralRatio > 114 &&
         this.repayTo != null
       ) {
         this.$accessor.borrowing.payTrove({

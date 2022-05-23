@@ -26,14 +26,14 @@
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             Liquidation CR
             <Hint
-              >Trove will be liquidated, when it drops below 110% Collateral
+              >Trove will be liquidated, when it drops below 115% Collateral
               Ratio.</Hint
             >
           </div>
           <div
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
           >
-            110
+            115
             <span class="f-white-200 pl-1-S pr-5-XS">%</span>
           </div>
         </div>
@@ -167,7 +167,7 @@
       v-if="getCurrentRatio < 130 && this.repayCr"
     >
       <div class="w-100 pb-2-S pb-10-XS">
-        Warning! Collateral Ratio is below 130%. Trove is liquidated at 110%.
+        Warning! Collateral Ratio is below 130%. Trove is liquidated at 115%.
       </div>
     </div>
     <div
@@ -277,7 +277,7 @@ export default {
   },
   data() {
     return {
-      liquidationCR: "109",
+      liquidationCR: "114",
     };
   },
   props: {
@@ -306,9 +306,9 @@ export default {
     },
     getMaxRatio() {
       if (this.$accessor.lightMode) {
-        return 110;
+        return 115;
       } else {
-        return 110;
+        return 115;
       }
     },
     getUsd() {
