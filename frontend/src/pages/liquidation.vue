@@ -251,7 +251,7 @@ export default {
     },
 
     getliquidationPrice(borrow, lamports) {
-      const liquidationCR = 109;
+      const liquidationCR = 114;
       let collateral = lamports ? Number(this.getLamports(lamports)) : 0;
       return ((liquidationCR * borrow) / (collateral * 100))
         .toFixed(2)

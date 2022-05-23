@@ -216,6 +216,9 @@ export default {
     };
   },
   computed: {
+    getTotalNotifications() {
+      return this.$accessor.notification.totalNotificaitons;
+    },
     getDepositKey() {
       return this.$accessor.pool.depositKey.deposit;
     },
