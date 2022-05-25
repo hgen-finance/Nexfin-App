@@ -495,7 +495,8 @@ export default {
       this.repayTo = null;
     },
     confirmFunc() {
-      if (Number(this.from) > 0 && this.collateralRatio > 114) {
+      if (Number(this.from) > 0) {
+        console.log("this is called");
         this.$accessor.borrowing.confirmBorrow({
           from: this.from,
           to: this.to,
