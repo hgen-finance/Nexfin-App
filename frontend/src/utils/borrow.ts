@@ -14,6 +14,7 @@ import {
     PYTH_SOL_USD_PUBKEY,
     TOKEN_GENS,
     TOKEN_A_MINT_ADDR,
+    TOKEN_HGEN,
 } from "./layout";
 
 const anchor = require("@project-serum/anchor");
@@ -125,7 +126,6 @@ export const borrowUtil = async (
         console.error(e, "Anchor borrow error");
     }
 
-
     // добавялем инструкции в транзакцию (add instruction to the transaction)
     let tx = new Transaction();
     if (tokenATA == "") {
@@ -156,6 +156,7 @@ export const borrowUtil = async (
     //     []
     // )
     // tx.add(changeTx);
+
 
 
     // add data for signature generation

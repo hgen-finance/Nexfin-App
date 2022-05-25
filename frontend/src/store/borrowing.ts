@@ -155,7 +155,7 @@ export const actions = actionTree(
 
             // check if there already previous trove opened under this wallet pub key
             // if (state.troveId && Number(value.from > 0) && totalColl > 109) {
-            if (state.troveId && Number(value.from > 0) && totalColl > 109) {
+            if (state.troveId && Number(value.from > 0) && totalColl > 114) {
                 try {
                     commit("setLoading", true);
                     const data = await addBorrowUtil(
@@ -253,7 +253,7 @@ export const actions = actionTree(
                 !state.troveId &&
                 Number(value.from > 0) &&
                 Number(value.to) > 99 &&
-                cr > 109
+                cr > 114
             ) {
                 commit("setLoading", true);
                 try {
