@@ -898,8 +898,6 @@ export async function swap(
     try {
         console.log('Creating swap token GENS account');
         // TODO only for testing
-
-        console.log("reached here")
         // change it for testing
         // let userAccountGENS = await GENS.createAccount(wallet.publicKey);
         // await GENS.mintTo(userAccountGENS, owner, [], SWAP_AMOUNT_IN);
@@ -961,7 +959,6 @@ export async function swap(
         let owner_fees = new BN(5).mul(new BN(swapTokenB)).div(new BN(10000));
         let swap_fees = trade_fees.add(owner_fees);
         let swapTokenBWithFees = swapTokenB.sub(swap_fees);
-        console.log(swapTokenBWithFees.toString(), "swap token B with fees")
     } catch (err) {
         console.error(err, "swap setup error")
     }

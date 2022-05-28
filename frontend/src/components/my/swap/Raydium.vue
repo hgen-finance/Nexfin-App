@@ -766,9 +766,9 @@ export default {
     calculateTokenGensToHgen() {
       let swapTokenBWithFees;
       if (this.from > 0) {
-        const TRADE_FEE_NUMBERATOR = 0; //25
+        const TRADE_FEE_NUMBERATOR = 25;
         const TRADE_FEE_DENOMINATOR = 10000;
-        const OWNER_FEE_NUMBERATOR = 0; // 5
+        const OWNER_FEE_NUMBERATOR = 5;
         const OWNER_FEE_DENOMINATOR = 10000;
         let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
           new BN(100)
@@ -816,9 +816,9 @@ export default {
       return swapTokenBWithFees / 100 || 0; // 2 decimal
     },
     calculateTokenHgenToGens() {
-      const TRADE_FEE_NUMBERATOR = 0; // 25
+      const TRADE_FEE_NUMBERATOR = 25;
       const TRADE_FEE_DENOMINATOR = 10000;
-      const OWNER_FEE_NUMBERATOR = 0; // 5
+      const OWNER_FEE_NUMBERATOR = 5;
       const OWNER_FEE_DENOMINATOR = 10000;
       let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
         new BN(100)
@@ -867,38 +867,36 @@ export default {
     // TODO refractor this code for extendibility
     calculateTokenGensToSol() {
       let swapTokenBWithFees;
+      let swapTokenB;
       if (this.from > 0) {
-        const TRADE_FEE_NUMBERATOR = 0; //25
+        const TRADE_FEE_NUMBERATOR = 25;
         const TRADE_FEE_DENOMINATOR = 10000;
-        const OWNER_FEE_NUMBERATOR = 0; // 5
+        const OWNER_FEE_NUMBERATOR = 5;
         const OWNER_FEE_DENOMINATOR = 10000;
-        let tokenA = new BN(this.$accessor.swapPool.tokenAmountGensGS);
-        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLGS);
+        let tokenA = Number(this.$accessor.swapPool.tokenAmountGensGS);
+        let tokenB = Number(this.$accessor.swapPool.tokenAmountSOLGS);
 
-        console.log(tokenA, tokenB, "token Gens and SOL");
+        let invariant = tokenA * tokenB;
+        let denominator = tokenA + Number(this.from);
 
-        let invariant = tokenA.mul(new BN(tokenB));
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from * 100));
 
         // new swap price for the token A->B
-        let swapTokenB = numerator.div(denominator);
-        swapTokenB = tokenB.sub(swapTokenB);
-
+        swapTokenB = tokenB - numerator / denominator;
+        console.log(swapTokenB, "swap token B is ");
         // swaptokenB with fees
-        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(TRADE_FEE_DENOMINATOR));
-        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(OWNER_FEE_DENOMINATOR));
-        let swap_fees = trade_fees.add(owner_fees);
-        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+        let trade_fees =
+          (TRADE_FEE_NUMBERATOR * swapTokenB) / TRADE_FEE_DENOMINATOR;
+        let owner_fees =
+          (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
+        let swap_fees = trade_fees + owner_fees;
+        console.log(swap_fees, "swap fees is");
+        swapTokenBWithFees = swapTokenB - swap_fees;
 
         // pool price before add
-        denominator = tokenA.add(new BN(1).mul(new BN(100)));
-        let swapTokeB_for_one = numerator.div(denominator);
-        let price_impact = tokenB.sub(swapTokeB_for_one);
+        denominator = tokenA + 1;
+        let swapTokeB_for_one = numerator / denominator;
+        let price_impact = tokenB - swapTokeB_for_one;
         price_impact =
           Math.abs(Number(swapTokenB) - Number(price_impact)) /
           Number(price_impact) /
@@ -913,38 +911,36 @@ export default {
         this.priceImpact = price_impact;
       }
 
-      return swapTokenBWithFees / 100 || 0; // 2 decimal
+      return swapTokenBWithFees || 0; // 2 decimal
     },
     calculateTokenSolToGens() {
-      const TRADE_FEE_NUMBERATOR = 0; // 25
+      const TRADE_FEE_NUMBERATOR = 25;
       const TRADE_FEE_DENOMINATOR = 10000;
-      const OWNER_FEE_NUMBERATOR = 0; // 5
+      const OWNER_FEE_NUMBERATOR = 5;
       const OWNER_FEE_DENOMINATOR = 10000;
-      let tokenA = new BN(this.$accessor.swapPool.tokenAmountGensGS);
-      let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLGS);
+      let tokenA = Number(this.$accessor.swapPool.tokenAmountGensGS);
+      let tokenB = Number(this.$accessor.swapPool.tokenAmountSOLGS);
 
-      let invariant = new BN(tokenA).mul(new BN(tokenB));
+      let invariant = tokenA * tokenB;
       let numerator = invariant;
-      let denominator = tokenB.add(new BN(this.from));
+      let denominator = tokenB + Number(this.from);
 
       // new swap price for the token A->B
-      let swapTokenA = numerator.div(denominator);
-      swapTokenA = new BN(tokenA).sub(swapTokenA);
+      let swapTokenA = numerator / denominator;
+      swapTokenA = tokenA - swapTokenA;
 
       // swaptokenB with fees
-      let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
-        .mul(new BN(swapTokenA))
-        .div(new BN(TRADE_FEE_DENOMINATOR));
-      let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
-        .mul(new BN(swapTokenA))
-        .div(new BN(OWNER_FEE_DENOMINATOR));
-      let swap_fees = trade_fees.add(owner_fees);
-      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      let trade_fees =
+        (TRADE_FEE_NUMBERATOR * swapTokenA) / TRADE_FEE_DENOMINATOR;
+      let owner_fees =
+        (OWNER_FEE_NUMBERATOR * swapTokenA) / OWNER_FEE_DENOMINATOR;
+      let swap_fees = trade_fees + owner_fees;
+      let swapTokenAWithFees = swapTokenA - swap_fees;
 
       // pool price before add
-      denominator = tokenB.add(new BN(1).mul(new BN(100)));
-      let swapTokeA_for_one = numerator.div(denominator);
-      let price_impact = tokenA.sub(swapTokeA_for_one);
+      denominator = tokenB + 1;
+      let swapTokeA_for_one = numerator / denominator;
+      let price_impact = tokenA - swapTokeA_for_one;
       price_impact =
         Math.abs(Number(swapTokenA) - Number(price_impact)) /
         Number(price_impact) /
@@ -965,37 +961,37 @@ export default {
     calculateTokenHgenToSol() {
       let swapTokenBWithFees;
       if (this.from > 0) {
-        const TRADE_FEE_NUMBERATOR = 0; //25
+        const TRADE_FEE_NUMBERATOR = 25;
         const TRADE_FEE_DENOMINATOR = 10000;
-        const OWNER_FEE_NUMBERATOR = 0; // 5
+        const OWNER_FEE_NUMBERATOR = 5;
         const OWNER_FEE_DENOMINATOR = 10000;
-        let tokenA = new BN(this.$accessor.swapPool.tokenAmountHgenHS);
-        let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLHS);
+        let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+        let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
-        console.log(tokenA.toNumber(), tokenB.toNumber(), "token Hgen and SOL");
+        console.log(tokenA, tokenB, "token Hgen and SOL");
 
-        let invariant = tokenA.mul(new BN(tokenB));
+        let invariant = tokenA * tokenB;
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from * 100));
+        let denominator = tokenA + Number(this.from);
 
         // new swap price for the token A->B
-        let swapTokenB = numerator.div(denominator);
-        swapTokenB = tokenB.sub(swapTokenB);
+        let swapTokenB = numerator / denominator;
+        swapTokenB = tokenB - swapTokenB;
+        console.log(swapTokenB, "testing value is");
 
         // swaptokenB with fees
-        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(TRADE_FEE_DENOMINATOR));
-        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(OWNER_FEE_DENOMINATOR));
-        let swap_fees = trade_fees.add(owner_fees);
-        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+        let trade_fees =
+          (TRADE_FEE_NUMBERATOR * swapTokenB) / TRADE_FEE_DENOMINATOR;
+        let owner_fees =
+          (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
+        let swap_fees = trade_fees + owner_fees;
+        swapTokenBWithFees = swapTokenB - swap_fees;
 
         // pool price before add
-        denominator = tokenA.add(new BN(1).mul(new BN(100)));
-        let swapTokeB_for_one = numerator.div(denominator);
-        let price_impact = tokenB.sub(swapTokeB_for_one);
+
+        let denominator_one = tokenA + 1;
+        let swapTokeB_for_one = tokenB / denominator_one;
+        let price_impact = tokenB - swapTokeB_for_one;
         price_impact =
           Math.abs(Number(swapTokenB) - Number(price_impact)) /
           Number(price_impact) /
@@ -1009,14 +1005,17 @@ export default {
         }
         this.priceImpact = price_impact;
       }
-
-      return swapTokenBWithFees / 100 || 0; // 2 decimal
+      console.log(
+        Number(swapTokenBWithFees),
+        "The sol for hgen after fees is "
+      );
+      return swapTokenBWithFees || 0; // 2 decimal
     },
 
     calculateTokenSolToHgen() {
-      const TRADE_FEE_NUMBERATOR = 0; // 25
+      const TRADE_FEE_NUMBERATOR = 25;
       const TRADE_FEE_DENOMINATOR = 10000;
-      const OWNER_FEE_NUMBERATOR = 0; // 5
+      const OWNER_FEE_NUMBERATOR = 5;
       const OWNER_FEE_DENOMINATOR = 10000;
       let tokenA = new BN(this.$accessor.swapPool.tokenAmountHgenHS);
       let tokenB = new BN(this.$accessor.swapPool.tokenAmountSOLHS);
