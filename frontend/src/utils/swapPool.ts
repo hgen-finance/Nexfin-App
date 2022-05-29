@@ -497,7 +497,7 @@ export async function createTokenSwap(
 
 export async function depositAllTokenTypes(
     wallet: Wallet,
-    tokenSwapAccount: Account,
+    tokenSwapAccount: PublicKey,
     lp_tokens: PublicKey,
     poolTokenAccountA: PublicKey,
     poolTokenAccountB: PublicKey,
@@ -506,9 +506,19 @@ export async function depositAllTokenTypes(
     tokenAmountA: number,
     tokenAmountB: number,
 ): Promise<void> {
+
+    console.log(wallet, tokenSwapAccount.toBase58(), lp_tokens.toBase58(), poolTokenAccountA.toBase58(), poolTokenAccountB.toBase58(), tokenAMintAddr.toBase58(), tokenBMintAddr.toBase58(), tokenAmountA, tokenAmountB, "testing")
+
     const connection = await getConnection();
+    const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
+        AccountLayout.span
+    );
+
+    const signers: Account[] = [];
+    const instructions: TransactionInstruction[] = [];
+
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
-        [tokenSwapAccount.publicKey.toBuffer()],
+        [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
 
@@ -524,9 +534,7 @@ export async function depositAllTokenTypes(
     const swapTokenB = await getAccountInfo(connection, poolTokenAccountB);
     console.log(swapTokenB.info.amount.toNumber(), "swap token b in the pool");
 
-    // liqidity for the pool token
-    POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * 100 * supply / swapTokenA.info.amount.toNumber(), tokenAmountB * 100 * supply / swapTokenB.info.amount.toNumber());
-    console.log(POOL_TOKEN_AMOUNT, "liquidity")
+
 
     const userTransferAuthority = wallet.publicKey
 
@@ -554,15 +562,56 @@ export async function depositAllTokenTypes(
     }
     console.log(tokenATA, "|", ata.toBase58());
 
-    let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-        mint: tokenAMintAddr,
-    });
-    let aATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+    let tokenAATA;
+    let tokenBATA;
+    try {
+        // check if the token is for native (SOL)
+        // if (tokenAMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
 
-    let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
-        mint: tokenBMintAddr,
-    });
-    let bATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
+        //     tokenAATA = await getWrappedAccount(wallet, tokenAmountA * 1e7 + accountRentExempt, wallet.publicKey, instructions, signers);
+        //     tokenAmountA = tokenAmountA * 1e7
+        //     console.log(tokenAATA, "tokenA ata")
+        // }
+        // else {
+        //     let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        //         mint: tokenAMintAddr,
+        //     });
+        //     tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+        //     tokenAATA = new PublicKey(tokenAATA);
+        //     console.log(tokenAATA, "tokenA ata")
+        //     console.log(tokenAMintAddr, "tokenAMintAddr")
+        // }
+
+        let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+            mint: tokenAMintAddr,
+        });
+
+        tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
+        tokenAmountA = tokenAmountA * 100;
+        tokenAATA = new PublicKey(tokenAATA);
+
+        if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+            tokenBATA = await getWrappedAccount(wallet, tokenAmountB * 1e9 + accountRentExempt, wallet.publicKey, instructions, signers);
+            tokenAmountB = tokenAmountB * 1e9
+            console.log(tokenBATA, "tokenB ata")
+        }
+        else {
+            let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+                mint: tokenBMintAddr,
+            });
+            tokenBATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
+            tokenBATA = new PublicKey(tokenBATA);
+            console.log(tokenBATA, "tokenB ata")
+        }
+
+    } catch (err) {
+        console.log(err, "account mint token error")
+    }
+
+    // liqidity for the pool token
+    POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * supply / swapTokenA.info.amount.toNumber(), tokenAmountB * supply / swapTokenB.info.amount.toNumber());
+    console.log(tokenAmountA, tokenAmountB, "testing")
+    console.log(POOL_TOKEN_AMOUNT, "liquidity")
 
 
     // TODO uncomment for test only
@@ -575,23 +624,25 @@ export async function depositAllTokenTypes(
             wallet.publicKey, // owner of token account
             wallet.publicKey // fee payer
         )
+        instructions.push(ataAccountTx)
         try {
             await TokenSwap.depositAllTokenTypes(
                 wallet,
                 connection,
-                tokenSwapAccount.publicKey,
+                tokenSwapAccount,
                 authority,
-                new PublicKey(aATA),
-                new PublicKey(bATA),
+                (tokenAATA),
+                (tokenBATA),
                 poolTokenAccountA,
                 poolTokenAccountB,
                 lp_tokens,
                 ata,
                 userTransferAuthority,
                 POOL_TOKEN_AMOUNT,
-                tokenAmountA * 100,
-                tokenAmountB * 100,
-                ataAccountTx
+                tokenAmountA,
+                tokenAmountB,
+                signers,
+                instructions
             );
 
         } catch (err) {
@@ -603,18 +654,20 @@ export async function depositAllTokenTypes(
         await TokenSwap.depositAllTokenTypes(
             wallet,
             connection,
-            tokenSwapAccount.publicKey,
+            tokenSwapAccount,
             authority,
-            new PublicKey(aATA),
-            new PublicKey(bATA),
+            new PublicKey(tokenAATA),
+            new PublicKey(tokenBATA),
             poolTokenAccountA,
             poolTokenAccountB,
             lp_tokens,
             ata,
             userTransferAuthority,
             POOL_TOKEN_AMOUNT,
-            tokenAmountA * 100,
-            tokenAmountB * 100,
+            tokenAmountA,
+            tokenAmountB,
+            signers,
+            instructions
         );
     }
 
@@ -637,7 +690,7 @@ export async function depositAllTokenTypes(
 
 export async function withdrawAllTokenTypes(
     wallet: Wallet,
-    tokenSwapAccount: Account,
+    tokenSwapAccount: PublicKey,
     lp_tokens: PublicKey,
     ownertokenAccountPool: PublicKey,
     poolTokenAccountA: PublicKey,
@@ -650,7 +703,7 @@ export async function withdrawAllTokenTypes(
 ): Promise<void> {
     const connection = await getConnection();
     [authority, bumpSeed] = await PublicKey.findProgramAddress(
-        [tokenSwapAccount.publicKey.toBuffer()],
+        [tokenSwapAccount.toBuffer()],
         TOKEN_SWAP_PROGRAM_ID,
     );
     const poolMintInfo = await getMintInfo(connection, lp_tokens);
@@ -712,7 +765,7 @@ export async function withdrawAllTokenTypes(
     await TokenSwap.withdrawAllTokenTypes(
         wallet,
         connection,
-        tokenSwapAccount.publicKey,
+        tokenSwapAccount,
         authority,
         userAccountA,
         userAccountB,

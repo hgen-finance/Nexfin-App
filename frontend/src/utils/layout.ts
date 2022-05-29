@@ -72,6 +72,7 @@ export const FARMING_ACCOUNT_DATA_LAYOUT = BufferLayout.struct([
     BufferLayout.u8("isInitialized"),
     dateArray("startDate"),
     dateArray("endDate"),
+    uint64("depositedLp"),
     uint64("depositedSol"),
     uint64("depositedHgen"),
     uint64("dayLength"),
@@ -115,6 +116,7 @@ export interface FarmingLayout {
     isInitialized: number;
     startDate: Uint8Array;
     endDate: Uint8Array;
+    depositedLp: Uint8Array;
     depositedSol: Uint8Array;
     depositedHgen: Uint8Array;
     dayLength: Uint8Array;

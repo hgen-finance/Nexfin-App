@@ -13,6 +13,7 @@ import {
     INSTRUCTION_LAYOUT,
     InstructionLayout,
     TOKEN_HGEN,
+    LP_TOKENS_HS,
 } from "./layout";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import * as web3 from "@solana/web3.js";
@@ -47,6 +48,7 @@ export const farmUtil = async (
     connection: Connection,
     depositedSol: number,
     depositedHgen: number,
+    depositedLP: number,
     dayLength: number
 ) => {
 
@@ -135,10 +137,10 @@ export const farmUtil = async (
     let tokenTransaction;
 
     // get the token account info of the wallet
-    let HGENS = await connection.getParsedTokenAccountsByOwner(destination, {
-        mint: TOKEN_HGEN,
+    let LP_HS = await connection.getParsedTokenAccountsByOwner(destination, {
+        mint: LP_TOKENS_HS,
     });
-    let tokenATA = HGENS.value[0] ? HGENS.value[0].pubkey.toBase58() : "";
+    let tokenATA = LP_HS.value[0] ? LP_HS.value[0].pubkey.toBase58() : "";
 
     // create a ATA account if the wallet user doesnt have one
     let ata;
@@ -154,44 +156,44 @@ export const farmUtil = async (
         ata = await Token.getAssociatedTokenAddress(
             ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
             TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-            TOKEN_HGEN, // mint
+            LP_TOKENS_HS, // mint
             destination // owner
         );
     }
 
-    if (depositedSol * 1e9 > balance) {
-        alert("Deposited SOL amount exceeds balance!");
-        return false;
-    } else {
-        setFarmIx = new TransactionInstruction({
-            keys: [
-                {
-                    pubkey: wallet.publicKey,
-                    isSigner: true,
-                    isWritable: false,
-                },
-                { pubkey: farming_account, isSigner: false, isWritable: true },
-            ],
-            programId: programId,
-            data: sendData,
-        });
+    // if (depositedSol * 1e9 > balance) {
+    //     alert("Deposited SOL amount exceeds balance!");
+    //     return false;
+    // } else {
+    setFarmIx = new TransactionInstruction({
+        keys: [
+            {
+                pubkey: wallet.publicKey,
+                isSigner: true,
+                isWritable: false,
+            },
+            { pubkey: farming_account, isSigner: false, isWritable: true },
+        ],
+        programId: programId,
+        data: sendData,
+    });
 
 
-        solTransaction = web3.SystemProgram.transfer({
-            fromPubkey: wallet.publicKey,
-            toPubkey: destination,
-            lamports: depositedSol * 1e9,
-        });
+    // solTransaction = web3.SystemProgram.transfer({
+    //     fromPubkey: wallet.publicKey,
+    //     toPubkey: destination,
+    //     lamports: depositedSol * 1e9,
+    // });
 
-        tokenTransaction = Token.createTransferInstruction(
-            TOKEN_PROGRAM_ID,
-            wallet.publicKey,
-            ata,
-            wallet.publicKey,
-            [],
-            depositedHgen * 1e2
-        )
-    }
+    tokenTransaction = Token.createTransferInstruction(
+        TOKEN_PROGRAM_ID,
+        wallet.publicKey,
+        ata,
+        wallet.publicKey,
+        [],
+        depositedLP * 1e2
+    )
+    // }
 
     farming_account = await PublicKey.createWithSeed(
         wallet.publicKey,
@@ -222,7 +224,7 @@ export const farmUtil = async (
             const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
                 ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
                 TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-                TOKEN_HGEN, // mint
+                LP_TOKENS_HS, // mint
                 ata, // ata
                 destination, // owner of token account
                 wallet.publicKey // fee payer

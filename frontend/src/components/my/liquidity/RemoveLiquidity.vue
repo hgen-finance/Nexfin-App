@@ -108,16 +108,17 @@ import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
 
 import {
-  TOKEN_A_MINT_ADDR,
-  TOKEN_B_MINT_ADDR,
+  TOKEN_HGEN,
+  TOKEN_WSOL_ADDR,
   POOL_AUTHORITY,
-  TOKEN_ACC_A,
-  TOKEN_ACC_B,
-  LP_TOKENS_HGEN_GENS,
+  TOKEN_ACC_HGEN_HS,
+  TOKEN_ACC_SOL_HS,
+  LP_TOKENS_HS,
 } from "@/utils/layout";
+import { PublicKey } from "@solana/web3.js";
 
 const TOKENS = [
-  { label: "GENS-HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
+  { label: "HGEN-SOL", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
 ];
 
 // TODO: add liquidity when choosed hgen/gens or gens/hgen
@@ -144,7 +145,7 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
-      tokenPoolType: "HG",
+      tokenPoolType: "HS",
       tokenAacc: "",
       tokenBacc: "",
       tokenLP: "",
@@ -168,6 +169,7 @@ export default {
     },
     confirm() {
       if (Number(this.from) > 0) {
+        console.log(this.tokenBMintAddr, "value of token B");
         this.$accessor.swapPool.withdrawToken({
           tokenLP: this.tokenLP,
           tokenAacc: this.tokenAacc,
@@ -184,13 +186,13 @@ export default {
     },
   },
   mounted() {
-    if (this.tokenPoolType == "HG") {
-      this.tokenLP = LP_TOKENS_HGEN_GENS;
-      this.tokenAacc = TOKEN_ACC_A;
-      this.tokenBacc = TOKEN_ACC_B;
-      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
-      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
-    }
+    this.tokenLP = LP_TOKENS_HS;
+    this.tokenAacc = TOKEN_ACC_HGEN_HS;
+    this.tokenBacc = TOKEN_ACC_SOL_HS;
+    this.tokenAMintAddr = TOKEN_HGEN;
+    this.tokenBMintAddr = new PublicKey(
+      "So11111111111111111111111111111111111111112"
+    );
   },
 };
 </script>

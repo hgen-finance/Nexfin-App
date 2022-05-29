@@ -61,15 +61,15 @@
           </div>
           <div class="w-100 fd-r ai-c">
             <span
-              class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
-              >SOL</span
+              class="w-25-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
+              >LP TOKEN</span
             >
             <input
               type="text"
-              id="from"
+              id="lp"
               class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-              placeholder="0.0000"
-              v-model="from"
+              placeholder="0"
+              v-model="lp"
               maxlength="12"
             />
             <span
@@ -77,33 +77,6 @@
               @click="setMax"
               >max</span
             >
-          </div>
-        </div>
-        <div
-          class="w-100 my-2-S my-10-XS mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
-          v-if="getDepositKey"
-        >
-          <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
-            Set amount you want to deposit
-          </div>
-          <div class="w-100 fd-r ai-c">
-            <span
-              class="w-15-S w-25-XS fs-6-S fs-20-XS fw-600 f-white-200 fsh-0"
-              >HGEN</span
-            >
-            <input
-              type="text"
-              id="to"
-              class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-              placeholder="0"
-              v-model="to"
-              disabled
-            />
-            <!-- <span
-              class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
-              @click="setMax"
-              >max</span
-            > -->
           </div>
         </div>
         <div
@@ -167,7 +140,6 @@
 import Loading from "@/components/Loading";
 import { Icon, Tooltip } from "ant-design-vue";
 import Farming from "../../../utils/farming";
-const farming = new Farming();
 const TOKENS = [
   { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
   { label: "SOL", value: "So11111111111111111111111111111111111111112" },
@@ -187,6 +159,7 @@ export default {
       hgen: "",
       from: null,
       to: null,
+      lp: null,
       day: null,
       open: true,
       currencyFrom: {
@@ -257,9 +230,35 @@ export default {
     },
   },
   watch: {
-    from(val) {
-      this.to = val * (this.$accessor.usd || 100);
+    lp(val) {
+      console.log(val, "val goes brr.");
+      let hgen =
+        (val / this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountHgenHS *
+        100;
+      console.log(
+        this.$accessor.liquidity.lpTotalSupply,
+        this.$accessor.swapPool.tokenAmountHgenHS
+      );
+      hgen = hgen > 0 ? hgen.toString().split(".") : 0;
+      if (hgen.length > 1 && hgen[1].length > 2) {
+        hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
+      }
+      this.from = Number(hgen);
+      console.log(this.from, "valuie 1....");
+
+      let sol =
+        (val / this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountSOLHS *
+        100;
+      sol = sol > 0 ? sol.toString().split(".") : 0;
+      if (sol.length > 1 && sol[1].length > 9) {
+        sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
+      }
+      this.to = Number(sol);
+      console.log(this.to, "value 2 ...");
     },
+    from(val) {},
     to(val) {},
   },
   methods: {
@@ -281,18 +280,22 @@ export default {
       if (
         this.getFrom !== null &&
         this.getTo !== null &&
-        this.getDay !== null
+        this.getDay !== null &&
+        Number(this.lp) > 0
       ) {
-        if (
-          this.getFrom <= Number(this.$accessor.wallet.balance) &&
-          this.getTo <= Number(this.$accessor.wallet.balanceHGEN)
-        ) {
-          farming.setFarmingAccount(this.getFrom, this.getTo, this.getDay);
+        if (this.lp <= Number(this.getLpTokens())) {
+          console.log(this.lp, this.getFrom, this.getTo, "testing............");
+          const farming = new Farming();
+          farming.setFarmingAccount(this.lp, this.from, this.to, this.getDay);
           this.$accessor.wallet.getBalance();
           this.$accessor.wallet.getGENSBalance();
           this.$accessor.wallet.getHGENBalance();
         }
       }
+      this.lp = null;
+      this.from = null;
+      this.to = null;
+      this.day = null;
       //   else alert("Enter the values correctly");
     },
     convertToHgen() {
@@ -303,19 +306,32 @@ export default {
       // converting to sol when hgen is entered
       this.to = CONVERT_SOL * Number(this.to);
     },
-    setMax() {
-      this.from = this.$accessor.wallet.balance
-        ? Number(this.$accessor.wallet.balanceHGEN) / this.$accessor.usd
-        : 0;
-      // remove this when you change the value on watch
-      console.log(this.$accessor.wallet.balance, "sol balance");
-      if (this.from > this.$accessor.wallet.balance) {
-        this.from = this.$accessor.wallet.balance - 1;
-        this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
-      } else {
-        this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
-      }
+    getLpTokens() {
+      return this.$accessor.liquidity.lpTokens;
     },
+    setMax() {
+      //   this.from = this.$accessor.wallet.balance
+      //     ? Number(this.$accessor.wallet.balanceHGEN) / this.$accessor.usd
+      //     : 0;
+      //   // remove this when you change the value on watch
+      //   console.log(this.$accessor.wallet.balance, "sol balance");
+      //   if (this.from > this.$accessor.wallet.balance) {
+      //     this.from = this.$accessor.wallet.balance - 1;
+      //     this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
+      //   } else {
+      //     this.to = Math.ceil(this.from * this.$accessor.usd) || 0;
+      //   }
+      this.lp = this.$accessor.liquidity.lpTokens;
+    },
+  },
+  mounted() {
+    this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
+    this.$accessor.swapPool.getTokenAInfo();
+    this.$accessor.swapPool.getTokenBInfo();
+    this.$accessor.swapPool.onTokenAChange();
+    this.$accessor.swapPool.onTokenBChange();
+    this.$accessor.liquidity.getLpTokens();
+    this.$accessor.liquidity.updateLpToken(this.lpTokenType);
   },
 };
 </script>

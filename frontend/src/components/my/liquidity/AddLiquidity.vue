@@ -92,16 +92,16 @@
     </div>
     <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
-      v-if="currencyFrom.value === tokens[0].value"
+      v-if="currencyFrom.value === tokens[1].value"
     >
-      <span> 1 HGEN ≈ {{ convertTokenA }} GENS </span>
+      <span> 1 SOL ≈ {{ convertTokenA }} HGEN </span>
       <Icon type="sync" class="f-white-200 ts-3 hv d-n-XS fsh-0 jc-r px-1-S" />
     </div>
     <div
       class="w-100 pt-2-S pt-15-XS ta-c fs-5-S fs-20-XS fw-500 f-white-200 pb-2-S pb-15-XS"
-      v-if="currencyFrom.value === tokens[1].value"
+      v-if="currencyFrom.value === tokens[0].value"
     >
-      1 GENS ≈ {{ convertTokenB }} HGEN
+      1 HGEN ≈ {{ convertTokenB }} SOL
       <Icon type="sync" class="f-white-200 ts-3 hv d-n-XS fsh-0 px-1-S jc-r" />
     </div>
 
@@ -153,18 +153,17 @@ import BN from "bn.js";
 
 import Hint from "@/components/Hint";
 import { Icon, Tooltip, Button, Progress, Spin, Modal } from "ant-design-vue";
+import { PublicKey } from "@solana/web3.js";
+
 import {
-  TOKEN_A_MINT_ADDR,
-  TOKEN_B_MINT_ADDR,
-  POOL_AUTHORITY,
-  TOKEN_ACC_A,
-  TOKEN_ACC_B,
-  LP_TOKENS_HGEN_GENS,
+  LP_TOKENS_HS,
+  TOKEN_ACC_HGEN_HS,
+  TOKEN_ACC_SOL_HS,
 } from "@/utils/layout";
 
 const TOKENS = [
-  { label: "GENS", value: "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8" },
   { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
+  { label: "SOL", value: "So11111111111111111111111111111111111111112" },
 ];
 
 // TODO: Fetch these value from the pool, currently the values are hardcoded
@@ -189,7 +188,7 @@ export default {
       currencyFrom: {
         theme: "default",
         value: TOKENS[0].value,
-        items: TOKENS,
+        items: [TOKENS[0]],
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
@@ -199,13 +198,13 @@ export default {
       currencyTo: {
         theme: "default",
         value: TOKENS[1].value,
-        items: TOKENS,
+        items: [TOKENS[1]],
         colorDefault: "mcolor-700",
         colorFocus: "mcolor-700",
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
-      tokenPoolType: "HG",
+      tokenPoolType: "HS",
       tokenAacc: "",
       tokenBacc: "",
       tokenLP: "",
@@ -218,15 +217,15 @@ export default {
   computed: {
     ...mapState(["wallet", "addLiquidity", "url"]),
     convertTokenB() {
-      let tokenA = this.$accessor.swapPool.tokenAmountA;
-      let tokenB = this.$accessor.swapPool.tokenAmountB;
+      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
-      if (tokenA > tokenB) return tokenB / tokenA || 0;
-      else return tokenA / tokenB || 0;
+      if (tokenA > tokenB) return this.trimValue(tokenB / tokenA) || 0;
+      else return this.trimValue(tokenA / tokenB) || 0;
     },
     convertTokenA() {
-      let tokenA = this.$accessor.swapPool.tokenAmountA;
-      let tokenB = this.$accessor.swapPool.tokenAmountB;
+      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
       if (tokenB > tokenA) return tokenB / tokenA || 0;
       else return tokenA / tokenB || 0;
@@ -235,9 +234,9 @@ export default {
       get: function () {
         let result;
         result = {
-          lpToken: LP_TOKENS_HGEN_GENS,
-          tokenAaccount: TOKEN_ACC_A,
-          tokenBaccount: TOKEN_ACC_B,
+          lpToken: LP_TOKENS_HS,
+          tokenAaccount: TOKEN_ACC_HGEN_HS,
+          tokenBaccount: TOKEN_ACC_SOL_HS,
         };
         return result;
       },
@@ -292,8 +291,8 @@ export default {
         return 0;
       }
 
-      let tokenA = this.$accessor.swapPool.tokenAmountA;
-      let tokenB = this.$accessor.swapPool.tokenAmountB;
+      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
       if (tokenA > tokenB) {
         tokenRatio = tokenA / tokenB;
@@ -311,15 +310,40 @@ export default {
         this.$accessor.setModal(value);
       }
     },
-    convert() {
-      let tokenA = this.$accessor.swapPool.tokenAmountA;
-      let tokenB = this.$accessor.swapPool.tokenAmountB;
-
-      if (this.currencyFrom.value === this.tokens[0].value && tokenA > tokenB) {
-        this.to = Number(this.from) / this.calculateTokenRatio() || 0;
+    trimValue(value) {
+      let to_value = value.toString();
+      to_value = to_value > 0 ? to_value.split(".") : 0;
+      if (to_value.length > 1 && to_value[1].length > 9) {
+        to_value =
+          to_value[0].toLocaleString() + "." + to_value[1].substr(0, 9);
       } else {
-        this.to = this.calculateTokenRatio() * Number(this.from) || 0;
+        to_value = to_value.join(".");
       }
+      return to_value;
+    },
+    async convert() {
+      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
+
+      let to_value = 0;
+      if (this.currencyFrom.value === this.tokens[0].value && tokenA > tokenB) {
+        to_value = Number(this.from) / this.calculateTokenRatio() || 0;
+        this.to = this.trimValue(to_value);
+      } else {
+        to_value = this.calculateTokenRatio() * Number(this.from) || 0;
+        this.to = this.trimValue(to_value);
+      }
+
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      let supply = Number(this.$accessor.liquidity.lpTotalSupply) || 0;
+
+      let POOL_TOKEN_AMOUNT = Math.min(
+        (this.from * supply) / Number(tokenA),
+        (this.to * supply) / Number(tokenB)
+      );
+
+      this.to = (POOL_TOKEN_AMOUNT / supply) * 200.798616505;
+      this.to = this.trimValue(this.to);
     },
     addToken() {
       this.$accessor.swapPool.addToken();
@@ -343,13 +367,12 @@ export default {
     },
   },
   mounted() {
-    if (this.tokenPoolType == "HG") {
-      this.tokenLP = LP_TOKENS_HGEN_GENS;
-      this.tokenAacc = TOKEN_ACC_A;
-      this.tokenBacc = TOKEN_ACC_B;
-      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
-      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
-    }
+    this.tokenLP = LP_TOKENS_HS;
+    this.tokenAacc = TOKEN_ACC_HGEN_HS;
+    this.tokenBacc = TOKEN_ACC_SOL_HS;
+    this.tokenAMintAddr = new PublicKey(TOKENS[0].value);
+    this.tokenBMintAddr = new PublicKey(TOKENS[1].value);
+    this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
     this.$accessor.swapPool.getTokenAInfo();
     this.$accessor.swapPool.getTokenBInfo();
     this.$accessor.swapPool.onTokenAChange();
