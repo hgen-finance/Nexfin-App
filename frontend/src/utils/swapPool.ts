@@ -610,7 +610,7 @@ export async function depositAllTokenTypes(
 
     // liqidity for the pool token
     POOL_TOKEN_AMOUNT = Math.min(tokenAmountA * supply / swapTokenA.info.amount.toNumber(), tokenAmountB * supply / swapTokenB.info.amount.toNumber());
-    console.log(tokenAmountA, tokenAmountB, "testing")
+    console.log(tokenAmountA * supply / swapTokenA.info.amount.toNumber(), tokenAmountB * supply / swapTokenB.info.amount.toNumber(), "testing")
     console.log(POOL_TOKEN_AMOUNT, "liquidity")
 
 

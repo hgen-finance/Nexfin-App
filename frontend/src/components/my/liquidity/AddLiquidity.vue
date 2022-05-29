@@ -342,7 +342,7 @@ export default {
         (this.to * supply) / Number(tokenB)
       );
 
-      this.to = (POOL_TOKEN_AMOUNT / supply) * 200.798616505;
+      this.to = (POOL_TOKEN_AMOUNT / supply) * tokenB;
       this.to = this.trimValue(this.to);
     },
     addToken() {
