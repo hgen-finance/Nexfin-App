@@ -24,13 +24,13 @@
             <div class="fd-r ai-c">
               <span class="fw-600"
                 ><img
-                  src="@/assets/svg/symbol-gens.png"
+                  src="@/assets/svg/sol-logo.png"
                   class="h-fix-10-S h-fix-55-XS mr-1"
               /></span>
             </div>
             <span
               class="fw-600 fs-6-L fs-5-S fs-20-XS f-white-200 mr-2 ml-2 my-10-XS ml-10-XS mr-10-XS ai-c fd-r"
-              >GENS-HGEN</span
+              >HGEN/SOL</span
             >
           </div>
           <div
@@ -58,20 +58,20 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            {{ getPoolInfo.tokenAmountB }}
+            {{ getPoolInfo.tokenAmountA }}
             <span class="f-white-200 pl-1">HGEN</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            TOTAL GENS
-            <Hint> GENS liquidity in the pool </Hint>
+            TOTAL SOL
+            <Hint> SOL liquidity in the pool </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            {{ getPoolInfo.tokenAmountA }}
-            <span class="f-white-200 pl-1">GENS</span>
+            {{ getPoolInfo.tokenAmountB }}
+            <span class="f-white-200 pl-1">SOL</span>
           </div>
         </div>
       </div>
@@ -95,18 +95,18 @@
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            ≈ {{ getTokenB }} <span class="f-white-200 pl-1">HGEN</span>
+            ≈ {{ getTokenA }} <span class="f-white-200 pl-1">HGEN</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Your GENS in Pool
-            <Hint> Your share of GENS in pool </Hint>
+            Your SOL in Pool
+            <Hint> Your share of SOL in pool </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           >
-            ≈ {{ getTokenA }}<span class="f-white-200 pl-1">GENS</span>
+            ≈ {{ getTokenB }}<span class="f-white-200 pl-1">SOL</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
@@ -154,29 +154,35 @@ export default {
   computed: {
     getPoolInfo() {
       return {
-        tokenAmountA: this.$accessor.swapPool.tokenAmountA || 0,
-        tokenAmountB: this.$accessor.swapPool.tokenAmountB || 0,
-        tokenAmountGensGS: this.$accessor.swapPool.tokenAmountGensGS || 0,
-        tokenAmountSOLGS: this.$accessor.swapPool.tokenAmountSOLGS || 0,
+        tokenAmountA: this.$accessor.swapPool.tokenAmountHgenHS || 0,
+        tokenAmountB: this.$accessor.swapPool.tokenAmountSOLHS || 0,
         tokenAmountHgenHS: this.$accessor.swapPool.tokenAmountHgenHS || 0,
         tokenAmountSOLHS: this.$accessor.swapPool.tokenAmountSOLHS || 0,
       };
     },
     getTokenA() {
-      return (
+      let res =
         (this.$accessor.liquidity.lpTokens /
           this.$accessor.liquidity.lpTotalSupply) *
-        this.$accessor.swapPool.tokenAmountA *
-        100
-      ).toFixed(2);
+        this.$accessor.swapPool.tokenAmountHgenHS *
+        100;
+      res = res > 0 ? res.toString().split(".") : 0;
+      if (res.length > 1 && res[1].length > 2) {
+        res = res[0].toLocaleString() + "." + res[1].substr(0, 2);
+      }
+      return res;
     },
     getTokenB() {
-      return (
+      let res =
         (this.$accessor.liquidity.lpTokens /
           this.$accessor.liquidity.lpTotalSupply) *
-        this.$accessor.swapPool.tokenAmountB *
-        100
-      ).toFixed(2);
+        this.$accessor.swapPool.tokenAmountSOLHS *
+        100;
+      res = res > 0 ? res.toString().split(".") : 0;
+      if (res.length > 1 && res[1].length > 9) {
+        res = res[0].toLocaleString() + "." + res[1].substr(0, 9);
+      }
+      return res;
     },
     getPoolShare() {
       return (

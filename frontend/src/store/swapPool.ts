@@ -44,25 +44,25 @@ const accountsCache = new Map<string, TokenAccount>();
 const pendingCalls = new Map<string, Promise<ParsedAccountBase>>();
 const genericCache = new Map<string, ParsedAccountBase>();
 
-const getAccountInfo = async (connection: Connection, pubKey: PublicKey) => {
-    const info = await connection.getAccountInfo(pubKey);
-    if (info === null) {
-        throw new Error("Failed to find account");
-    }
+// const getAccountInfo = async (connection: Connection, pubKey: PublicKey) => {
+//     const info = await connection.getAccountInfo(pubKey);
+//     if (info === null) {
+//         throw new Error("Failed to find account");
+//     }
 
-    return tokenAccountFactory(pubKey, info);
-};
+//     return tokenAccountFactory(pubKey, info);
+// };
 
-const getMintInfo = async (connection: Connection, pubKey: PublicKey) => {
-    const info = await connection.getAccountInfo(pubKey);
-    if (info === null) {
-        throw new Error("Failed to find mint account");
-    }
+// const getMintInfo = async (connection: Connection, pubKey: PublicKey) => {
+//     const info = await connection.getAccountInfo(pubKey);
+//     if (info === null) {
+//         throw new Error("Failed to find mint account");
+//     }
 
-    const data = Buffer.from(info.data);
+//     const data = Buffer.from(info.data);
 
-    return deserializeMint(data);
-};
+//     return deserializeMint(data);
+// };
 
 export type AccountParser = (
     pubkey: PublicKey,
@@ -420,6 +420,7 @@ function tokenAccountFactory(pubKey: PublicKey, info: AccountInfo<Buffer>) {
 }
 
 
+import { getMintInfo, getAccountInfo } from "@/utils/accounts";
 
 // State
 export const state = () => ({
@@ -542,14 +543,23 @@ export const actions = actionTree(
         async depositAllToken({ commit, state }, value) {
             console.log('add liquidity for all token types');
             let tokenSwapAccount;
-            if (value.tokenType == "HG") {
-                try {
-                    tokenSwapAccount = new Account([71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43]);
-                } catch (err) {
-                    console.error(err, "Account creation error");
-                }
+            // if (value.tokenType == "HG") {
+            //     try {
+            //         tokenSwapAccount = new Account([71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43]);
+            //     } catch (err) {
+            //         console.error(err, "Account creation error");
+            //     }
+            // }
+
+
+            tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
+
+
+            try {
+                await depositAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, value.to);
+            } catch (err) {
+                console.error(err, "Deposit error");
             }
-            await depositAllTokenTypes(this.$wallet, tokenSwapAccount, value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, value.from, value.to);
             this.$accessor.wallet.getBalance();
             this.$accessor.wallet.getGENSBalance();
             this.$accessor.wallet.getHGENBalance();
@@ -558,21 +568,21 @@ export const actions = actionTree(
 
         // Remove Liquidity
         async withdrawToken({ commit, state }, value) {
-            console.log(value.tokenLP.toBase58(), value.tokenAacc.toBase58(), value.tokenBacc.toBase58(), value.tokenAMintAddr.toBase58(), value.tokenBMintAddr.toBase58(), value.from);
+            // console.log(value.tokenLP, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, "after", value.tokenBMintAddr, value.from, "testing........");
             let tokenSwapAccount;
             let feeAccount;
             let ownerTokenPoolAccount;
-            if (value.tokenType == "HG") {
+            if (value.tokenType == "HS") {
                 try {
-                    tokenSwapAccount = new Account([71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43]);
+                    tokenSwapAccount = TOKEN_SWAP_HGEN_SOL_ACCOUNT;
                     let LP_TOKEN = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
-                        mint: LP_TOKENS_HGEN_GENS,
+                        mint: LP_TOKENS_HS,
                     });
                     let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
                     console.log(tokenATA, "tokenATA")
 
                     let LP_TOKEN_FEE = await this.$web3.getParsedTokenAccountsByOwner(new PublicKey("54sdQpgCMN1gQRG7xwTmCnq9vxdbPy8akfP1KrbeZ46t"), {
-                        mint: LP_TOKENS_HGEN_GENS,
+                        mint: LP_TOKENS_HS,
                     });
                     console.log(LP_TOKEN_FEE, "owner")
                     let tokenATAFee = LP_TOKEN_FEE.value[0] ? LP_TOKEN_FEE.value[0].pubkey.toBase58() : "";

@@ -51,25 +51,24 @@ export const actions = actionTree(
 
         async getLPsupplyInfo({ commit }, value) {
             let poolMintInfo;
-            if (value == "GH") {
-                // get lp supply and pool info for the gens-hgens pool
-                poolMintInfo = await getMintInfo(this.$web3, LP_TOKENS_HGEN_GENS);
-                commit("setLpTotalSupply", poolMintInfo.supply.toNumber());
-            }
+            // if (value == "GH") {
+            //     // get lp supply and pool info for the gens-hgens pool
+            //     poolMintInfo = await getMintInfo(this.$web3, LP_TOKENS_HGEN_GENS);
+            //     commit("setLpTotalSupply", poolMintInfo.supply.toNumber());
+            // }
 
-            if (value == "HS") {
-                // get lp supply and pool info for the hgen-sol pool
-                poolMintInfo = await getMintInfo(this.$web3, LP_TOKENS_HS)
-                commit("setLpTotalSupply", poolMintInfo.supply.toNumber());
-            }
+            // if (value == "HS") {
+            // get lp supply and pool info for the hgen-sol pool
+            poolMintInfo = await getMintInfo(this.$web3, LP_TOKENS_HS)
+            commit("setLpTotalSupply", poolMintInfo.supply.toNumber());
+            // }
         },
 
         async getLpTokens({ state, commit, dispatch }, value) {
             // TODO make it take multiple paramter for mint address instead of single hardcoded value
-            let lpToken = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, { mint: LP_TOKENS_HGEN_GENS });
+            let lpToken = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, { mint: LP_TOKENS_HS });
 
             let result: number = await lpToken.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-            console.log("cakkubg lfsadf")
             commit('setLpTokens', result);
         },
         // update the cached balance price
@@ -78,7 +77,7 @@ export const actions = actionTree(
             let tokenATA;
 
             lp_tokens = await this.$web3.getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
-                mint: LP_TOKENS_HGEN_GENS,
+                mint: LP_TOKENS_HS,
             });
             tokenATA = lp_tokens.value[0] ? lp_tokens.value[0].pubkey.toBase58() : "";
 

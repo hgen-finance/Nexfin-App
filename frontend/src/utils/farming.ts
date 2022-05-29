@@ -8,21 +8,15 @@ import {
     Transaction,
     TransactionInstruction,
 } from "@solana/web3.js";
-import BN from "bn.js";
 import {
     FarmingLayout,
     FARMING_ACCOUNT_DATA_LAYOUT,
     INSTRUCTION_LAYOUT,
-    InstructionLayout,
-    TOKEN_HGEN
+    LP_TOKENS_HS
 } from "./layout";
-import Wallet from "@project-serum/sol-wallet-adapter";
-import axios from "axios";
 import * as web3 from "@solana/web3.js";
-import web3Plugin from "@/plugins/web3";
 import * as bs58 from "bs58";
-import { pbkdf2 } from "crypto";
-import { publicKey } from "./tokenSwap/layout";
+
 const programId = new PublicKey("3PtvnRuzC68zrDQoRsoKVQoVvhbVF7fTxeYzLF6mN3EE");
 const destination = new PublicKey(
     "GvAQoq7SKdYhTNvjmEV5q8CNvkuufJH2oJCJWnx2YRj9"
@@ -105,6 +99,9 @@ export default class farmingUtil {
 
         let startDate = Buffer.from(data.startDate).toString("utf8");
         let endDate = Buffer.from(data.endDate).toString("utf8");
+        let depositedLp = parseInt(
+            Buffer.from(data.depositedLp).toString("utf8")
+        );
         let depositedSol = parseInt(
             Buffer.from(data.depositedSol).toString("utf8")
         );
@@ -116,6 +113,7 @@ export default class farmingUtil {
         return {
             startDate,
             endDate,
+            depositedLp,
             depositedSol,
             depositedHgen,
             dayLength,
@@ -123,6 +121,7 @@ export default class farmingUtil {
         };
     }
     async setFarmingAccount(
+        depositedLp: number,
         depositedSol: number,
         depositedHgen: number,
         dayLength: number
@@ -177,6 +176,10 @@ export default class farmingUtil {
         start = Buffer.concat([Buffer.from(startDate)], 32);
         let end = Buffer.alloc(32);
         end = Buffer.concat([Buffer.from(endDate)], 32);
+
+        let lp_amount = Buffer.alloc(8);
+        lp_amount = Buffer.concat([Buffer.from(depositedLp.toString())], 8);
+
         let sol_amount = Buffer.alloc(8);
         sol_amount = Buffer.concat([Buffer.from(depositedSol.toString())], 8);
         let hgen_amount = Buffer.alloc(8);
@@ -187,7 +190,7 @@ export default class farmingUtil {
         day_left = Buffer.concat([Buffer.from(dayLength.toString())], 8);
         let data = Buffer.alloc(96);
         data = Buffer.concat(
-            [start, end, sol_amount, hgen_amount, day_total, day_left],
+            [start, end, lp_amount, sol_amount, hgen_amount, day_total, day_left],
             96
         );
         let _sendData = {
@@ -199,15 +202,15 @@ export default class farmingUtil {
         let balance = await this.connection.getBalance(this.provider.publicKey);
 
         // get the token account info of the wallet
-        let HGENS = await this.connection.getParsedTokenAccountsByOwner(destination, {
-            mint: TOKEN_HGEN,
+        let LP_TOKEN_HS = await this.connection.getParsedTokenAccountsByOwner(destination, {
+            mint: LP_TOKENS_HS,
         });
-        let tokenATA = HGENS.value[0] ? HGENS.value[0].pubkey.toBase58() : "";
+        let tokenATA = LP_TOKEN_HS.value[0] ? LP_TOKEN_HS.value[0].pubkey.toBase58() : "";
 
-        let source_HGEN = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
-            mint: TOKEN_HGEN,
+        let source_LP = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
+            mint: LP_TOKENS_HS,
         });
-        let sourceATA = source_HGEN.value[0] ? source_HGEN.value[0].pubkey.toBase58() : "";
+        let sourceATA = source_LP.value[0] ? source_LP.value[0].pubkey.toBase58() : "";
 
 
 
@@ -224,94 +227,95 @@ export default class farmingUtil {
             ata = await Token.getAssociatedTokenAddress(
                 ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
                 TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-                TOKEN_HGEN, // mint
+                LP_TOKENS_HS, // mint
                 destination // owner
             );
         }
         console.log(tokenATA, "|", ata);
 
 
-        if (depositedSol * 1e9 > balance) {
-            alert("Deposited SOL amount is too much!");
-            return false;
-        } else {
-            let instruction = new TransactionInstruction({
-                keys: [
-                    {
-                        pubkey: this.provider.publicKey,
-                        isSigner: true,
-                        isWritable: false,
-                    },
-                    { pubkey: farming_account, isSigner: false, isWritable: true },
-                ],
-                programId: programId,
-                data: sendData,
-            });
+        // if (depositedSol * 1e9 > balance) {
+        //     alert("Deposited SOL amount is too much!");
+        //     return false;
+        // } else {
+        let instruction = new TransactionInstruction({
+            keys: [
+                {
+                    pubkey: this.provider.publicKey,
+                    isSigner: true,
+                    isWritable: false,
+                },
+                { pubkey: farming_account, isSigner: false, isWritable: true },
+            ],
+            programId: programId,
+            data: sendData,
+        });
 
 
-            let tokenTransaction =
-                web3.SystemProgram.transfer({
-                    fromPubkey: this.provider.publicKey,
-                    toPubkey: destination,
-                    lamports: depositedSol * 1e9,
-                })
+        // let tokenTransaction =
+        //     web3.SystemProgram.transfer({
+        //         fromPubkey: this.provider.publicKey,
+        //         toPubkey: destination,
+        //         lamports: depositedSol * 1e9,
+        //     })
 
-            // let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
+        // let keypair = web3.Keypair.fromSecretKey(bs58.decode(privateKey));
 
-            console.log("the ata is ", ata);
+        console.log("the ata is ", ata.toBase58());
 
-            let hgenTokenIx;
-            hgenTokenIx = Token.createTransferInstruction(
-                TOKEN_PROGRAM_ID,
-                new PublicKey(sourceATA),
-                ata,
-                this.provider.publicKey,
-                [],
-                depositedHgen * 1e2
+        let lpTokenTx;
+        lpTokenTx = Token.createTransferInstruction(
+            TOKEN_PROGRAM_ID,
+            new PublicKey(sourceATA),
+            ata,
+            this.provider.publicKey,
+            [],
+            depositedLp * 1e2
+        )
+
+
+        if (tokenATA == "") {
+            const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
+                ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
+                TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
+                LP_TOKENS_HS, // mint
+                ata, // ata
+                destination, // owner of token account
+                this.provider.publicKey // fee payer
             )
-
-
-            if (tokenATA == "") {
-                const ataAccountTx = Token.createAssociatedTokenAccountInstruction(
-                    ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-                    TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-                    TOKEN_HGEN, // mint
-                    ata, // ata
-                    destination, // owner of token account
-                    this.provider.publicKey // fee payer
-                )
-                this.instructions.push(ataAccountTx, instruction, hgenTokenIx, tokenTransaction,);
-            }
-            else {
-                this.instructions.push(instruction, hgenTokenIx, tokenTransaction)
-            }
-
-            const transaction = new web3.Transaction().add(...this.instructions);
-            this.sendTransaction(transaction);
+            this.instructions.push(ataAccountTx, instruction, lpTokenTx);
         }
+        else {
+            this.instructions.push(instruction, lpTokenTx)
+        }
+
+        const transaction = new web3.Transaction().add(...this.instructions);
+        this.sendTransaction(transaction);
+
         return true;
     }
     async withdrawFarm() {
         let {
             startDate,
             endDate,
+            depositedLp,
             depositedSol,
             depositedHgen,
             dayLength,
             dayLeft,
         } = await this.getFarmingAccount();
-        let tokenTransaction =
-            web3.SystemProgram.transfer({
-                fromPubkey: destination,
-                toPubkey: this.provider.publicKey,
-                lamports: depositedSol * 1e9,
-            })
+        // let tokenTransaction =
+        //     web3.SystemProgram.transfer({
+        //         fromPubkey: destination,
+        //         toPubkey: this.provider.publicKey,
+        //         lamports: depositedSol * 1e9,
+        //     })
 
         // get the token account info of the wallet
-        let HGENS = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
-            mint: TOKEN_HGEN,
+        let LP_TOKEN = await this.connection.getParsedTokenAccountsByOwner(this.provider.publicKey, {
+            mint: LP_TOKENS_HS,
         });
-        let tokenATA = HGENS.value[0] ? HGENS.value[0].pubkey.toBase58() : "";
+        let tokenATA = LP_TOKEN.value[0] ? LP_TOKEN.value[0].pubkey.toBase58() : "";
 
         // create a ATA account if the wallet user doesnt have one
         let ata;
@@ -319,43 +323,53 @@ export default class farmingUtil {
             ata = new PublicKey(tokenATA);
         }
 
-        let source_HGENS = await this.connection.getParsedTokenAccountsByOwner(destination, {
-            mint: TOKEN_HGEN,
+        let source_LP = await this.connection.getParsedTokenAccountsByOwner(destination, {
+            mint: LP_TOKENS_HS,
         });
-        let sourceTokenATA = source_HGENS.value[0] ? source_HGENS.value[0].pubkey.toBase58() : "";
+        let sourceTokenATA = source_LP.value[0] ? source_LP.value[0].pubkey.toBase58() : "";
 
-        let hgenTokenIx;
-        hgenTokenIx = Token.createTransferInstruction(
+        let LpTokenIx;
+        LpTokenIx = Token.createTransferInstruction(
             TOKEN_PROGRAM_ID,
             new PublicKey(sourceTokenATA),
             ata,
             destination,
             [],
-            depositedHgen * 1e2
+            depositedLp * 1e2
         )
         let tx = new Transaction();
 
-        tx.add(tokenTransaction, hgenTokenIx)
+        tx.add(LpTokenIx)
         // await web3.sendAndConfirmTransaction(this.connection, tx, [, keypair])
 
         let dt = 0;
         let start = Buffer.alloc(32);
         start = Buffer.concat([Buffer.from("")], 32);
+
         let end = Buffer.alloc(32);
         end = Buffer.concat([Buffer.from("")], 32);
+
+        let lp_amount = Buffer.alloc(8);
+        lp_amount = Buffer.concat([Buffer.from(dt.toString())], 8);
+
         let sol_amount = Buffer.alloc(8);
         sol_amount = Buffer.concat([Buffer.from(dt.toString())], 8);
+
         let hgen_amount = Buffer.alloc(8);
         hgen_amount = Buffer.concat([Buffer.from(dt.toString())], 8);
+
         let day_total = Buffer.alloc(8);
         day_total = Buffer.concat([Buffer.from(dt.toString())], 8);
+
         let day_left = Buffer.alloc(8);
         day_left = Buffer.concat([Buffer.from(dt.toString())], 8);
+
         let data = Buffer.alloc(96);
         data = Buffer.concat(
-            [start, end, sol_amount, hgen_amount, day_total, day_left],
+            [start, end, lp_amount, sol_amount, hgen_amount, day_total, day_left],
             96
         );
+
         let _sendData = {
             instructionId: Buffer.from("1"),
             data: data,
@@ -373,7 +387,7 @@ export default class farmingUtil {
 
         try {
             let tx = new Transaction();
-            tx.add(instruction, tokenTransaction, hgenTokenIx)
+            tx.add(instruction, LpTokenIx)
 
             this.sendTransactionKey(tx)
         } catch (err) {

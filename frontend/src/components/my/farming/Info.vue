@@ -119,8 +119,8 @@
           ({{ yourPercent }}
           <span class="f-white-200 pl-1-S pl-5-XS">%</span>)<span
             class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS pl-1-S pl-5-XS"
-            >{{ yourAmount }}$</span
-          >{{ (yourAmount * 244.22).toFixed(2) }}
+            >{{ yourAmount }}</span
+          >
         </div>
       </div>
       <div class="w-100 fd-r py-1-M py-2-S py-10-XS">
@@ -131,8 +131,7 @@
           class="w-a fs-4-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
           {{ totalAmount }}
-          <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">$</span
-          >{{ ((totalAmount * 2000.34) / 20000.01).toFixed(3) }}
+          <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS"></span>
         </div>
       </div>
       <!-- </div> -->
@@ -173,6 +172,7 @@ export default {
     return {
       timestamp: "",
       endDate: "",
+      depositedLp: 0,
       depositedSol: 0,
       depositedHgen: 0,
       totalAmount: 1389185,
@@ -184,6 +184,7 @@ export default {
       currentEarn: 0,
       yourAmount: 0,
       yourPercent: 0,
+      lpTokenType: "HS",
     };
   },
   mounted() {
@@ -224,17 +225,49 @@ export default {
       farming
         .getFarmingAccount()
         .then((res) => {
-          scope.depositedSol = res.depositedSol;
-          scope.depositedHgen = res.depositedHgen;
+          scope.depositedLp = Number(res.depositedLp);
+          this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
+
+          let sol =
+            (Number(scope.depositedLp) /
+              Number(this.$accessor.liquidity.lpTotalSupply)) *
+            Number(this.$accessor.swapPool.tokenAmountSOLHS) *
+            100;
+          console.log(sol, "test &&&");
+          sol = sol > 0 ? sol.toString().split(".") : 0;
+          if (sol.length > 1 && sol[1].length > 9) {
+            sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
+          }
+          scope.depositedSol = Number(sol);
+
+          let hgen =
+            (scope.depositedLp / this.$accessor.liquidity.lpTotalSupply) *
+            this.$accessor.swapPool.tokenAmountHgenHS *
+            100;
+          console.log(
+            this.$accessor.liquidity.lpTotalSupply,
+            this.$accessor.swapPool.tokenAmountHgenHS
+          );
+          hgen = hgen > 0 ? hgen.toString().split(".") : 0;
+          if (hgen.length > 1 && hgen[1].length > 2) {
+            hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
+          }
+
+          scope.depositedHgen = Number(hgen);
           scope.endDate = res.endDate;
           scope.day = res.dayLength;
-          scope.dayLeft = res.dayLeft;
-          scope.yourAmount = res.depositedSol;
+
+          // calculate the time left for the farming date
+          let curr_date = new Date();
+          let diff_time =
+            new Date(scope.endDate).getTime() - curr_date.getTime();
+          scope.dayLeft = Math.ceil(diff_time / (1000 * 3600 * 24)); // set the current date
+          scope.yourAmount = res.depositedLp;
           scope.totalAmount = 1389185;
           scope.yourPercent = (
-            (res.depositedSol / scope.totalAmount) *
+            (res.depositedLp / scope.totalAmount) *
             100
-          ).toFixed(10);
+          ).toFixed(4);
           if (scope.day != 0) {
             let penalty = Math.pow(123 / 136, Math.log10(scope.depositedSol));
             let advantage = Math.pow(1.075, scope.day / 30);
@@ -251,7 +284,13 @@ export default {
               (((scope.depositedSol * outcome * 32.5) / 100) *
                 scope.depositedHgen) /
               234;
-            scope.currentEarn = scope.daily * (scope.day - scope.dayLeft);
+
+            let earn = scope.daily * (scope.day - scope.dayLeft);
+            earn = earn.toString().split(".");
+            if (earn.length > 1 && earn[1].length > 6) {
+              scope.currentEarn =
+                earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
+            }
           }
         })
         .catch((err) => console.log(err));

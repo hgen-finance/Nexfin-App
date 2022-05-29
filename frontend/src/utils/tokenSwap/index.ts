@@ -617,7 +617,8 @@ export class TokenSwap {
         poolTokenAmount: number | Numberu64,
         maximumTokenA: number | Numberu64,
         maximumTokenB: number | Numberu64,
-        instruction?: TransactionInstruction
+        signers?: Array<Account>,
+        instructions?: Array<TransactionInstruction>
     ): Promise<TransactionSignature> {
         // TODO: Only replace this inside  TokenSwap.depositAllTokenTypesInstruction for testing with wallet.publicKey
         //  userTransferAuthority.publicKey,
@@ -637,16 +638,27 @@ export class TokenSwap {
             TOKEN_SWAP_PROGRAM_ID,
             TOKEN_PROGRAM_ID,
             poolTokenAmount,
-            1000000,
-            1000000,
+            Number(maximumTokenA) + Number(maximumTokenA) / 100,
+            Number(maximumTokenB) + Number(maximumTokenB) / 100,
         )
-        if (instruction) {
+
+        if (instructions.length > 0) {
             tx.add(
-                instruction,
+                ...instructions,
                 depositIx
             )
         } else {
             tx.add(depositIx)
+        }
+
+        if (signers.length > 0) {
+            return await sendAndConfirmTransaction(
+                'swap',
+                wallet,
+                connection,
+                tx,
+                ...signers
+            );
         }
         return await sendAndConfirmTransaction(
             'depositAllTokenTypes',
