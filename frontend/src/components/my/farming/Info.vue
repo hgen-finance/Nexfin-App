@@ -286,7 +286,7 @@ export default {
               234;
 
             let earn = scope.daily * (scope.day - scope.dayLeft);
-            earn = earn.split(".");
+            earn = earn.toString().split(".");
             if (earn.length > 1 && earn[1].length > 6) {
               scope.currentEarn =
                 earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
