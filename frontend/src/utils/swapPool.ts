@@ -918,7 +918,7 @@ export async function swap(
 
             tokenAATA = await getWrappedAccount(wallet, amount * 1e7 + accountRentExempt, wallet.publicKey, instructions, signers);
             SWAP_AMOUNT_IN = amount * 1e7
-            console.log(tokenAATA, "tokenA ata")
+            console.log(tokenAATA.toBase58(), "tokenA ata")
         }
         else {
             let check_A = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
@@ -926,12 +926,12 @@ export async function swap(
             });
             tokenAATA = check_A.value[0] ? check_A.value[0].pubkey.toBase58() : "";
             tokenAATA = new PublicKey(tokenAATA);
-            console.log(tokenAATA, "tokenA ata")
+            console.log(tokenAATA.toBase58(), "tokenA ata")
             console.log(tokenAMintAddr, "tokenAMintAddr")
         }
         if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
             tokenBATA = await getWrappedAccount(wallet, accountRentExempt, wallet.publicKey, instructions, signers);
-            console.log(tokenBATA, "tokenB ata")
+            console.log(tokenBATA.toBase58(), "tokenB ata")
         }
         else {
             let check_B = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
@@ -939,7 +939,7 @@ export async function swap(
             });
             tokenBATA = check_B.value[0] ? check_B.value[0].pubkey.toBase58() : "";
             tokenBATA = new PublicKey(tokenBATA);
-            console.log(tokenBATA, "tokenB ata")
+            console.log(tokenBATA.toBase58(), "tokenB ata")
         }
 
     } catch (err) {
@@ -974,7 +974,7 @@ export async function swap(
         let check_pool_token = await connection.getParsedTokenAccountsByOwner(owner.publicKey, {
             mint: lp_tokens,
         });
-        console.log("pool token", check_pool_token)
+        console.log("pool token", check_pool_token.value[0].pubkey.toBase58())
         let poolATA = check_pool_token.value[0] ? check_pool_token.value[0].pubkey.toBase58() : "";
 
         console.log("get pool ATA", poolATA)

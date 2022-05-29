@@ -312,6 +312,8 @@ import {
   TOKEN_ACC_HGEN_HS,
   TOKEN_ACC_SOL_GS,
   TOKEN_ACC_SOL_HS,
+  TOKEN_GENS,
+  WSOL_ADDR,
 } from "../../../utils/layout";
 
 const POOL_TOKENS = [
@@ -381,7 +383,7 @@ export default {
         colorTitle: "white-200",
         name: "HGEN",
       },
-      tokenPoolType: "GH",
+      tokenPoolType: "GS",
       tokenAacc: "",
       tokenBacc: "",
       tokenLP: "",
@@ -551,65 +553,79 @@ export default {
           let temp_to = val.items.filter((item) => item.value != val.value);
 
           this.currencyTo.items = temp_to;
-          let type = this.checkPool(
-            this.currencyFrom.name,
-            this.currencyTo.name
-          );
+          if (this.currencyFrom.name != "" && this.currencyTo.name != "") {
+            let type = this.checkPool(
+              this.currencyFrom.name,
+              this.currencyTo.name
+            );
 
-          if (type == "GH") {
-            this.tokenAacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAccgh;
+            if (type == "GH") {
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].tokenAccgh;
 
-            this.tokenAMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
 
-            // this.tokenBacc = val.items.filter(
-            //   (item) => item.value == this.currencyTo.value
-            // )[0].tokenAccgh;
+              this.tokenBacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].tokenAccgh;
+
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].mintAddr;
+            }
+
+            if (type == "GS") {
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].tokenAccgs;
+
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
+
+              this.tokenBacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].tokenAccgs;
+
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].mintAddr;
+            }
+
+            if (type == "HS") {
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].tokenAcchs;
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
+
+              this.tokenBacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].tokenAcchs;
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyTo.value
+              )[0].mintAddr;
+            }
+
+            // for balance
+            // TODO make it look for the account info using the mint address and ata of the account
+
+            if (this.currencyFrom.name == "HGEN") {
+              this.currencyFrom.balance = this.getBalanceHGEN;
+            }
+            if (this.currencyFrom.name == "GENS") {
+              this.currencyFrom.balance = this.getBalanceGENS;
+            }
+            if (this.currencyFrom.name == "SOL") {
+              this.currencyFrom.balance = this.getBalance;
+            }
+
+            this.convert();
           }
-
-          if (type == "GS") {
-            this.tokenAacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAccgs;
-
-            this.tokenAMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
-
-            // this.tokenBacc = val.items.filter(
-            //   (item) => item.value == this.currencyTo.value
-            // )[0].tokenAccgs;
-          }
-
-          if (type == "HS") {
-            this.tokenAacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAcchs;
-            this.tokenAMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
-            // this.tokenBacc = val.items.filter(
-            //   (item) => item.value == this.currencyTo.value
-            // )[0].tokenAcchs;
-          }
-
-          // for balance
-          // TODO make it look for the account info using the mint address and ata of the account
-
-          if (this.currencyFrom.name == "HGEN") {
-            this.currencyFrom.balance = this.getBalanceHGEN;
-          }
-          if (this.currencyFrom.name == "GENS") {
-            this.currencyFrom.balance = this.getBalanceGENS;
-          }
-          if (this.currencyFrom.name == "SOL") {
-            this.currencyFrom.balance = this.getBalance;
-          }
-
-          this.convert();
         }
       },
     },
@@ -630,65 +646,78 @@ export default {
           )[0].label;
 
           console.log(this.currencyFrom.name, "|", this.currencyTo.name);
-          let type = this.checkPool(
-            this.currencyFrom.name,
-            this.currencyTo.name
-          );
+          if (this.currencyFrom.name != "" && this.currencyTo.name != "") {
+            let type = this.checkPool(
+              this.currencyFrom.name,
+              this.currencyTo.name
+            );
 
-          if (type == "GH") {
-            this.tokenBacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAccgh;
+            if (type == "GH") {
+              this.tokenBacc = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].tokenAccgh;
 
-            this.tokenBMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
 
-            //   this.tokenAacc = val.items.filter(
-            //     (item) => item.value == this.currencyFrom.value
-            //   )[0].tokenAccgh;
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].tokenAccgh;
+
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].mintAddr;
+            }
+
+            if (type == "GS") {
+              this.tokenBacc = val.items.filter(
+                (item) => item.value == val.value
+              )[0].tokenAccgs;
+
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
+
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].tokenAccgs;
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].mintAddr;
+            }
+
+            if (type == "HS") {
+              this.tokenBacc = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].tokenAcchs;
+              this.tokenBMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == val.value
+              )[0].mintAddr;
+
+              this.tokenAacc = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].tokenAcchs;
+              this.tokenAMintAddr = POOL_TOKENS.filter(
+                (item) => item.value == this.currencyFrom.value
+              )[0].mintAddr;
+            }
+
+            // for balance
+            // TODO make it look for the account info using the mint address and ata of the account
+
+            if (this.currencyTo.name == "HGEN") {
+              this.currencyTo.balance = this.getBalanceHGEN;
+            }
+            if (this.currencyTo.name == "GENS") {
+              this.currencyTo.balance = this.getBalanceGENS;
+            }
+            if (this.currencyTo.name == "SOL") {
+              this.currencyTo.balance = this.getBalance;
+            }
+
+            this.convert();
           }
-
-          if (type == "GS") {
-            this.tokenBacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAccgs;
-
-            this.tokenBMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
-
-            //   this.tokenAacc = val.items.filter(
-            //     (item) => item.value == this.currencyFrom.value
-            //   )[0].tokenAccgs;
-          }
-
-          if (type == "HS") {
-            this.tokenBacc = val.items.filter(
-              (item) => item.value == val.value
-            )[0].tokenAcchs;
-            this.tokenBMintAddr = val.items.filter(
-              (item) => item.value == val.value
-            )[0].mintAddr;
-            //   this.tokenAacc = val.items.filter(
-            //     (item) => item.value == this.currencyFrom.value
-            //   )[0].tokenAcchs;
-          }
-
-          // for balance
-          // TODO make it look for the account info using the mint address and ata of the account
-
-          if (this.currencyTo.name == "HGEN") {
-            this.currencyTo.balance = this.getBalanceHGEN;
-          }
-          if (this.currencyTo.name == "GENS") {
-            this.currencyTo.balance = this.getBalanceGENS;
-          }
-          if (this.currencyTo.name == "SOL") {
-            this.currencyTo.balance = this.getBalance;
-          }
-
-          this.convert();
         } else {
           this.currencyTo.name = "";
           this.currencyTo.value = "";
@@ -1176,13 +1205,21 @@ export default {
     },
   },
   mounted() {
-    if (this.tokenPoolType == "GH") {
-      this.tokenLP = LP_TOKENS_HGEN_GENS;
-      this.tokenAacc = TOKEN_ACC_A;
-      this.tokenBacc = TOKEN_ACC_B;
-      this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
-      this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
-    }
+    // if (this.tokenPoolType == "GH") {
+    //   this.tokenLP = LP_TOKENS_HGEN_GENS;
+    //   this.tokenAacc = TOKEN_ACC_A;
+    //   this.tokenBacc = TOKEN_ACC_B;
+    //   this.tokenAMintAddr = TOKEN_A_MINT_ADDR;
+    //   this.tokenBMintAddr = TOKEN_B_MINT_ADDR;
+    // }
+
+    // if (this.tokenPoolType == "GS") {
+    //   this.tokenLP = LP_TOKENS_GS;
+    //   this.tokenAacc = TOKEN_ACC_GENS_GS;
+    //   this.tokenBacc = TOKEN_ACC_SOL_GS;
+    //   this.tokenAMintAddr = TOKEN_GENS;
+    //   this.tokenBMintAddr = WSOL_ADDR;
+    // }
 
     this.$accessor.swapPool.getTokenAInfo();
     this.$accessor.swapPool.getTokenBInfo();
