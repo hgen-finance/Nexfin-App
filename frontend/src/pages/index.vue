@@ -13,6 +13,9 @@
 
     <!-- <div class="w-100"> -->
     <!-- <div class="w-100 fd-r-S fd-c-XS ai-s jc-sb"> -->
+    <div class="w-100" v-if="getTotalNotifications > 0">
+      <NotificaitonsTx />
+    </div>
     <AmModal
       :show="modalSession == 'new'"
       :shadow="'bs-sb-all'"
@@ -95,6 +98,7 @@ import Borrowing from "@/components/my/index/Borrowing";
 import Pool from "@/components/my/index/Pool";
 import Balance from "@/components/my/Balance.vue";
 import WelcomePopup from "../components/modals/WelcomePopup.vue";
+import NotificaitonsTx from "@/components/NotificationTx.vue";
 
 export default {
   components: {
@@ -104,6 +108,7 @@ export default {
     Pool,
     Balance,
     WelcomePopup,
+    NotificaitonsTx,
   },
   layout: "my",
   data() {

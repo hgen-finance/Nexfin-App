@@ -9,18 +9,18 @@
             class="w-100 fs-6-S fs-25-XS fw-600 tt-u f-white-200 ta-l-S ta-c-XS fd-r ai-c jc-l-S jc-c-XS"
           >
             <img
-              src="@/assets/svg/company_logo.png"
+              src="@/assets/svg/symbol-hgen.png"
               class="h-fix-15-S h-fix-55-XS mr-2"
             />
-            <img
+            <!-- <img
               src="@/assets/svg/nexfin-logo.png"
               class="h-fix-5-M h-fix-5-S h-fix-20-XS mr-2 ml-5-XS"
-            />
+            /> -->
           </div>
           <div
             class="w-100 fs-5-S fs-18-XS fw-600 f-gray-700 pt-3-S pt-10-XS ta-l-S ta-c-XS"
           >
-            Copyright © {{ new Date().getFullYear() }} NEXFIN All rights
+            Copyright © {{ new Date().getFullYear() }} HGEN Finance All rights
             reserved.
           </div>
         </div>
