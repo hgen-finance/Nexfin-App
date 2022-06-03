@@ -116,6 +116,16 @@
             "isSigner": false
           },
           {
+            "name": "feeAccount",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
+            "name": "teamFeeAccount",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
             "name": "tokenAuthority",
             "isMut": false,
             "isSigner": false
@@ -162,6 +172,14 @@
           },
           {
             "name": "mintAccountBump",
+            "type": "u8"
+          },
+          {
+            "name": "feeAccountBump",
+            "type": "u8"
+          },
+          {
+            "name": "teamFeeAccountBump",
             "type": "u8"
           }
         ]

@@ -43,6 +43,18 @@ export const addBorrowUtil = async (
         escrowProgramId
     );
 
+    // finding a program address for the fee pda
+    let [feeAccountPDA, bump_fee] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("fee")],
+        escrowProgramId
+    );
+
+    // finding a program address for the fee pda
+    let [teamFeeAccountPDA, bump_team_fee] = await PublicKey.findProgramAddress(
+        [anchor.utils.bytes.utf8.encode("teamfee")],
+        escrowProgramId
+    );
+
     // finding a program address for the trove pda
     // TODO: pass the bump_trove to the smart contract for validation
     let [troveAccountPDA, bump_trove] = await PublicKey.findProgramAddress(
@@ -63,12 +75,14 @@ export const addBorrowUtil = async (
 
     let addBorrowIx;
     try {
-        addBorrowIx = escrowProgram.instruction.addBorrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_mint),
+        addBorrowIx = escrowProgram.instruction.addBorrow(new anchor.BN(borrowAmount), new anchor.BN(lamportAmount), new anchor.BN(bump_mint), new anchor.BN(bump_fee), new anchor.BN(bump_team_fee),
             {
                 accounts: {
                     authority: wallet.publicKey,
                     trove: troveAccount,
                     solTrove: solTroveAccountPDA,
+                    feeAccount: feeAccountPDA,
+                    teamFeeAccount: teamFeeAccountPDA,
                     tokenAuthority: pda_mint,
                     stableCoin: mintPubkey,
                     userToken: tokenADA,
