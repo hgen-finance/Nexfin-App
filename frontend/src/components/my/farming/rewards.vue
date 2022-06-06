@@ -1,62 +1,87 @@
 <template>
   <div class="w-100">
     <div
-      class="d-n-XS w-100 fs-8-S fs-25-XS fw-600 f-white-200 pb-0-L pb-0-M pb-0-S pb-15-XS ta-l-S ta-c-XS"
-    >
-      <Balance />
-    </div>
-    <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
+      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mb-4-S mb-10-XS"
     >
       <div
-        class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 pb-2-S pb-10-XS fd-r ai-c pt-3 jc-l-S jc-c-XS"
+        class="w-100 fs-7-L fs-7-M fs-6-S fs-40-XS fw-600 f-white-200 pb-5-S pb-15-XS ta-l-S ta-c-XS"
       >
-        Rewards Calculation
-        <Hint>
-          APR (Annual Percentage Rate) is just a simple interest that you will
-          be receiving every year paid in the token of your choice. But the APR
-          is subject to change cause of fluctuations in market activities. The
-          “Monthly” and “Daily” are simply calculated to show how much you will
-          be receiving at the term.
-        </Hint>
+        Your current Farmings
       </div>
-      <div class="w-100 fd-r py-2-S py-10-XS">
-        <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-          <span class="fs-5-S fs-20-XS pl-2"
-            ><span class="f-mcolor-100">32.50%</span> APR</span
+      <div class="w-100 fd-r">
+        <div class="w-100 py-1-M py-2-S py-10-XS fd-c">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200">
+            Farming Date
+          </div>
+          <div
+            class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS"
           >
+            <span class="f-white-200">{{ getNow }}</span>
+          </div>
         </div>
-        <div
-          class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-        >
-          <span class="f-mcolor-300 pr-2">{{ apr.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
-        </div>
-      </div>
-      <div class="w-100 fd-r py-2-S py-10-XS">
-        <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-          <span class="fs-5-S fs-20-XS pl-2"
-            ><span class="f-mcolor-100">8.50%</span> Monthly</span
+        <div class="w-100 py-1-M py-2-S py-10-XS fd-c">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 ai-c">
+            Redemption Date
+          </div>
+          <div
+            class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
+            <span class="f-white-200">{{ endDate }}</span>
+          </div>
         </div>
-        <div
-          class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-        >
-          <span class="f-mcolor-300 pr-2">{{ monthly.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
-        </div>
-      </div>
-      <div class="w-100 fd-r py-2-S py-10-XS">
-        <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-          <span class="fs-5-S fs-20-XS pl-2"
-            ><span class="f-mcolor-100">1.50%</span> Daily</span
+
+        <div class="w-100 py-1-M py-2-S py-10-XS fd-c">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 ai-c">
+            LP Tokens
+          </div>
+          <div
+            class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
+            <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">{{
+              yourAmount
+            }}</span>
+            ({{ yourPercent }} <span class="f-white-200">%</span>)
+          </div>
         </div>
-        <div
-          class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-        >
-          <span class="f-mcolor-300 pr-2">{{ daily.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
+        <div class="w-100 py-1-S py-10-XS fd-c">
+          <div class="w-100 fs-5-S fs-20-XS f-white-200 ai-c">
+            Earnings (<span class="f-mcolor-100">SOL</span>)
+          </div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 f-mcolor-100 py-1-S py-5-XS ai-c"
+          >
+            <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">$</span
+            >{{ currentEarn }}
+          </div>
+        </div>
+        <div class="w-100 py-1-S py-10-XS fd-c">
+          <div class="w-100 fs-5-S fs-20-XS f-white-200 ai-c">APR %</div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 f-mcolor-100 py-1-S py-5-XS ai-c"
+          >
+            {{ fApr.toFixed(2) }}
+          </div>
+        </div>
+        <div class="">
+          <AmButton
+            color="mcolor-100"
+            bColor="mcolor-100"
+            opacityEffect
+            full
+            v-if="dayLeft == 0"
+            @click="withdrawFarm()"
+          >
+            Claim
+          </AmButton>
+          <AmButton
+            color="mcolor-100"
+            bColor="mcolor-100"
+            full
+            v-if="dayLeft != 0"
+            disabled
+          >
+            Claim
+          </AmButton>
         </div>
       </div>
     </div>
@@ -82,6 +107,7 @@ export default {
       daily: 0,
       monthly: 0,
       apr: 0,
+      fApr: 32.5,
       currentEarn: 0,
       yourAmount: 0,
       yourPercent: 0,
@@ -134,7 +160,7 @@ export default {
               Number(this.$accessor.liquidity.lpTotalSupply)) *
             Number(this.$accessor.swapPool.tokenAmountSOLHS) *
             100;
-          console.log(sol, "test &&&");
+
           sol = sol > 0 ? sol.toString().split(".") : 0;
           if (sol.length > 1 && sol[1].length > 9) {
             sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
@@ -145,10 +171,7 @@ export default {
             (scope.depositedLp / this.$accessor.liquidity.lpTotalSupply) *
             this.$accessor.swapPool.tokenAmountHgenHS *
             100;
-          console.log(
-            this.$accessor.liquidity.lpTotalSupply,
-            this.$accessor.swapPool.tokenAmountHgenHS
-          );
+
           hgen = hgen > 0 ? hgen.toString().split(".") : 0;
           if (hgen.length > 1 && hgen[1].length > 2) {
             hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
@@ -173,6 +196,7 @@ export default {
             let penalty = Math.pow(12 / 30, Math.log10(scope.depositedHgen));
             let advantage = Math.pow(1.075, scope.day / 30);
             let outcome = penalty * advantage;
+            this.fApr = outcome * this.fApr;
             scope.daily =
               (((scope.depositedSol * outcome * 1.5) / 100) *
                 scope.depositedHgen) /

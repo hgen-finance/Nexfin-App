@@ -717,6 +717,15 @@ export async function withdrawAllTokenTypes(
     const swapTokenB = await getAccountInfo(connection, poolTokenAccountB);
     console.log(swapTokenB.info.amount.toNumber(), "swap token b in the pool");
 
+    let checkWsolAccount = false;
+    if (tokenAMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+        checkWsolAccount = true;
+    }
+
+    if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
+        checkWsolAccount = true;
+    }
+
     let feeAmount = 0;
     if (OWNER_WITHDRAW_FEE_NUMERATOR !== 0) {
         feeAmount = Math.floor(
@@ -777,7 +786,8 @@ export async function withdrawAllTokenTypes(
         LP_POOL_TOKEN_AMOUNT * 100, // 2 decimal token
         tokenA,
         tokenB,
-        ownerfeeAccount
+        ownerfeeAccount,
+        checkWsolAccount
     );
 
     //TODO only for testing
@@ -948,6 +958,7 @@ export async function swap(
 
 
     let userTransferAuthority;
+    let checkWsolAccount = false;
     try {
         console.log('Creating swap token GENS account');
         // TODO only for testing
@@ -995,6 +1006,7 @@ export async function swap(
         let swapAmountB = await (await getAccountInfo(connection, poolTokenAccountB)).info.amount;
         if (tokenBMintAddr.toBase58() == WSOL_ADDR.toBase58()) {
             swapAmountB = new BN(swapAmountB).div(new BN(10000000))
+            checkWsolAccount = true;
         }
         console.log(swapAmountA.toNumber(), swapAmountB.toNumber(), "swap values")
 
@@ -1038,7 +1050,6 @@ export async function swap(
         )
 
         instructions.push(ataAccountTx);
-        console.log(instructions)
 
         try {
 
@@ -1057,6 +1068,7 @@ export async function swap(
                 userTransferAuthority,
                 SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT,
+                checkWsolAccount,
                 signers,
                 instructions
             );
@@ -1067,6 +1079,8 @@ export async function swap(
     }
     else {
         try {
+
+
             console.log(instructions)
 
             swap = await TokenSwap.swap(
@@ -1084,6 +1098,7 @@ export async function swap(
                 userTransferAuthority,
                 SWAP_AMOUNT_IN,
                 SWAP_AMOUNT_OUT,
+                checkWsolAccount,
                 signers,
                 instructions
             );

@@ -35,10 +35,18 @@
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
       <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS ta-r"
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS jc-sb fd-r ai-c"
       >
-        Set amount you want to add
+        <div class="mt-1-S mb-2-S">
+          <span
+            class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
+            @click="setMax"
+            >max</span
+          >
+        </div>
+        <div>Set amount you want to add</div>
       </div>
+
       <div class="w-100 pb-3-S pb-0 fd-r jc-r">
         <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS">
           <AmSelectbox
@@ -317,7 +325,9 @@ export default {
         to_value =
           to_value[0].toLocaleString() + "." + to_value[1].substr(0, 9);
       } else {
-        to_value = to_value.join(".");
+        if (to_value.length > 1) {
+          to_value = to_value.join(".");
+        }
       }
       return to_value;
     },
@@ -364,6 +374,41 @@ export default {
     },
     createSwapPool() {
       this.$accessor.swapPool.createTokenSwapPool();
+    },
+
+    setMax() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
+      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
+
+      let min_lp_token = Math.min(
+        (this.$accessor.wallet.balanceHGEN / tokenA) * supply,
+        ((this.$accessor.wallet.balance - 0.01) / tokenB) * supply
+      );
+
+      let hgen = (min_lp_token / supply) * tokenA;
+      hgen = hgen.toString().split(".");
+      if (hgen.length > 1 && hgen[1].length > 2) {
+        hgen = hgen[0] + "." + hgen[1].substr(0, 2);
+        this.from = hgen;
+      } else {
+        if (hgen.length > 1) {
+          this.to = hgen[0] + "." + hgen[1];
+        }
+        this.from = hgen;
+      }
+      let sol = (min_lp_token / supply) * tokenB;
+      sol = sol.toString().split(".");
+      if (sol.length > 1 && sol[1].length > 8) {
+        sol = sol[0] + "." + sol[1].substr(0, 8);
+        this.to = sol;
+      } else {
+        if (sol.length > 1) {
+          this.to = sol[0] + "." + sol[1];
+        }
+        this.to = sol;
+      }
     },
   },
   mounted() {

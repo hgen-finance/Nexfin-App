@@ -170,10 +170,15 @@
             v-model="repayTo"
             maxlength="12"
           />
-          <span
+          <!-- <span
             class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
             @click="setMaxGens"
             >max</span
+          > -->
+          <span
+            class="fs-5-S fw-500 fs-20-XS f-mcolor-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3-S px-5-XS py-2-S py-5-XS rad-fix-3"
+            @click="closeTroveFunc"
+            >Close Borrow</span
           >
         </div>
       </div>
@@ -202,7 +207,7 @@
 
       <!-- for collateral ratio   -->
       <div
-        class="w-100 mt-4 mb-2 mcolor-500 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        class="w-100 mt-4 mb-5 mcolor-500 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
         v-if="!getBorrowOrPay"
       >
         <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
@@ -221,13 +226,13 @@
         </div>
       </div>
 
-      <div class="w-100 mb-3-S d-f jc-r" v-if="!getBorrowOrPay">
+      <!-- <div class="w-100 mb-3-S d-f jc-r" v-if="!getBorrowOrPay">
         <span
           class="fs-5-S fw-500 fs-20-XS f-mcolor-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3-S px-5-XS py-2-S py-5-XS rad-fix-3"
           @click="closeTroveFunc"
           >Close Borrow</span
         >
-      </div>
+      </div> -->
 
       <div class="w-100 fd-r-S fd-c-XS mt-0-S mt-15-XS" v-if="!getBorrowOrPay">
         <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
@@ -273,6 +278,7 @@ export default {
   },
   data() {
     return {
+      close: false,
       modalSession: "",
       from: null,
       to: null,
@@ -508,17 +514,9 @@ export default {
       }
     },
     closeTroveFunc() {
-      this.repayTo = this.$accessor.borrowing.trove.amountToClose;
-      if (this.getGensBalance >= this.repayTo) {
-        this.$accessor.borrowing.closeTrove({
-          mint: "EdvHEGQ2sqC4ZofLpj2xE5BQefgewWFY5nHe9aMcReC1",
-          amount: this.repayTo,
-        });
-        this.form = null;
-        this.to = null;
-        this.repayTo = 0;
-        //this.mint = null;
-      }
+      this.repayTo = this.$accessor.borrowing.trove.amountToClose || 0;
+      this.repaySol = this.$accessor.borrowing.trove.lamports / 1e9 || 0;
+      this.close = true;
     },
     payTroveFunc() {
       if (

@@ -14,7 +14,7 @@
           <Hint> Percentage of your share on Safe Pool. </Hint>
         </div>
         <div
-          class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
+          class="w-a fs-8-M fs-10-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
           {{ getPercent }}
           <span class="f-white-200 pl-1-S pr-5-XS">%</span>

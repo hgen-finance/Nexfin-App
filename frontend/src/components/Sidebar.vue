@@ -143,14 +143,13 @@ export default {
 
         { id: 3, name: "Swap", to: "/swap", class: "my-swap" },
 
-        { id: 6, name: "Farm", to: "/farming", class: "my-farming" },
-
         {
           id: 8,
           name: "Liquidity",
           to: "/liquidity",
           class: "my-liquidity",
         },
+        { id: 6, name: "Farm", to: "/farming", class: "my-farming" },
 
         {
           id: 7,

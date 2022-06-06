@@ -194,7 +194,7 @@ export default {
     },
     lpTotalSupply() {
       this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
-      return this.$accessor.liquidity.lpTotalSupply;
+      return this.$accessor.liquidity.lpTotalSupply / 100;
     },
     getMyLpToken() {
       return this.$accessor.liquidity.lpTokens;
