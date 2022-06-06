@@ -11,7 +11,8 @@ services:
     ports:
       - 1355:3000
     volumes:
-      - server:/app/server
+      # - server:/app/server
+      - /home/sexpistol/programming/projects/Work/nexfin-app/backend
   
   client:
     container_name: client
@@ -25,7 +26,8 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - client:/app/client
+      # - client:/app/client
+      - /home/sexpistol/programming/projects/Work/nexfin-app/frontend
     stdin_open: true
     command: npm run start
 

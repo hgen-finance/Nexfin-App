@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 h-100min fd-c jc-c">
+  <div class="w-100 fd-c jc-c">
     <div class="w-100 fd-r jc-sb">
       <!-- <span class="fs-6 f-mcolor-100  ts-3 hv d-n-XS fsh-0">Close</span> -->
       <div

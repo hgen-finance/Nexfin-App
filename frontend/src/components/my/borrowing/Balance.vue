@@ -90,7 +90,7 @@ export default {
     },
     getBalanceHGEN() {
       let result = 0;
-      if (this.$accessor.wallet.balanceHGEN) {
+      if (this.$accessor.wallet.balanceHGEN > 0) {
         result = Number(this.$accessor.wallet.balanceHGEN)
           .toString()
           .split(".");
@@ -100,16 +100,18 @@ export default {
             result[1].length > 1
               ? Number(result[0]).toLocaleString() +
                 "." +
-                result[1].substr(0, 2)
+                result[1].substr(0, 3)
               : Number(result[0].toLocaleString());
         }
+      } else {
+        result = "0.000";
       }
 
       return result.toString();
     },
     getBalanceGENS() {
       let result = 0;
-      if (this.$accessor.wallet.balanceGENS) {
+      if (this.$accessor.wallet.balanceGENS > 0) {
         result = Number(this.$accessor.wallet.balanceGENS)
           .toString()
           .split(".");
@@ -121,6 +123,8 @@ export default {
                 result[1].substr(0, 2)
               : Number(result[0].toLocaleString());
         }
+      } else {
+        result = "0.00";
       }
       return result.toString();
     },

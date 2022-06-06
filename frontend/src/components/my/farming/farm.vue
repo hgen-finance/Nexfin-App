@@ -129,6 +129,25 @@
           </div>
         </div>
       </div>
+      <div
+        class="w-100 mt-3 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+        v-if="getOutcome < 1 && lp > 0 && day > 0"
+      >
+        <span class="f-orange-600">
+          Warning! You have incured
+          {{ ((1 - getOutcome) * 100).toFixed(2) }}% penalty. Change the value
+          to get advantage.</span
+        >
+      </div>
+      <div
+        class="w-100 mt-3 fs-6-S f-green-500 fs-25-XS mcolor-1000 p-3-S rad-fix-5"
+        v-if="getOutcome > 1 && lp > 0 && day > 0"
+      >
+        <span class="f-green-500"
+          >You have {{ ((getOutcome - 1) * 100).toFixed(2) }}% advantage on
+          farming.</span
+        >
+      </div>
       <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
         <Loading />
       </div>
@@ -180,6 +199,9 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
+      outcome: 0,
+      penalty: 0,
+      advantage: 0,
     };
   },
   mounted() {
@@ -228,6 +250,15 @@ export default {
     getDay() {
       return this.day;
     },
+    getOutcome() {
+      return this.outcome;
+    },
+    getPenalty() {
+      return this.penalty;
+    },
+    getAdvantage() {
+      return this.advantage;
+    },
   },
   watch: {
     lp(val) {
@@ -256,7 +287,17 @@ export default {
         sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
       }
       this.to = Number(sol);
-      console.log(this.to, "value 2 ...");
+
+      this.penalty = Math.pow(12 / 30, Math.log10(this.to));
+      this.advantage = Math.pow(1.075, this.day / 30);
+      this.outcome = this.penalty * this.advantage;
+      console.log(this.outcome, "test....1");
+    },
+    day(val) {
+      this.penalty = Math.pow(12 / 30, Math.log10(this.to));
+      this.advantage = Math.pow(1.075, val / 30);
+      this.outcome = this.penalty * this.advantage;
+      console.log(this.outcome, "test....2");
     },
     from(val) {},
     to(val) {},

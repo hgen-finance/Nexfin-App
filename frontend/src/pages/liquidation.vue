@@ -55,7 +55,7 @@
           </div>
         </div>
       </div>
-      <div class="w-5 fsh-0" />
+      <div class="w-5 fsh-0"></div>
     </div>
     <div
       class="w-100 fd-r ai-s br-t-4 brts-d br-mcolor-400"
@@ -221,8 +221,10 @@ export default {
   watch: {
     sortValue(val) {
       if (val) {
-        //this.page = 1;
+        this.page = 1;
         //Comment out later depending  on the requirements
+
+        console.log(val, "value to sort");
         this.$accessor.risky.getTroveListAction({
           page: this.page,
           clear: false,

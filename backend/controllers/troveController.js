@@ -158,13 +158,16 @@ class troveController {
                     debtRatio: `${getCollateral(
                         entity.borrowAmount,
                         entity.lamports,
-                        "112"
+                        "40"
                     )}%`, // TODO fix it here for the USD PRICE is set to 125
                 };
             });
 
             if (sort_field && sort_direction) {
+                console.log(sort_field, "Value of sort")
                 result.sort((a, b) => {
+                    console.log(a[sort_field], "inside a of sort")
+
                     if (a[sort_field] > b[sort_field]) {
                         return sort_direction === "asc" ? 1 : -1;
                     } else if (a[sort_field] < b[sort_field]) {

@@ -15,7 +15,7 @@ import * as Layout from "./layout";
 import { sendAndConfirmTransaction } from './util/send-and-confirm-transaction';
 import { loadAccount } from './util/account';
 import Wallet from '@project-serum/sol-wallet-adapter';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 
 // TODO: set it up for testnet later, the below swap program id is for the devnet
 export const TOKEN_SWAP_PROGRAM_ID: PublicKey = new PublicKey(
@@ -490,6 +490,7 @@ export class TokenSwap {
         userTransferAuthority: PublicKey, // TODO Change it to account for the testing
         amountIn: number | Numberu64,
         minimumAmountOut: number | Numberu64,
+        checkWsolAccount: boolean,
         signers?: Array<Account>,
         instructions?: Array<TransactionInstruction>,
     ): Promise<TransactionSignature> {
@@ -512,11 +513,22 @@ export class TokenSwap {
             minimumAmountOut,
         )
 
+        instructions.push(swapIx);
+        //unwrapping sol account
+        if (checkWsolAccount) {
+            let closeWsolAccountIx = Token.createCloseAccountInstruction(
+                TOKEN_PROGRAM_ID,
+                userDestination,
+                payer.publicKey,
+                payer.publicKey,
+                []
+            )
+            instructions.push(closeWsolAccountIx);
+        }
+
         // check if there is any instructions 
         if (instructions.length > 0) {
-            tx.add(...instructions, swapIx);
-        } else {
-            tx.add(swapIx)
+            tx.add(...instructions);
         }
         if (signers.length > 0) {
             return await sendAndConfirmTransaction(
@@ -750,30 +762,44 @@ export class TokenSwap {
         minimumTokenA: number | Numberu64,
         minimumTokenB: number | Numberu64,
         feeAccount: PublicKey,
+        checkWsolAccount: boolean,
     ): Promise<TransactionSignature> {
+
+        let instructions = [];
+        let withdrawIx = TokenSwap.withdrawAllTokenTypesInstruction(
+            tokenSwapAccount,
+            authority,
+            userTransferAuthority,
+            poolToken,
+            feeAccount,
+            poolAccount,
+            tokenAccountA,
+            tokenAccountB,
+            userAccountA,
+            userAccountB,
+            TOKEN_SWAP_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            poolTokenAmount,
+            minimumTokenA,
+            minimumTokenB,
+        )
+        instructions.push(withdrawIx);
+
+        if (checkWsolAccount) {
+            let closeWsolAccountIx = Token.createCloseAccountInstruction(
+                TOKEN_PROGRAM_ID,
+                userAccountB,
+                payer.publicKey,
+                payer.publicKey,
+                []
+            )
+            instructions.push(closeWsolAccountIx);
+        }
         return await sendAndConfirmTransaction(
             'withdraw',
             payer,
             connection,
-            new Transaction().add(
-                TokenSwap.withdrawAllTokenTypesInstruction(
-                    tokenSwapAccount,
-                    authority,
-                    userTransferAuthority,
-                    poolToken,
-                    feeAccount,
-                    poolAccount,
-                    tokenAccountA,
-                    tokenAccountB,
-                    userAccountA,
-                    userAccountB,
-                    TOKEN_SWAP_PROGRAM_ID,
-                    TOKEN_PROGRAM_ID,
-                    poolTokenAmount,
-                    minimumTokenA,
-                    minimumTokenB,
-                ),
-            ),
+            new Transaction().add(...instructions),
             // TODO: for later
             // userTransferAuthority,
         );

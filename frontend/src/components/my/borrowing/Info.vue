@@ -10,107 +10,100 @@
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
       v-if="withdrawOrDeposit"
     >
+      <div
+        class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
+      >
+        Borrow Calculation
+      </div>
       <div class="w-100" v-if="withdrawOrDeposit">
+        <div class="w-100">
+          <div class="w-100 fd-r py-2-S py-10-XS">
+            <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+              Debt
+              <Hint> Debt = The borrowed amount </Hint>
+            </div>
+            <div
+              class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
+            >
+              {{ getCurrentDebt }}
+              <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
+            </div>
+          </div>
+        </div>
+        <div class="w-100 fd-r">
+          <div class="w-100-S w-100-XS">
+            <div class="w-100 fd-r py-2-S py-10-XS">
+              <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+                Fee Borrow (<span class="f-white-200 fw-400">1.47 %</span>)
+                <Hint
+                  >Borrowers have to pay 1.47 % of the borrowed GENS in terms of
+                  SOL at current SOL market price.</Hint
+                >
+              </div>
+              <div
+                class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
+              >
+                {{ getFee }}
+                <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Collateral Ratio (<span class="f-white-200 fw-600">CR</span>)
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Collateral Ratio (<span class="f-white-200 fw-400">CR</span>)
           </div>
           <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
           >
             {{ getDebt }}
             <span class="f-white-200 pl-1-S pr-5-XS">%</span>
           </div>
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
             Liquidation CR
-            <Hint
-              >Trove will be liquidated, when it drops below 115% Collateral
-              Ratio.</Hint
+            <Hint>
+              Liquidation CR is 115%. Trove will be liquidated, when it drops
+              below 115% Collateral Ratio.</Hint
             >
           </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
-          >
-            115
-            <span class="f-white-200 pl-1-S pr-5-XS">%</span>
-          </div>
         </div>
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Liquidation Price
-            <Hint
-              >The dollar value per unit of collateral at which your current
-              Trove will be liquidated.</Hint
-            >
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
-          >
-            <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">$</span>
-            <!-- {{ Number(Number(from) * getUsd).toLocaleString() }} -->
-            {{ liquidationPrice.toLocaleString() }}
-          </div>
-        </div>
-        <!-- <div class="w-100 f-mcolor-500 fs-13-S fs-30-XS fw-600 ta-l-S ta-c-XS">
-          0 %
-        </div>
-        <div
-          class="w-100 fs-7-M fs-6-S fs-24-XS fw-600 f-white-200 pb-1-M pb-2-S pb-10-XS fd-r ai-c pt-2-S pt-10-XS jc-l-S jc-c-XS"
-        >
-          Collateral Ratio (CR)
-          <Hint>
-            By default, the collateral ratio is
-            <span class="f-mcolor-300">250%</span> of your set collateral. It is
-            recommended to keep your collateral ratio above
-            <span class="f-mcolor-300">250%</span>.
-          </Hint>
-        </div>
-        <div
-          class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 pb-4-S pb-10-XS fd-r ai-c pt-4-s pt-10-XS jc-l-S jc-c-XS"
-        >
-          Below <span class="f-mcolor-300"> 110% </span> will be liquidated.
-        </div>
-        <div
-          class=" w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c pt-4-s pt-10-XS jc-l-S jc-c-XS"
-        >
-          Liquidation Price
-          <span class="px-1-S px-6-XS f-mcolor-100 fw-500">{{
-            Number(Number(from) * getUsd).toLocaleString()
-          }}</span>
-          GENS
-        </div> -->
       </div>
     </div>
     <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
       v-if="!withdrawOrDeposit"
     >
+      <div
+        class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
+      >
+        Your Borrow Status
+      </div>
       <div class="w-100" v-if="!withdrawOrDeposit">
         <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Borrowed Gens
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Collateral SOL
           </div>
           <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-white-200 fd-r ai-c"
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-white-200 fd-r ai-c"
+          >
+            <span class="f-mcolor-100 mr-1">{{ getTroveCollateral || 0 }} </span
+            ><span class="mr-1">SOL</span>
+          </div>
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Debt
+          </div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-white-200 fd-r ai-c"
           >
             <span class="f-mcolor-100 mr-1">
               {{ getTroveAmount ? getTroveAmount.toLocaleString() : 0 }} </span
             ><span class="mr-1">GENS</span> (<span class="f-mcolor-100">
               {{ getRatio }}</span
             >% CR)
-          </div>
-        </div>
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Collateral SOL
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-white-200 fd-r ai-c"
-          >
-            <span class="f-mcolor-100 mr-1">{{ getTroveCollateral || 0 }} </span
-            ><span class="mr-1">SOL</span>
           </div>
         </div>
       </div>
@@ -132,13 +125,7 @@
         The CR limit is minimum <span class="fw-600">{{ getMaxRatio }} %</span>
       </div>
     </div>
-    <!-- <div
-      class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="
-        Number(getDebt) - Number(repayTo) > 0 ||
-          Number(getDebt) - Number(repayTo) < 0
-      "
-    > -->
+
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
       v-if="(disputeDebt > 0 && getTroveAmount) || disputeDebt < 0"
@@ -173,54 +160,12 @@
     <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
     >
-      <div class="w-100 fd-r">
-        <div class="w-100-S w-100-XS">
-          <div class="w-100 fd-r py-2-S py-10-XS">
-            <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-              Fee Borrow (<span class="f-white-200 fw-600">1.47 %</span>)
-            </div>
-            <div
-              class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-            >
-              {{ getFee }}
-              <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- <div class="w-100 fd-r">
-        <div class="w-100-S w-100-XS">
-          <div class="w-100 fd-r py-2-S py-10-XS">
-            <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-              Fee Pay Debt (<span class="f-white-200 fw-600">0.5 %</span>)
-            </div>
-            <div
-              class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-            >
-              {{ getFeePay }}
-              <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
-            </div>
-          </div>
-        </div>
-      </div> -->
       <div class="w-100">
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Debt
-            <Hint> Debt = Amount Received + Fee </Hint>
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
-          >
-            {{ getCurrentDebt }}
-            <span class="f-white-200 pl-1-S pr-5-XS">GENS</span>
-          </div>
+        <div
+          class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
+        >
+          GENS Total Borrowing of Platform
         </div>
-      </div>
-      <div class="w-100">
-        <!-- <div class="w-100 f-white-200 fs-6-S fs-20-XS fw-600 pt-4-S pt-12-XS pb-4-S pb-12-XS ta-l-S ta-c-XS">
-        You will receive GENS stable coin.
-      </div> -->
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             Total Borrow
@@ -231,33 +176,6 @@
             {{ Number(getTotalBorrow).toLocaleString().slice(0, 16) }}
             <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
           </div>
-        </div>
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Total Collateral Ratio
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
-          >
-            0<span class="f-white-200 pl-1-S pl-5-XS">%</span>
-          </div>
-        </div>
-        <div class="w-100 fd-r pt-2-S pb-1-S pt-10-XS pb-5-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Total Liquidation Mode
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
-          >
-            <span class="f-red-700 pl-1-S pl-5-XS">OFF</span>
-          </div>
-        </div>
-        <div
-          class="w-100 fs-4-L fs-4-M fs-6-S fs-20-XS fw-400 f-white-200 fd-r ai-c"
-        >
-          (Your liquidation price
-          <span class="f-mcolor-100 pr-1-S pl-1-S pr-1-XS pl-5-XS">0 </span>
-          GENS)
         </div>
       </div>
     </div>
@@ -323,8 +241,8 @@ export default {
     getFee() {
       let fee = this.to;
       console.log(fee, "fee");
-      fee = fee ? (this.to * 1.47) / 100 / 135 : 0;
-      if (this.getIsBorrow) {
+      fee = fee ? (this.to * 1.47) / 100 / this.$accessor.usd : 0;
+      if (!this.$wallet) {
         return 0;
       }
       const MIN_FEE = 5 / this.$accessor.usd;
