@@ -277,19 +277,14 @@ export default {
       set: function () {},
     },
     getLpTokens() {
-      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
-      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
-
-      this.lpToken = (
-        (this.from / this.$accessor.swapPool.tokenAmountHgenHS) *
-        supply
-      ).toFixed(2);
-      return this.lpToken;
+      return this.$accessor.liquidity.lpTokens;
     },
     getPoolShare() {
       this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
       let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
-      return ((this.lpToken / supply) * 100).toFixed(2) || 0;
+      return (
+        ((this.$accessor.liquidity.lpTokens / supply) * 100).toFixed(2) || 0
+      );
     },
   },
   watch: {
@@ -412,6 +407,7 @@ export default {
           tokenType: this.tokenPoolType,
         });
       }
+      this.$accessor.liquidity.updateLpToken(this.lpTokenType);
     },
     createSwapPool() {
       this.$accessor.swapPool.createTokenSwapPool();
@@ -469,6 +465,8 @@ export default {
     this.$accessor.swapPool.getTokenBInfo();
     this.$accessor.swapPool.onTokenAChange();
     this.$accessor.swapPool.onTokenBChange();
+    this.$accessor.liquidity.getLpTokens();
+    this.$accessor.liquidity.updateLpToken(this.lpTokenType);
   },
 };
 </script>

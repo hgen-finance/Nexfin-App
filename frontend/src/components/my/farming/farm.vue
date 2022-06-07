@@ -34,7 +34,7 @@
         data-tour-step="1"
       >
         <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{
-          getLpTokens
+          depositedLp
         }}</span>
         <span class="mr-1"> LP Tokens </span>(<span class="fw-800 f-mcolor-100">
           {{ getPoolShare }}
@@ -192,6 +192,9 @@ const TOKENS = [
 // conversion fo the hgen and sol
 const CONVERT_HGEN = 150;
 const CONVERT_SOL = 0.005;
+
+const farming = new Farming();
+
 export default {
   components: {
     Loading,
@@ -230,18 +233,9 @@ export default {
       outcome: 0,
       penalty: 0,
       advantage: 0,
+      poolShare: 0,
+      depositedLp: 0,
     };
-  },
-  mounted() {
-    // // change value on input instead of the change
-    // document.getElementById("from").addEventListener("input", function () {
-    //   document.getElementById("to").value = this.value * CONVERT_HGEN;
-    //   this.to = this.value;
-    // });
-    // document.getElementById("to").addEventListener("input", function () {
-    //   document.getElementById("from").value = this.value * CONVERT_SOL;
-    //   this.form = this.value;
-    // });
   },
   computed: {
     getUsd() {
@@ -292,14 +286,17 @@ export default {
     },
     getPoolShare() {
       let share = 0;
-      if (this.lp) {
-        share = (this.lp / this.totalAmount) * 100 || 0;
-        share = share.toString().split(".");
-        if (share.length > 1 && share[1].length > 2) {
-          share = share[0] + "." + share[1].substr(0, 2);
-        } else {
-          if (share.length > 1) share = share[0] + "." + share[1];
-        }
+
+      share = (this.depositedLp / this.totalAmount) * 100 || 0;
+
+      share = share.toString().split(".");
+      if (share.length > 1 && share[1].length > 2) {
+        share = share[0] + "." + share[1].substr(0, 2);
+      } else {
+        if (share.length > 1) share = share[0] + "." + share[1];
+      }
+      if (share.length < 2) {
+        share = share[0];
       }
       return share;
     },
@@ -348,6 +345,15 @@ export default {
     to(val) {},
   },
   methods: {
+    getInfo() {
+      farming
+        .getFarmingAccount()
+        .then((res) => {
+          this.depositedLp = Number(res.depositedLp);
+          this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
+        })
+        .catch((err) => console.log(err));
+    },
     reset() {
       this.from = null;
       this.to = null;
@@ -418,6 +424,7 @@ export default {
     this.$accessor.swapPool.onTokenBChange();
     this.$accessor.liquidity.getLpTokens();
     this.$accessor.liquidity.updateLpToken(this.lpTokenType);
+    this.getInfo();
   },
 };
 </script>

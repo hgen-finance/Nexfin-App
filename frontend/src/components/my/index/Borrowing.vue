@@ -64,7 +64,7 @@
           GO
         </AmButton>
       </div>
-      <div class="w-100 ml-0-L ml-2-S ml-0-XS" v-if="isBorrow">
+      <div class="w-100 mr-0-L mt-6-S" v-if="isBorrow">
         <AmButton
           color="mcolor-200"
           bColor="mcolor-100"
