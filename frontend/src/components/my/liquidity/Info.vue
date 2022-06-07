@@ -89,7 +89,7 @@
         </div>
         <div class="w-100 fd-r pb-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Your HGENS in Pool
+            HGENS in Pool
             <Hint> Your share of HGENS in pool </Hint>
           </div>
           <div
@@ -100,7 +100,7 @@
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Your SOL in Pool
+            SOL in Pool
             <Hint> Your share of SOL in pool </Hint>
           </div>
           <div

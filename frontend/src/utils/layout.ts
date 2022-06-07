@@ -213,7 +213,8 @@ export const getCollateral = (gens: string, lamports: string, usd: string) => {
     } else {
         result = new BN(lamports)
             .mul(new BN(usd))
-            .div(((new BN("10000000")).mul(new BN(gens))))
+            .div(new BN(gens))
+            .div(new BN("10000000"))
             .toNumber();
     }
     return result;
