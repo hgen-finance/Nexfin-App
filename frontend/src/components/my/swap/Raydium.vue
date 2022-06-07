@@ -255,16 +255,29 @@
         >
           RAYDIUM SWAP
         </AmButton>
-        <AmButton
-          color="mcolor-100"
-          bColor="mcolor-100"
-          opacityEffect
-          @click="confirm"
-          :full="true"
-          v-if="!raySwap"
-        >
-          SWAP
-        </AmButton>
+        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+          <AmButton
+            color="mcolor-200"
+            bColor="mcolor-100"
+            opacityEffect
+            full
+            @click="reset"
+          >
+            reset
+          </AmButton>
+        </div>
+        <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+          <AmButton
+            color="mcolor-100"
+            bColor="mcolor-100"
+            opacityEffect
+            @click="confirm"
+            :full="true"
+            v-if="!raySwap"
+          >
+            SWAP
+          </AmButton>
+        </div>
       </div>
     </div>
     <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
@@ -1187,6 +1200,11 @@ export default {
           }
         }
       }
+    },
+    reset() {
+      this.to = null;
+      this.from = null;
+      this.priceImpact = 0;
     },
   },
   mounted() {
