@@ -189,7 +189,7 @@ export default {
       this.$accessor.swapPool.createTokenSwapPool();
     },
     setMax() {
-      return;
+      return this.$accessor.liquidity.lpTokens;
     },
   },
   mounted() {
