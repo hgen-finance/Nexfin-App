@@ -155,6 +155,14 @@
         </div>
       </div>
       <div
+        class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+        v-if="getFarmWarning"
+      >
+        <span class="f-orange-600">
+          Warning! You already have existing farm session.
+        </span>
+      </div>
+      <div
         class="w-100 mt-3 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
         v-if="getOutcome < 1 && lp > 0 && day > 0"
       >
@@ -235,9 +243,14 @@ export default {
       advantage: 0,
       poolShare: 0,
       depositedLp: 0,
+      hasFarm: false,
+      showFarmWarning: false,
     };
   },
   computed: {
+    getFarmWarning() {
+      return this.showFarmWarning;
+    },
     getUsd() {
       return this.$accessor.usd || 0;
     },
@@ -351,6 +364,7 @@ export default {
         .then((res) => {
           this.depositedLp = Number(res.depositedLp);
           this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
+          this.hasFarm = true;
         })
         .catch((err) => console.log(err));
     },
@@ -373,7 +387,8 @@ export default {
         this.getFrom !== null &&
         this.getTo !== null &&
         this.getDay !== null &&
-        Number(this.lp) > 0
+        Number(this.lp) > 0 &&
+        !this.hasFarm
       ) {
         if (this.lp <= Number(this.getLpTokens())) {
           console.log(this.lp, this.getFrom, this.getTo, "testing............");
@@ -383,6 +398,8 @@ export default {
           this.$accessor.wallet.getGENSBalance();
           this.$accessor.wallet.getHGENBalance();
         }
+      } else {
+        this.showFarmWarning = true;
       }
       this.lp = null;
       this.from = null;
