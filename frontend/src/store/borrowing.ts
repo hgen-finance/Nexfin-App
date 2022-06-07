@@ -158,6 +158,7 @@ export const actions = actionTree(
             if (state.troveId && Number(value.from > 0) && totalColl > 114) {
                 try {
                     commit("setLoading", true);
+                    console.log("check Value, ********")
                     const data = await addBorrowUtil(
                         this.$wallet,
                         state.troveId,

@@ -229,7 +229,7 @@
       </div>
       <div
         class="w-100 p-2-S mcolor-700 f-white-200 fs-6 rad-fix-8 mb-3"
-        v-if="close && getIsBorrow"
+        v-if="close && getIsBorrow && !getBorrowOrPay"
       >
         Your {{ getDebt }} GENS Debt will be repaid and you will receive
         collateral {{ getLamports / 1e9 }} SOL.
@@ -473,6 +473,24 @@ export default {
         if (this.to.length > 1 && this.to.substr(0, 1) === "0") {
           this.to = 1;
         }
+      }
+      let fee = 0;
+      if (val > 0) {
+        fee = this.to;
+        fee = fee ? (val * 1.47) / 100 / this.getUsd : 0;
+
+        const MIN_FEE = 5 / this.getUsd;
+        fee = fee < MIN_FEE ? MIN_FEE : fee;
+        let fee_trim = fee.toString().split(".");
+        if (fee_trim.length > 1 && fee_trim[1].length > 9) {
+          fee =
+            Number(fee_trim[0]).toLocaleString() +
+            "." +
+            fee_trim[1].substr(0, 9);
+        }
+      }
+      if (this.from > 0) {
+        this.from = Number(this.from) - Number(fee);
       }
       this.$emit("gens", this.to);
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
