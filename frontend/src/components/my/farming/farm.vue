@@ -118,13 +118,13 @@
             <!-- <span class="fs-6 f-mcolor-100 ts-3 hv d-n-XS fsh-0">Day</span> -->
           </div>
         </div>
-        <div class="w-100 fd-r jc-r ai-c">
+        <!-- <div class="w-100 fd-r jc-r ai-c">
           <span class="f-white-200 fs-6-S fw-600">Update</span>
           <Hint
             >Currently, we support single transaction for farming. We will be
             supporting multiple transaction in two weeks for our devnet.</Hint
           >
-        </div>
+        </div> -->
         <div class="w-100 fd-r-S fd-c-XS pt-4-S pt-20-XS" v-if="getDepositKey">
           <div class="w-50-S w-100-XS mr-2-S mr-0-XS">
             <AmButton
