@@ -537,7 +537,7 @@ export default {
       this.repayTo = null;
     },
     confirmFunc() {
-      if (Number(this.from) > 0) {
+      if (Number(this.from) > 0 || this.getIsBorrow) {
         console.log("this is called");
         this.$accessor.borrowing.confirmBorrow({
           from: this.from,
