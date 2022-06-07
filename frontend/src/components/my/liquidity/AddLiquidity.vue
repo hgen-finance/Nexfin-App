@@ -31,6 +31,19 @@
         + Add Tokens
       </span> -->
     </div>
+    <div class="w-100 fs-5-S fs-20-XS f-gray-500 pb-1-S pb-5-XS ta-c-XS">
+      Your Current Liquidity
+    </div>
+    <div
+      class="fs-7-S fs-20-XS f-white-200 ta-c-XS pb-2-S pb-10-XS ta-c-XS mb-10-XS fw-600"
+      data-tour-step="1"
+    >
+      <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{ getLpTokens }}</span>
+      <span class="mr-1"> LP Tokens </span>(<span class="fw-800 f-mcolor-100">
+        {{ getPoolShare }}
+      </span>
+      <span class="fw-600 pr-1">% </span>Pool Share)
+    </div>
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
@@ -141,15 +154,28 @@
       </div>
     </div>
     <div class="w-100 pt-6-S pt-20-XS fd-r jc-c">
-      <AmButton
-        color="mcolor-100"
-        bColor="mcolor-100"
-        opacityEffect
-        @click="confirm"
-        :full="true"
-      >
-        ADD LIQUIDITY
-      </AmButton>
+      <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+        <AmButton
+          color="mcolor-200"
+          bColor="mcolor-100"
+          opacityEffect
+          full
+          @click="reset"
+        >
+          reset
+        </AmButton>
+      </div>
+      <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+        <AmButton
+          color="mcolor-100"
+          bColor="mcolor-100"
+          opacityEffect
+          @click="confirm"
+          :full="true"
+        >
+          ADD LIQUIDITY
+        </AmButton>
+      </div>
     </div>
   </div>
 </template>
@@ -219,6 +245,7 @@ export default {
       tokenBMintAddr: "",
       poolAccA: "",
       poolAccB: "",
+      lpToken: 0,
     };
   },
   computed: {
@@ -248,6 +275,21 @@ export default {
         return result;
       },
       set: function () {},
+    },
+    getLpTokens() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
+
+      this.lpToken = (
+        (this.from / this.$accessor.swapPool.tokenAmountHgenHS) *
+        supply
+      ).toFixed(2);
+      return this.lpToken;
+    },
+    getPoolShare() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
+      return ((this.lpToken / supply) * 100).toFixed(2) || 0;
     },
   },
   watch: {
@@ -376,38 +418,44 @@ export default {
     },
 
     setMax() {
-      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
-      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
-      let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
-      let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
+      if (this.$accessor.wallet.balanceHGEN > 0) {
+        this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+        let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
+        let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
+        let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
-      let min_lp_token = Math.min(
-        (this.$accessor.wallet.balanceHGEN / tokenA) * supply,
-        ((this.$accessor.wallet.balance - 0.01) / tokenB) * supply
-      );
+        let min_lp_token = Math.min(
+          (this.$accessor.wallet.balanceHGEN / tokenA) * supply,
+          ((this.$accessor.wallet.balance - 0.01) / tokenB) * supply
+        );
 
-      let hgen = (min_lp_token / supply) * tokenA;
-      hgen = hgen.toString().split(".");
-      if (hgen.length > 1 && hgen[1].length > 2) {
-        hgen = hgen[0] + "." + hgen[1].substr(0, 2);
-        this.from = hgen;
-      } else {
-        if (hgen.length > 1) {
-          this.to = hgen[0] + "." + hgen[1];
+        let hgen = (min_lp_token / supply) * tokenA;
+        hgen = hgen.toString().split(".");
+        if (hgen.length > 1 && hgen[1].length > 2) {
+          hgen = hgen[0] + "." + hgen[1].substr(0, 2);
+          this.from = hgen;
+        } else {
+          if (hgen.length > 1) {
+            this.to = hgen[0] + "." + hgen[1];
+          }
+          this.from = hgen;
         }
-        this.from = hgen;
-      }
-      let sol = (min_lp_token / supply) * tokenB;
-      sol = sol.toString().split(".");
-      if (sol.length > 1 && sol[1].length > 8) {
-        sol = sol[0] + "." + sol[1].substr(0, 8);
-        this.to = sol;
-      } else {
-        if (sol.length > 1) {
-          this.to = sol[0] + "." + sol[1];
+        let sol = (min_lp_token / supply) * tokenB;
+        sol = sol.toString().split(".");
+        if (sol.length > 1 && sol[1].length > 8) {
+          sol = sol[0] + "." + sol[1].substr(0, 8);
+          this.to = sol;
+        } else {
+          if (sol.length > 1) {
+            this.to = sol[0] + "." + sol[1];
+          }
+          this.to = sol;
         }
-        this.to = sol;
       }
+    },
+    reset() {
+      this.to = null;
+      this.from = null;
     },
   },
   mounted() {

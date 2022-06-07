@@ -239,15 +239,20 @@ export default {
       return this.$accessor.troveTotal || 0;
     },
     getFee() {
-      let fee = this.to;
-      fee = fee ? (this.to * 1.47) / 100 / this.getUsd : 0;
+      let fee = 0;
+      if (this.to > 0) {
+        fee = this.to;
+        fee = fee ? (this.to * 1.47) / 100 / this.getUsd : 0;
 
-      const MIN_FEE = 5 / this.getUsd;
-      fee = fee < MIN_FEE ? MIN_FEE : fee;
-      let fee_trim = fee.toString().split(".");
-      if (fee_trim.length > 1 && fee_trim[1].length > 9) {
-        fee =
-          Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
+        const MIN_FEE = 5 / this.getUsd;
+        fee = fee < MIN_FEE ? MIN_FEE : fee;
+        let fee_trim = fee.toString().split(".");
+        if (fee_trim.length > 1 && fee_trim[1].length > 9) {
+          fee =
+            Number(fee_trim[0]).toLocaleString() +
+            "." +
+            fee_trim[1].substr(0, 9);
+        }
       }
 
       return fee;

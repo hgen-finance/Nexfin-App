@@ -91,15 +91,28 @@
       </div>
     </div>
     <div class="w-100 pt-6-S pt-20-XS fd-r jc-c">
-      <AmButton
-        color="mcolor-100"
-        bColor="mcolor-100"
-        opacityEffect
-        @click="confirm"
-        :full="true"
-      >
-        REMOVE LIQUIDITY
-      </AmButton>
+      <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+        <AmButton
+          color="mcolor-200"
+          bColor="mcolor-100"
+          opacityEffect
+          full
+          @click="reset"
+        >
+          reset
+        </AmButton>
+      </div>
+      <div class="w-50-S w-100-XS mr-2-L mr-2-S mr-0-XS">
+        <AmButton
+          color="mcolor-100"
+          bColor="mcolor-100"
+          opacityEffect
+          @click="confirm"
+          :full="true"
+        >
+          REMOVE LIQUIDITY
+        </AmButton>
+      </div>
     </div>
   </div>
 </template>
@@ -190,6 +203,9 @@ export default {
     },
     setMax() {
       return this.$accessor.liquidity.lpTokens;
+    },
+    reset() {
+      this.from = null;
     },
   },
   mounted() {
