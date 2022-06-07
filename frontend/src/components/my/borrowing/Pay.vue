@@ -287,7 +287,6 @@ export default {
   },
   data() {
     return {
-      fees: 0,
       close: false,
       modalSession: "",
       from: null,
@@ -475,6 +474,24 @@ export default {
           this.to = 1;
         }
       }
+      let fee = 0;
+      if (val > 0) {
+        fee = this.to;
+        fee = fee ? (val * 1.47) / 100 / this.getUsd : 0;
+
+        const MIN_FEE = 5 / this.getUsd;
+        fee = fee < MIN_FEE ? MIN_FEE : fee;
+        let fee_trim = fee.toString().split(".");
+        if (fee_trim.length > 1 && fee_trim[1].length > 9) {
+          fee =
+            Number(fee_trim[0]).toLocaleString() +
+            "." +
+            fee_trim[1].substr(0, 9);
+        }
+      }
+      if (this.from > 0) {
+        this.from = Number(this.from) - Number(fee);
+      }
       this.$emit("gens", this.to);
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
     },
@@ -507,24 +524,8 @@ export default {
       }
     },
     setMax() {
-      let fee = 0;
-      if (this.to > 0) {
-        fee = this.to;
-        fee = fee ? (this.to * 1.47) / 100 / this.getUsd : 0;
-
-        const MIN_FEE = 5 / this.getUsd;
-        fee = fee < MIN_FEE ? MIN_FEE : fee;
-        let fee_trim = fee.toString().split(".");
-        if (fee_trim.length > 1 && fee_trim[1].length > 9) {
-          fee =
-            Number(fee_trim[0]).toLocaleString() +
-            "." +
-            fee_trim[1].substr(0, 9);
-        }
-      }
-
       this.from = this.$accessor.wallet.balance
-        ? this.$accessor.wallet.balance - 0.05 - Number(Fee)
+        ? this.$accessor.wallet.balance - 0.05
         : 0;
     },
     reset() {
