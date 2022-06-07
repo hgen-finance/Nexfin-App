@@ -245,4 +245,5 @@ export const farmUtil = async (
     let txId = await connection.sendRawTransaction(signedTx.serialize());
 
     await connection.confirmTransaction(txId)
+    alert("Please, refresh the page to see the updated transaction.")
 };

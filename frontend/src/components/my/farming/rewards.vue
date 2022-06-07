@@ -74,8 +74,8 @@
             Claim
           </AmButton>
           <AmButton
-            color="mcolor-100"
-            bColor="mcolor-100"
+            color="mcolor-1001"
+            bColor="mcolor-1001"
             full
             v-if="dayLeft != 0"
             disabled
@@ -103,7 +103,7 @@ export default {
       depositedHgen: 0,
       totalAmount: 1389185,
       day: 0,
-      dayLeft: 0,
+      dayLeft: null,
       daily: 0,
       monthly: 0,
       apr: 0,

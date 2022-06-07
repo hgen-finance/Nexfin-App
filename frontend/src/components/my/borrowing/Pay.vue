@@ -207,23 +207,32 @@
 
       <!-- for collateral ratio   -->
       <div
-        class="w-100 mt-4 mb-5 mcolor-500 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
+        class="w-100 mt-4 mb-3 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS fd-r ai-c"
         v-if="!getBorrowOrPay"
       >
         <div class="w-100 fs-5-S fs-20-XS f-gray-600 pb-1-S pb-5-XS">
           Collateral Ratio
         </div>
-        <div class="w-100 fd-r ai-c">
-          <input
-            type="text"
-            class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
-            v-model="collateralRatio"
-            maxlength="12"
-            disabled
-          />
-          <span class="f-white-200 fs-6 fw-500">%</span>
+        <div>
+          <div class="w-100 fd-r ai-c">
+            <input
+              type="text"
+              class="w-100 fs-8 mx-1 white-100 br-0 oul-n fs-20-XS fw-600 f-mcolor-300 ta-r"
+              placeholder="0"
+              v-model="collateralRatio"
+              maxlength="12"
+              disabled
+            />
+            <span class="f-white-200 fs-8 fw-500">%</span>
+          </div>
         </div>
+      </div>
+      <div
+        class="w-100 p-2-S mcolor-700 f-white-200 fs-6 rad-fix-8 mb-3"
+        v-if="close && getIsBorrow"
+      >
+        Your {{ getDebt }} GENS Debt will be repaid and you will receive
+        collateral {{ getLamports / 1e9 }} SOL.
       </div>
 
       <!-- <div class="w-100 mb-3-S d-f jc-r" v-if="!getBorrowOrPay">
@@ -401,6 +410,9 @@ export default {
     getBorrowOrPay() {
       return this.$accessor.borrowing.borrowOrPay;
     },
+    getLamports() {
+      return this.$accessor.borrowing.trove.lamports || 0;
+    },
     getPrice() {
       return this.$store.state.usd;
     },
@@ -468,10 +480,16 @@ export default {
     repayTo(val) {
       this.$emit("repay", this.repayTo);
       this.$accessor.borrowing.closeBorrowAmount({ repayTo: val });
+      if (this.repayTo != this.$accessor.borrowing.trove.amountToClose) {
+        this.close = false;
+      }
     },
     repaySol(val) {
       //   this.$emit("repaySol", this.repaySol);
       this.$emit("repaySol", this.repaySol);
+      if (this.repaySol != this.$accessor.borrowing.trove.lamports / 1e9) {
+        this.close = false;
+      }
     },
     repayCr(val) {
       this.$emit("cr", this.repayCr);
@@ -517,12 +535,15 @@ export default {
       this.repayTo = this.$accessor.borrowing.trove.amountToClose || 0;
       this.repaySol = this.$accessor.borrowing.trove.lamports / 1e9 || 0;
       this.close = true;
+      console.log(this.close, "close vlaeu ............9999999999");
     },
     payTroveFunc() {
       if (
-        this.getGensBalance >= this.repayTo &&
-        this.collateralRatio > 114 &&
-        this.repayTo != null
+        (this.getGensBalance >= this.repayTo &&
+          this.collateralRatio > 114 &&
+          this.repayTo != null) ||
+        (this.repayTo == this.$accessor.borrowing.trove.amountToClose &&
+          this.repaySol == this.$accessor.borrowing.trove.lamports / 1e9)
       ) {
         this.$accessor.borrowing.payTrove({
           mint: "EdvHEGQ2sqC4ZofLpj2xE5BQefgewWFY5nHe9aMcReC1",

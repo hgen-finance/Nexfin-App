@@ -3,10 +3,14 @@
     <div class="w-100 fd-c ai-c">
       <div class="w-100 fd-r fw-w pt-0-S jc-se mb-10-S mb-20-XS">
         <div class="w-35-S w-100-XS pt-30-XS">
-          <Farm @confirmFunc="confirmFunc" />
+          <Farm
+            @confirmFunc="confirmFunc"
+            @lp="depositedLp = $event"
+            @day="day = $event"
+          />
         </div>
         <div class="w-25-S w-100-XS pt-30-XS">
-          <Info />
+          <Info :depositedLp="Number(depositedLp)" :day="Number(day)" />
         </div>
       </div>
       <div class="w-75-S w-100-XS">
@@ -29,6 +33,12 @@ export default {
     Farm,
     Info,
     Rewards,
+  },
+  data() {
+    return {
+      depositedLp: null,
+      day: null,
+    };
   },
   methods: {
     confirmFunc(value) {},

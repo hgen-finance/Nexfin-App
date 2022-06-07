@@ -26,10 +26,11 @@
             ><span class="f-mcolor-100">32.50%</span> APR</span
           >
         </div>
+
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
-          <span class="f-mcolor-300 pr-2">{{ apr.toFixed(3) }}</span>
+          <span class="f-mcolor-300 pr-2">{{ getApr.toFixed(3) }}</span>
           <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
         </div>
       </div>
@@ -42,7 +43,7 @@
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
-          <span class="f-mcolor-300 pr-2">{{ monthly.toFixed(3) }}</span>
+          <span class="f-mcolor-300 pr-2">{{ getMonthly.toFixed(3) }}</span>
           <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
         </div>
       </div>
@@ -55,7 +56,7 @@
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
-          <span class="f-mcolor-300 pr-2">{{ daily.toFixed(3) }}</span>
+          <span class="f-mcolor-300 pr-2">{{ getDaily.toFixed(3) }}</span>
           <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
         </div>
       </div>
@@ -88,21 +89,135 @@ export default {
       lpTokenType: "HS",
     };
   },
+  props: {
+    depositedLp: { type: Number, default: null },
+    day: { type: Number, default: null },
+  },
   mounted() {
-    this.getInfo();
+    this.getInfo;
   },
   components: {
     Hint,
     Balance,
   },
+  watch: {
+    depositedLp(val) {
+      let sol =
+        (Number(val) / Number(this.$accessor.liquidity.lpTotalSupply)) *
+        Number(this.$accessor.swapPool.tokenAmountSOLHS) *
+        100;
+      sol = sol > 0 ? sol.toString().split(".") : 0;
+      if (sol.length > 1 && sol[1].length > 9) {
+        sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
+      }
+      this.depositedSol = Number(sol);
+
+      let hgen =
+        (this.getDepositedLp / this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountHgenHS *
+        100;
+      console.log(
+        this.$accessor.liquidity.lpTotalSupply,
+        this.$accessor.swapPool.tokenAmountHgenHS
+      );
+      hgen = hgen > 0 ? hgen.toString().split(".") : 0;
+      if (hgen.length > 1 && hgen[1].length > 2) {
+        hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
+      }
+
+      this.depositedHgen = Number(hgen);
+
+      this.yourAmount = this.val;
+      this.totalAmount = 1389185;
+      this.yourPercent = ((this.val / this.totalAmount) * 100).toFixed(4);
+      if (this.day != 0) {
+        let penalty = Math.pow(12 / 30, Math.log10(this.depositedHgen));
+        let advantage = Math.pow(1.075, this.day / 30);
+        let outcome = penalty * advantage;
+        this.daily =
+          (((this.depositedSol * outcome * 1.5) / 100) * this.depositedHgen) /
+          234;
+        this.monthly =
+          (((this.depositedSol * outcome * 8.5) / 100) * this.depositedHgen) /
+          234;
+        this.apr =
+          (((this.depositedSol * outcome * 32.5) / 100) * this.depositedHgen) /
+          234;
+      }
+    },
+    day(val) {
+      let sol =
+        (Number(this.getDepositedLp) /
+          Number(this.$accessor.liquidity.lpTotalSupply)) *
+        Number(this.$accessor.swapPool.tokenAmountSOLHS) *
+        100;
+      sol = sol > 0 ? sol.toString().split(".") : 0;
+      if (sol.length > 1 && sol[1].length > 9) {
+        sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
+      }
+      this.depositedSol = Number(sol);
+
+      let hgen =
+        (this.getDepositedLp / this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountHgenHS *
+        100;
+      console.log(
+        this.$accessor.liquidity.lpTotalSupply,
+        this.$accessor.swapPool.tokenAmountHgenHS
+      );
+      hgen = hgen > 0 ? hgen.toString().split(".") : 0;
+      if (hgen.length > 1 && hgen[1].length > 2) {
+        hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
+      }
+
+      this.depositedHgen = Number(hgen);
+
+      this.yourAmount = this.getDepositedLp;
+      this.totalAmount = 1389185;
+      this.yourPercent = (
+        (this.getDepositedLp / this.totalAmount) *
+        100
+      ).toFixed(4);
+      if (val != 0) {
+        let penalty = Math.pow(12 / 30, Math.log10(this.depositedHgen));
+        let advantage = Math.pow(1.075, val / 30);
+        let outcome = penalty * advantage;
+        this.daily =
+          (((this.depositedSol * outcome * 1.5) / 100) * this.depositedHgen) /
+          234;
+        this.monthly =
+          (((this.depositedSol * outcome * 8.5) / 100) * this.depositedHgen) /
+          234;
+        this.apr =
+          (((this.depositedSol * outcome * 32.5) / 100) * this.depositedHgen) /
+          234;
+      }
+    },
+  },
   layout: "my",
   computed: {
+    getDaily() {
+      return this.daily;
+    },
+    getMonthly() {
+      return this.monthly;
+    },
+    getApr() {
+      return this.apr;
+    },
+    getDepositedLp() {
+      return this.depositedLp;
+    },
+    getInfo() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
+    },
     getPercent() {
       return Number.parseInt(
         (this.$accessor.pool.depositAmount / this.$accessor.totalDeposit || 0) *
           100
       );
     },
+
     getCoin() {
       return this.$accessor.pool.rewardCoinAmount;
     },
@@ -120,82 +235,6 @@ export default {
     },
   },
   methods: {
-    getInfo: function () {
-      // return this.$accessor.pool.rewardGensAmount;
-      let scope = this;
-      farming
-        .getFarmingAccount()
-        .then((res) => {
-          scope.depositedLp = Number(res.depositedLp);
-          this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
-
-          let sol =
-            (Number(scope.depositedLp) /
-              Number(this.$accessor.liquidity.lpTotalSupply)) *
-            Number(this.$accessor.swapPool.tokenAmountSOLHS) *
-            100;
-          console.log(sol, "test &&&");
-          sol = sol > 0 ? sol.toString().split(".") : 0;
-          if (sol.length > 1 && sol[1].length > 9) {
-            sol = sol[0].toLocaleString() + "." + sol[1].substr(0, 9);
-          }
-          scope.depositedSol = Number(sol);
-
-          let hgen =
-            (scope.depositedLp / this.$accessor.liquidity.lpTotalSupply) *
-            this.$accessor.swapPool.tokenAmountHgenHS *
-            100;
-          console.log(
-            this.$accessor.liquidity.lpTotalSupply,
-            this.$accessor.swapPool.tokenAmountHgenHS
-          );
-          hgen = hgen > 0 ? hgen.toString().split(".") : 0;
-          if (hgen.length > 1 && hgen[1].length > 2) {
-            hgen = hgen[0].toLocaleString() + "." + hgen[1].substr(0, 2);
-          }
-
-          scope.depositedHgen = Number(hgen);
-          scope.endDate = res.endDate;
-          scope.day = res.dayLength;
-
-          // calculate the time left for the farming date
-          let curr_date = new Date();
-          let diff_time =
-            new Date(scope.endDate).getTime() - curr_date.getTime();
-          scope.dayLeft = Math.ceil(diff_time / (1000 * 3600 * 24)); // set the current date
-          scope.yourAmount = res.depositedLp;
-          scope.totalAmount = 1389185;
-          scope.yourPercent = (
-            (res.depositedLp / scope.totalAmount) *
-            100
-          ).toFixed(4);
-          if (scope.day != 0) {
-            let penalty = Math.pow(12 / 30, Math.log10(scope.depositedHgen));
-            let advantage = Math.pow(1.075, scope.day / 30);
-            let outcome = penalty * advantage;
-            scope.daily =
-              (((scope.depositedSol * outcome * 1.5) / 100) *
-                scope.depositedHgen) /
-              234;
-            scope.monthly =
-              (((scope.depositedSol * outcome * 8.5) / 100) *
-                scope.depositedHgen) /
-              234;
-            scope.apr =
-              (((scope.depositedSol * outcome * 32.5) / 100) *
-                scope.depositedHgen) /
-              234;
-
-            let earn = scope.daily * (scope.day - scope.dayLeft);
-            earn = earn.toString().split(".");
-            if (earn.length > 1 && earn[1].length > 6) {
-              scope.currentEarn =
-                earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
-            }
-          }
-        })
-        .catch((err) => console.log(err));
-    },
     withdrawFarm() {
       farming.withdrawFarm();
     },

@@ -44,7 +44,7 @@
       <div class="w-100 fd-r py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
           Transaction Fee
-          <Hint> You receive transaction fee of Borrowing and Repaying. </Hint>
+          <Hint> You receive transaction fee of Borrowing.</Hint>
         </div>
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"

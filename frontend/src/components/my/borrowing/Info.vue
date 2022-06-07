@@ -240,18 +240,16 @@ export default {
     },
     getFee() {
       let fee = this.to;
-      console.log(fee, "fee");
-      fee = fee ? (this.to * 1.47) / 100 / this.$accessor.usd : 0;
-      if (!this.$wallet) {
-        return 0;
-      }
-      const MIN_FEE = 5 / this.$accessor.usd;
+      fee = fee ? (this.to * 1.47) / 100 / this.getUsd : 0;
+
+      const MIN_FEE = 5 / this.getUsd;
       fee = fee < MIN_FEE ? MIN_FEE : fee;
       let fee_trim = fee.toString().split(".");
       if (fee_trim.length > 1 && fee_trim[1].length > 9) {
         fee =
           Number(fee_trim[0]).toLocaleString() + "." + fee_trim[1].substr(0, 9);
       }
+
       return fee;
     },
     getDebt() {

@@ -25,6 +25,23 @@
           </Tooltip>
         </span>
       </div>
+
+      <div class="w-100 fs-5-S fs-20-XS f-gray-500 pb-1-S pb-5-XS ta-c-XS">
+        Your Current Farm
+      </div>
+      <div
+        class="fs-7-S fs-20-XS f-white-200 ta-c-XS pb-2-S pb-10-XS ta-c-XS mb-10-XS fw-600"
+        data-tour-step="1"
+      >
+        <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{
+          getLpTokens
+        }}</span>
+        <span class="mr-1"> LP Tokens </span>(<span class="fw-800 f-mcolor-100">
+          {{ getPoolShare }}
+        </span>
+        <span class="fw-600 pr-1">% </span>Pool Share)
+      </div>
+
       <div class="w-100" v-if="getToggleValue">
         <div
           class="w-100 fs-5-S fs-20-XS f-gray-500 pb-2-S pb-10-XS ta-c-XS jc-c-XS fd-r"
@@ -52,6 +69,7 @@
             <span> SOL </span>
           </div>
         </div>
+
         <div
           class="w-100 my-2-S my-10-XS mcolor-700 rad-fix-2 px-4-S px-10-XS py-3-S py-10-XS"
           v-if="getDepositKey"
@@ -99,6 +117,13 @@
             />
             <!-- <span class="fs-6 f-mcolor-100 ts-3 hv d-n-XS fsh-0">Day</span> -->
           </div>
+        </div>
+        <div class="w-100 fd-r jc-r ai-c">
+          <span class="f-white-200 fs-6-S fw-600">Update</span>
+          <Hint
+            >Currently, we support single transaction for farming. We will be
+            supporting multiple transaction in two weeks for our devnet.</Hint
+          >
         </div>
         <div class="w-100 fd-r-S fd-c-XS pt-4-S pt-20-XS" v-if="getDepositKey">
           <div class="w-50-S w-100-XS mr-2-S mr-0-XS">
@@ -159,6 +184,7 @@
 import Loading from "@/components/Loading";
 import { Icon, Tooltip } from "ant-design-vue";
 import Farming from "../../../utils/farming";
+import Hint from "@/components/Hint.vue";
 const TOKENS = [
   { label: "HGEN", value: "E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC" },
   { label: "SOL", value: "So11111111111111111111111111111111111111112" },
@@ -171,6 +197,7 @@ export default {
     Loading,
     Icon,
     Tooltip,
+    Hint,
   },
   data() {
     return {
@@ -181,6 +208,7 @@ export default {
       lp: null,
       day: null,
       open: true,
+      totalAmount: 1389185,
       currencyFrom: {
         theme: "default",
         value: TOKENS[0].value,
@@ -259,6 +287,22 @@ export default {
     getAdvantage() {
       return this.advantage;
     },
+    getLpTokens() {
+      return this.lp || 0;
+    },
+    getPoolShare() {
+      let share = 0;
+      if (this.lp) {
+        share = (this.lp / this.totalAmount) * 100 || 0;
+        share = share.toString().split(".");
+        if (share.length > 1 && share[1].length > 2) {
+          share = share[0] + "." + share[1].substr(0, 2);
+        } else {
+          if (share.length > 1) share = share[0] + "." + share[1];
+        }
+      }
+      return share;
+    },
   },
   watch: {
     lp(val) {
@@ -291,13 +335,14 @@ export default {
       this.penalty = Math.pow(12 / 30, Math.log10(this.to));
       this.advantage = Math.pow(1.075, this.day / 30);
       this.outcome = this.penalty * this.advantage;
-      console.log(this.outcome, "test....1");
+
+      this.$emit("lp", val);
     },
     day(val) {
       this.penalty = Math.pow(12 / 30, Math.log10(this.to));
       this.advantage = Math.pow(1.075, val / 30);
       this.outcome = this.penalty * this.advantage;
-      console.log(this.outcome, "test....2");
+      this.$emit("day", val);
     },
     from(val) {},
     to(val) {},

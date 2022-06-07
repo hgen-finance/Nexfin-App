@@ -35,19 +35,18 @@
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
       <div
-        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS jc-sb fd-r ai-c"
+        class="w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS jc-r fd-r ai-r"
       >
-        <div class="mt-1-S mb-2-S">
+        <div class="mb-2-S">
           <span
             class="fs-4-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
             @click="setMax"
             >max</span
           >
         </div>
-        <div>Set amount you want to add</div>
       </div>
 
-      <div class="w-100 pb-3-S pb-0 fd-r jc-r">
+      <div class="w-100 pb-3-S fd-r jc-r">
         <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS">
           <AmSelectbox
             v-bind:data.sync="currencyFrom"
@@ -57,7 +56,7 @@
           />
         </div>
         <input
-          class="ta-r w-fix-s-10min fs-6-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
+          class="ta-r w-fix-s-10min fs-7-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
           placeholder="0"
           v-model="from"
           maxlength="15"
@@ -73,12 +72,12 @@
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS"
     >
-      <div
+      <!-- <div
         class="ta-r w-100 fs-5-S fs-20-XS f-gray-600 pb-2-S pb-10-XS pt-3-S pt-10-XS fd-r jc-r z-4"
       >
         Set amount you want to add
-      </div>
-      <div class="w-100 pb-3-S pb-0 fd-r jc-r ai-c">
+      </div> -->
+      <div class="w-100 pb-3-S pt-3-S fd-r jc-r ai-c">
         <div
           class="w-fix-s-10min fs-6-S fs-25-XS fw-600 br-0 oul-n ta-r"
           :class="{

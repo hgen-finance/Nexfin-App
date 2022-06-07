@@ -8,6 +8,8 @@ const { increaseCounters, decreaseCounters } = require("../services/counters");
 const { BN } = require("bn.js");
 const { getCollateral } = require("../utils/helpers");
 const { claimReward } = require("../commands/claimReward");
+const axios = require('axios')
+
 
 const MIN_DEPOSIT_FEES = 4;
 const MIN_TEAM_FEES = 1;
@@ -136,6 +138,21 @@ class troveController {
 
     // list of borrowers for the liquidation page
     async getList(req, res) {
+        let price;
+
+        try {
+            await axios.get(
+                "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+            )
+                .then(({ data }) => {
+                    if (data.solana) {
+                        price = data.solana.usd
+                    }
+                });
+        } catch (err) {
+            console.log("Data fetch error", err);
+        }
+
         try {
             const pageCount = troveModel.pageCount;
             const { page = 1, query, sort_field, sort_direction } = req.query;
@@ -152,13 +169,14 @@ class troveController {
                 }
             }
 
+            console.log(price, "the price of sol")
             result = result.map((entity) => {
                 return {
                     ...entity,
                     debtRatio: `${getCollateral(
                         entity.borrowAmount,
                         entity.lamports,
-                        "40"
+                        (price * 100).toString(),
                     )}%`, // TODO fix it here for the USD PRICE is set to 125
                 };
             });
@@ -166,7 +184,7 @@ class troveController {
             if (sort_field && sort_direction) {
                 console.log(sort_field, "Value of sort")
                 result.sort((a, b) => {
-                    console.log(a[sort_field], "inside a of sort")
+                    console.log(a, "inside a of sort")
 
                     if (a[sort_field] > b[sort_field]) {
                         return sort_direction === "asc" ? 1 : -1;
