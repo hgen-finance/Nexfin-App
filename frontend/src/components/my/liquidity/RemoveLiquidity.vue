@@ -31,6 +31,19 @@
         + Add Tokens
       </span> -->
     </div>
+    <div class="w-100 fs-5-S fs-20-XS f-gray-500 pb-1-S pb-5-XS ta-c-XS">
+      Your Current Liquidity
+    </div>
+    <div
+      class="fs-7-S fs-20-XS f-white-200 ta-c-XS pb-2-S pb-10-XS ta-c-XS mb-10-XS fw-600"
+      data-tour-step="1"
+    >
+      <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{ getLpTokens }}</span>
+      <span class="mr-1"> LP Tokens </span>(<span class="fw-800 f-mcolor-100">
+        {{ getPoolShare }}
+      </span>
+      <span class="fw-600 pr-1">% </span>Pool Share)
+    </div>
     <div
       class="w-100 mt-2-S mt-10-XS mb-1 mcolor-700 rad-fix-2-S rad-fix-15-XS px-4-S px-10-XS fd-c jc-r"
     >
@@ -170,11 +183,22 @@ export default {
       tokenBMintAddr: "",
       poolAccA: "",
       poolAccB: "",
+      lpTokenType: "HS",
     };
   },
   computed: {
     ...mapState(["wallet", "liquidity", "url"]),
     convertLiquidityToken() {},
+    getLpTokens() {
+      return this.$accessor.liquidity.lpTokens;
+    },
+    getPoolShare() {
+      this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
+      let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
+      return (
+        ((this.$accessor.liquidity.lpTokens / supply) * 100).toFixed(2) || 0
+      );
+    },
   },
   watch: {},
   methods: {
@@ -197,18 +221,21 @@ export default {
           tokenType: this.tokenPoolType,
         });
       }
+      this.$accessor.liquidity.updateLpToken(this.lpTokenType);
     },
     createSwapPool() {
       this.$accessor.swapPool.createTokenSwapPool();
     },
     setMax() {
-      return this.$accessor.liquidity.lpTokens;
+      this.from = this.$accessor.liquidity.lpTokens;
     },
     reset() {
       this.from = null;
     },
   },
   mounted() {
+    this.$accessor.liquidity.getLpTokens();
+    this.$accessor.liquidity.updateLpToken(this.lpTokenType);
     this.tokenLP = LP_TOKENS_HS;
     this.tokenAacc = TOKEN_ACC_HGEN_HS;
     this.tokenBacc = TOKEN_ACC_SOL_HS;
