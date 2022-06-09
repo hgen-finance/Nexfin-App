@@ -13,13 +13,31 @@
       <div class="fw-500 pl-1 fs-7-S">{{ quoteSymbol }}</div>
     </div>
 
-    <div class="fd-r my-2 ml-3 w-15">
+    <div class="fd-r my-2 pl-3 w-25">
       <div class="fd-c">
         <div class="fs-4 fw-800 f-gray-600">Market Price</div>
         <div class="fs-4 fw-600 f-white-200">by Coingecko</div>
       </div>
       <div class="">
         <div class="ml-3 fs-8 fw-600 f-white-200">${{ getPrice }}</div>
+      </div>
+    </div>
+    <div class="fd-r my-2 pl-3 w-25">
+      <div class="fd-c">
+        <div class="fs-4 fw-800 f-gray-600">Oracle Price</div>
+        <div class="fs-4 fw-600 f-white-200">by ChainLink</div>
+      </div>
+      <div class="">
+        <div class="ml-3 fs-8 fw-600 f-white-200">${{ getChainLinkPrice }}</div>
+      </div>
+    </div>
+    <div class="fd-r my-2 pl-3 w-25">
+      <div class="fd-c">
+        <div class="fs-4 fw-800 f-gray-600">Oracle Price</div>
+        <div class="fs-4 fw-600 f-white-200">by Pyth</div>
+      </div>
+      <div class="">
+        <div class="ml-3 fs-8 fw-600 f-white-200">${{ getPythPrice }}</div>
       </div>
     </div>
     <!-- <div class="fd-c my-2 mx-3">
@@ -75,6 +93,12 @@ export default {
   computed: {
     getPrice() {
       return this.$store.state.usd;
+    },
+    getChainLinkPrice() {
+      return this.$store.state.cusd;
+    },
+    getPythPrice() {
+      return this.$store.state.pusd;
     },
   },
   watch: {},
