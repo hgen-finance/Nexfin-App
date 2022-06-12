@@ -28,6 +28,7 @@ export const state = () => ({
     total: 0,
     startDate: 0,
     endDate: 0,
+    depositedLp: 0,
     depositedSol: 0,
     depositedHgen: 0,
     dayLength: 0,
@@ -59,6 +60,9 @@ export const mutations = mutationTree(state, {
     },
     setDayLeft(state, newValue: any) {
         state.dayLeft = newValue;
+    },
+    setDepositedLp(state, newValue: any) {
+        state.depositedLp = newValue;
     }
 });
 
@@ -101,6 +105,9 @@ export const actions = actionTree(
 
             let startDate = Buffer.from(data.startDate).toString("utf8");
             let endDate = Buffer.from(data.endDate).toString("utf8");
+            let depositedLp = parseInt(
+                Buffer.from(data.depositedLp).toString("utf8")
+            );
             let depositedSol = parseInt(
                 Buffer.from(data.depositedSol).toString("utf8")
             );
@@ -111,10 +118,20 @@ export const actions = actionTree(
             let dayLeft = parseInt(Buffer.from(data.dayLeft).toString("utf8"));
             commit("setStartDate", startDate);
             commit("setEndDate", endDate);
+            commit("setDepositedLp", depositedLp);
             commit("setDepositedSol", depositedSol);
             commit("setDepositedHgen", depositedHgen);
             commit("setDayLength", dayLength);
             commit("setDayLeft", dayLeft);
+            return {
+                startDate,
+                endDate,
+                depositedLp,
+                depositedSol,
+                depositedHgen,
+                dayLength,
+                dayLeft,
+            };
 
         }
 

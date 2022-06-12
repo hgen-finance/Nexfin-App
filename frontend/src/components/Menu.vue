@@ -17,7 +17,7 @@
           >
             <nuxt-link to="/" @click.native="turnOffLogo">
               <img
-                src="@/assets/svg/company_logo.png"
+                src="@/assets/svg/symbol-hgen.png"
                 class="h-fix-15-S h-fix-55-XS"
                 v-if="getLogo"
             /></nuxt-link>

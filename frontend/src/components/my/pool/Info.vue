@@ -6,6 +6,28 @@
       <Balance />
     </div>
     <div
+      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
+    >
+      <div class="w-100">
+        <div
+          class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
+        >
+          GENS Total Staking of Platform
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Total Staking
+          </div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
+          >
+            {{ Number(getTotalStake).toLocaleString().slice(0, 16) }}
+            <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mb-2-S mb-10-XS"
     >
       <div class="w-100 fd-r py-2-S py-10-XS">
@@ -130,6 +152,9 @@ export default {
   },
   layout: "my",
   computed: {
+    getTotalStake() {
+      return this.$accessor.totalDeposit || 0;
+    },
     getPercent() {
       return this.$accessor.pool.depositAmount
         ? Number(

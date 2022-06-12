@@ -23,8 +23,10 @@
       </div>
       <div class="w-30-S w-50-XS pl-0-S pl-40-XS ta-r">
         <div class="w-100 fs-6-S fs-20-XS f-gray-600 pb-2-S pb-10-XS">APY</div>
-        <div class="w-100 fs-8-S fs-25-XS fw-900 f-white-200">
-          <span class="f-mcolor-100 mr-1">32.5</span>%
+        <div class="w-100 fs-8-S fs-25-XS fw-900 f-white-200 d-f ai-c">
+          <span class="f-mcolor-100 mr-1">32.5 </span>%<Hint
+            >This is just a temporary apr for testing.</Hint
+          >
         </div>
       </div>
     </div>
@@ -96,6 +98,7 @@
 </template>
 
 <script>
+import Hint from "@/components/Hint.vue";
 export default {
   computed: {
     isBorrow() {
@@ -134,5 +137,6 @@ export default {
   mounted() {
     this.$accessor.getInfo();
   },
+  components: { Hint },
 };
 </script>

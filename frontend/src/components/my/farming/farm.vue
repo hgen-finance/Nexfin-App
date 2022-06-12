@@ -245,6 +245,7 @@ export default {
       depositedLp: 0,
       hasFarm: false,
       showFarmWarning: false,
+      updateReward: false,
     };
   },
   computed: {
@@ -405,6 +406,7 @@ export default {
       this.from = null;
       this.to = null;
       this.day = null;
+      this.$accessor.farm.getFarmingAccount();
       //   else alert("Enter the values correctly");
     },
     convertToHgen() {

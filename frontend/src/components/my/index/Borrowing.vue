@@ -40,7 +40,7 @@
         Total Collateral Ratio
       </div>
       <div class="w-45 fsh-0 fs-5-S fs-20-XS f-white-200 fw-600 ta-r">
-        <span class="f-mcolor-100">320</span> %
+        <span class="f-mcolor-100">{{ getTotalCollateral }}</span> %
       </div>
     </div>
     <div class="w-100 fd-r ai-c py-1-M py-2-S py-10-XS" v-if="true">
@@ -111,6 +111,13 @@ export default {
             parseInt(this.$accessor.usd.toString())
           )
         : 0;
+    },
+    //TODO: get the total collateral locked
+    getTotalCollateral() {
+      console.log(this.$accessor.trovetotal, "testing");
+      let total =
+        ((500 * this.$accessor.usd) / this.$accessor.trovetotal) * 100;
+      return total || 320;
     },
   },
   methods: {

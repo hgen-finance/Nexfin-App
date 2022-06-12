@@ -5,7 +5,28 @@
     >
       <Balance />
     </div>
-
+    <div
+      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
+    >
+      <div class="w-100">
+        <div
+          class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
+        >
+          GENS Total Borrowing of Platform
+        </div>
+        <div class="w-100 fd-r py-2-S py-10-XS">
+          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
+            Total Borrow
+          </div>
+          <div
+            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
+          >
+            {{ Number(getTotalBorrow).toLocaleString().slice(0, 16) }}
+            <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div
       class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 bs-sb-all mt-2-S mt-10-XS mb-2-S mb-10-XS"
       v-if="withdrawOrDeposit"
@@ -34,7 +55,7 @@
           <div class="w-100-S w-100-XS">
             <div class="w-100 fd-r py-2-S py-10-XS">
               <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-                Fee Borrow (<span class="f-white-200 fw-400">1.47 %</span>)
+                Borrow Fee (<span class="f-white-200 fw-400">1.47 %</span>)
                 <Hint
                   >Borrowers have to pay 1.47 % of the borrowed GENS in terms of
                   SOL at current SOL market price.</Hint
@@ -62,7 +83,7 @@
         </div>
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
-            Liquidation CR
+            Liquidation CR 115%
             <Hint>
               Liquidation CR is 115%. Trove will be liquidated, when it drops
               below 115% Collateral Ratio.</Hint
@@ -155,28 +176,6 @@
     >
       <div class="w-100 pb-2-S pb-10-XS">
         Warning! Collateral Ratio is below 130%. Trove is liquidated at 115%.
-      </div>
-    </div>
-    <div
-      class="w-100 p-4-S p-10-XS mcolor-500 rad-fix-3 mt-5-S bs-sb-all mb-4-S mb-10-XS"
-    >
-      <div class="w-100">
-        <div
-          class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 mt-2-S mt-5-XS mb-2-S mb-5-XS"
-        >
-          GENS Total Borrowing of Platform
-        </div>
-        <div class="w-100 fd-r py-2-S py-10-XS">
-          <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
-            Total Borrow
-          </div>
-          <div
-            class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
-          >
-            {{ Number(getTotalBorrow).toLocaleString().slice(0, 16) }}
-            <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>

@@ -177,6 +177,14 @@
         </AmButton>
       </div>
     </div>
+    <div
+      class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+      v-if="alert"
+    >
+      <span class="f-orange-600">
+        {{ alertMessage }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -246,6 +254,8 @@ export default {
       poolAccA: "",
       poolAccB: "",
       lpToken: 0,
+      alert: false,
+      alertMessage: "",
     };
   },
   computed: {
@@ -321,6 +331,17 @@ export default {
         this.convert();
       } else {
         this.to = 0;
+      }
+
+      if (
+        val > this.$accessor.wallet.balanceHGEN ||
+        this.to > this.$accessor.wallet.balance
+      ) {
+        this.alert = true;
+        this.alertMessage =
+          "You don't have enough liquditiy for this transaction. Please adjust your input values.";
+      } else {
+        this.alert = false;
       }
     },
   },

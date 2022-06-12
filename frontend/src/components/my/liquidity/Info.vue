@@ -153,9 +153,19 @@ export default {
   },
   computed: {
     getPoolInfo() {
+      let sol = this.$accessor.swapPool.tokenAmountSOLHS.toString().split(".");
+      if (sol.length > 1 && sol[1].length > 2) {
+        sol = sol[0] + "." + sol[1].substr(0, 2);
+      } else {
+        if (sol.length > 1) {
+          sol = sol[0] + "." + sol[1];
+        } else {
+          sol = sol[0] + ".00";
+        }
+      }
       return {
         tokenAmountA: this.$accessor.swapPool.tokenAmountHgenHS || 0,
-        tokenAmountB: this.$accessor.swapPool.tokenAmountSOLHS || 0,
+        tokenAmountB: sol || 0,
         tokenAmountHgenHS: this.$accessor.swapPool.tokenAmountHgenHS || 0,
         tokenAmountSOLHS: this.$accessor.swapPool.tokenAmountSOLHS || 0,
       };
