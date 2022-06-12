@@ -85,8 +85,8 @@
           <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
             Liquidation CR 115%
             <Hint>
-              Liquidation CR is 115%. Trove will be liquidated, when it drops
-              below 115% Collateral Ratio.</Hint
+              Trove will be liquidated if the Collateral Ratio drops below
+              115%.</Hint
             >
           </div>
         </div>

@@ -42,7 +42,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             TOTAL LP SUPPLY
-            <Hint> LP token total supply </Hint>
+            <Hint> Total supply of LP token in the pool. </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -53,7 +53,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             TOTAL HGEN
-            <Hint> HGEN liquidity in the pool </Hint>
+            <Hint>Total HGEN in the liquidity pool.</Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -65,7 +65,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             TOTAL SOL
-            <Hint> SOL liquidity in the pool </Hint>
+            <Hint> Total SOL in the liquidity pool. </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -90,7 +90,7 @@
         <div class="w-100 fd-r pb-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             HGENS in Pool
-            <Hint> Your share of HGENS in pool </Hint>
+            <Hint> Your HGEN share in the liquidity pool. </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -101,7 +101,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             SOL in Pool
-            <Hint> Your share of SOL in pool </Hint>
+            <Hint> Your SOL share in the liquidity pool.</Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -112,7 +112,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             LP Tokens
-            <Hint> Your LP Tokens for the provided liquidity in the pool </Hint>
+            <Hint> LP tokens you provided in the liquidity pool.</Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
@@ -123,7 +123,7 @@
         <div class="w-100 fd-r py-2-S py-10-XS">
           <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
             Pool Share
-            <Hint> Your pool share percentage </Hint>
+            <Hint>Percentage of your HGEN in the pool. </Hint>
           </div>
           <div
             class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
