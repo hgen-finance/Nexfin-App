@@ -180,8 +180,8 @@
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Slippage Tolerance
           <Hint>
-            Difference on price of 2 different coins you are using in
-            transaction during time it takes to complete transaction.
+            The difference between the price at the confirmation and the actual
+            transaction that users are willing to accept during the swapping.
           </Hint>
         </div>
         <div
@@ -203,8 +203,8 @@
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Minimum Received
           <Hint>
-            Your transaction will revert if there is a large, unfavourable price
-            movement before it is confirmed.
+            Your transaction will be reverted if there is a large, unfavorable
+            price movement before it is confirmed.
           </Hint>
         </div>
         <div
@@ -233,8 +233,8 @@
         <div class="w-100 fs-5-S fs-20-XS fw-400 f-white-200 fd-r ai-c">
           Price Impact
           <Hint>
-            If the pool is $1,000 and you sell $1 worth, thay will "impact" the
-            pool 0.1%.
+            Estimated % difference in price at the swapping compared to the
+            displayed price.
           </Hint>
         </div>
         <div

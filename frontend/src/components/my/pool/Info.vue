@@ -33,7 +33,7 @@
       <div class="w-100 fd-r py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
           Pool share
-          <Hint> Percentage of your share on Safe Pool. </Hint>
+          <Hint> Percentage of Pool share. </Hint>
         </div>
         <div
           class="w-a fs-8-M fs-10-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
@@ -54,7 +54,7 @@
       <div class="w-100 fd-r py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
           Liquidation Incentive
-          <Hint> You receive an incentive form borrower’s liquidation. </Hint>
+          <Hint> An incentive from borrower’s liquidation. </Hint>
         </div>
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
@@ -66,7 +66,7 @@
       <div class="w-100 fd-r py-2-S py-10-XS">
         <div class="w-100 fs-5-S fs-20-XS fw-600 f-white-200 fd-r ai-c">
           Transaction Fee
-          <Hint> You receive transaction fee of Borrowing.</Hint>
+          <Hint> Transaction fee of Borrowing.</Hint>
         </div>
         <div
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"

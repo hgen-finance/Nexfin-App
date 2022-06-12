@@ -13,11 +13,10 @@
       >
         Rewards Calculation
         <Hint>
-          APR (Annual Percentage Rate) is just a simple interest that you will
-          be receiving every year paid in the token of your choice. But the APR
-          is subject to change cause of fluctuations in market activities. The
-          “Monthly” and “Daily” are simply calculated to show how much you will
-          be receiving at the term.
+          APR (Annual Percentage Rate) is an interest that you will be receiving
+          as a reward by staking your tokens available for loans. But the APR
+          can be fluctuated. and the “Monthy” and “Daily” are calculated to show
+          how much of reward you will be receiving during the term.
         </Hint>
       </div>
       <div class="w-100 fd-r py-2-S py-10-XS">
@@ -31,7 +30,7 @@
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
           <span class="f-mcolor-300 pr-2">{{ getApr.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
+          <span class="f-white-200 pl-1-S pr-5-XS">HGEN</span>
         </div>
       </div>
       <div class="w-100 fd-r py-2-S py-10-XS">
@@ -44,7 +43,7 @@
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
           <span class="f-mcolor-300 pr-2">{{ getMonthly.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
+          <span class="f-white-200 pl-1-S pr-5-XS">HGEN</span>
         </div>
       </div>
       <div class="w-100 fd-r py-2-S py-10-XS">
@@ -57,7 +56,7 @@
           class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-600 f-mcolor-100 fd-r ai-c"
         >
           <span class="f-mcolor-300 pr-2">{{ getDaily.toFixed(3) }}</span>
-          <span class="f-white-200 pl-1-S pr-5-XS">SOL</span>
+          <span class="f-white-200 pl-1-S pr-5-XS">HGEN</span>
         </div>
       </div>
     </div>
