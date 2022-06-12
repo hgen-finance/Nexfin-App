@@ -16,7 +16,7 @@
           <div
             class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS"
           >
-            <span class="f-white-200">{{ getNow }}</span>
+            <span class="f-white-200">{{ startDate || "-" }}</span>
           </div>
         </div>
         <div class="w-100 py-1-M py-2-S py-10-XS fd-c">
@@ -26,7 +26,7 @@
           <div
             class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
-            <span class="f-white-200">{{ endDate }}</span>
+            <span class="f-white-200">{{ endDate || "-" }}</span>
           </div>
         </div>
 
@@ -91,12 +91,13 @@
 <script>
 import Hint from "@/components/Hint";
 import Balance from "@/components/my/farming/Balance.vue";
-import Farming from "../../../utils/farming";
+import Farming from "@/utils/farming";
 const farming = new Farming();
 export default {
   data() {
     return {
       timestamp: "",
+      startDate: "",
       endDate: "",
       depositedLp: 0,
       depositedSol: 0,
@@ -154,7 +155,7 @@ export default {
         .then((res) => {
           scope.depositedLp = Number(res.depositedLp);
           this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
-
+          scope.startDate = res.startDate;
           let sol =
             (Number(scope.depositedLp) /
               Number(this.$accessor.liquidity.lpTotalSupply)) *

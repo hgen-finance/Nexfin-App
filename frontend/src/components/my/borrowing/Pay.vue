@@ -91,15 +91,15 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0.0000"
+            placeholder="0.00"
             v-model="from"
             maxlength="12"
           />
-          <span
+          <!-- <span
             class="fs-5-S fs-20-XS f-mcolor-500 fw-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3 py-1 rad-fix-3"
             @click="setMax"
             >max</span
-          >
+          > -->
         </div>
       </div>
       <div
@@ -178,7 +178,7 @@
           <span
             class="fs-5-S fw-500 fs-20-XS f-mcolor-500 ts-3 hv d-n-XS fsh-0 mcolor-500 px-3-S px-5-XS py-2-S py-5-XS rad-fix-3"
             @click="closeTroveFunc"
-            >Close Borrow</span
+            >Pay All Debt</span
           >
         </div>
       </div>
@@ -268,6 +268,14 @@
         </div>
       </div>
     </div>
+    <div
+      class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+      v-if="alert"
+    >
+      <span class="f-orange-600">
+        {{ alertMessage }}
+      </span>
+    </div>
     <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
       <Loading />
     </div>
@@ -288,6 +296,8 @@ export default {
   data() {
     return {
       close: false,
+      alert: false,
+      alertMessage: "",
       modalSession: "",
       from: null,
       to: null,
@@ -387,6 +397,12 @@ export default {
     };
   },
   computed: {
+    getAlert() {
+      return alert;
+    },
+    getAlertMessage() {
+      return alertMessage;
+    },
     getUsd() {
       return this.$accessor.usd || 0;
     },
@@ -489,9 +505,16 @@ export default {
             fee_trim[1].substr(0, 9);
         }
       }
-      if (this.from > 0) {
-        this.from = Number(this.from) - Number(fee);
+      let newCollateral = Number(this.from) + Number(fee);
+      console.log(newCollateral, this.$accessor.wallet.balance, "testing");
+      if (newCollateral > this.$accessor.wallet.balance) {
+        this.alert = true;
+        this.alertMessage =
+          "Not enough SOL to pay fees. Please add more SOL or adjust your borrow amount.";
+      } else {
+        this.alert = false;
       }
+
       this.$emit("gens", this.to);
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
     },
@@ -535,6 +558,7 @@ export default {
     },
     resetPay() {
       this.repayTo = null;
+      this.repaySol = null;
     },
     confirmFunc() {
       if (Number(this.from) > 0 || this.getIsBorrow) {
@@ -553,7 +577,6 @@ export default {
       this.repayTo = this.$accessor.borrowing.trove.amountToClose || 0;
       this.repaySol = this.$accessor.borrowing.trove.lamports / 1e9 || 0;
       this.close = true;
-      console.log(this.close, "close vlaeu ............9999999999");
     },
     payTroveFunc() {
       if (
@@ -569,6 +592,8 @@ export default {
           lamports: this.repaySol * 1000000000,
         });
       }
+      this.repaySol = null;
+      this.repayTo = null;
     },
     // For updating the borrow or pay
     changeBorrowOrPayFunc() {
