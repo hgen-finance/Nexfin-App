@@ -89,7 +89,7 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
+            placeholder="0.00"
             v-model="withdrawAmount"
           />
           <span
@@ -113,7 +113,7 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
+            placeholder="0.00"
             v-model="from"
           />
           <span

@@ -86,7 +86,7 @@
               type="text"
               id="lp"
               class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-              placeholder="0"
+              placeholder="0.00"
               v-model="lp"
               maxlength="12"
             />
@@ -112,7 +112,7 @@
             <input
               type="text"
               class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-              placeholder="0"
+              placeholder="0.00"
               v-model="day"
             />
             <!-- <span class="fs-6 f-mcolor-100 ts-3 hv d-n-XS fsh-0">Day</span> -->

@@ -117,7 +117,7 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
+            placeholder="0.00"
             v-model="to"
             maxlength="20"
           />
@@ -166,7 +166,7 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
+            placeholder="0.00"
             v-model="repayTo"
             maxlength="12"
           />
@@ -198,7 +198,7 @@
           <input
             type="text"
             class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-            placeholder="0"
+            placeholder="0.00"
             v-model="repaySol"
             maxlength="12"
           />
@@ -482,6 +482,13 @@ export default {
       //   ).toString();
       this.$emit("sol", this.from);
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
+      if (val > this.$accessor.wallet.balance) {
+        this.alert = true;
+        this.alertMessage =
+          "Not enough SOL. Please add more SOL to your wallet or adjust the amount.";
+      } else {
+        this.alert = false;
+      }
     },
     to(val) {
       if (val) {
