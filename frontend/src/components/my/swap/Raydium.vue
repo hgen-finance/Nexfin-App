@@ -117,7 +117,7 @@
 
           <input
             class="w-fix-s-10min fs-7-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 ta-r"
-            placeholder="0"
+            placeholder="0.00"
             v-model="from"
             maxlength="15"
             type="text"
@@ -190,7 +190,7 @@
           <div class="mcolor-700 rad-fix-2 fd-r ai-c py-1">
             <input
               class="w-fix-s-10min fs-5-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100 pl-2"
-              placeholder="0"
+              placeholder="0.00"
               v-model="slippageTolerance"
               maxlength="15"
               type="text"
@@ -301,18 +301,16 @@ import {
   TOKEN_ACC_A,
   TOKEN_ACC_B,
   LP_TOKENS_HGEN_GENS,
-} from "@/utils/layout";
-import {
   LP_TOKENS_GS,
   LP_TOKENS_HS,
-  LP_TOOKS_HS_POOL_ACC,
   TOKEN_ACC_GENS_GS,
   TOKEN_ACC_HGEN_HS,
   TOKEN_ACC_SOL_GS,
   TOKEN_ACC_SOL_HS,
+  LP_TOOKS_HS_POOL_ACC,
   TOKEN_GENS,
   WSOL_ADDR,
-} from "../../../utils/layout";
+} from "@/utils/layout";
 
 const POOL_TOKENS = [
   {
@@ -370,7 +368,7 @@ export default {
         name: "GENS",
         balance: 0,
       },
-      to: 0,
+      to: "0.00",
       currencyTo: {
         theme: "default",
         value: "",

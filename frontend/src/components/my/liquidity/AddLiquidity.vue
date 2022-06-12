@@ -70,7 +70,7 @@
         </div>
         <input
           class="ta-r w-fix-s-10min fs-7-S fs-25-XS fw-600 f-mcolor-300 br-0 oul-n white-100"
-          placeholder="0"
+          placeholder="0.00"
           v-model="from"
           maxlength="15"
           type="text"
@@ -98,7 +98,7 @@
             'f-gray-800': Number(to) === 0,
           }"
         >
-          {{ to }}
+          {{ to || "0.00" }}
         </div>
         <div class="p-a-S p-r-XS l-0 b-0 w-fix-35-S w-35-XS">
           <AmSelectbox
@@ -235,7 +235,7 @@ export default {
         colorBackground: "mcolor-700",
         colorTitle: "white-200",
       },
-      to: 0,
+      to: "0.00",
       currencyTo: {
         theme: "default",
         value: TOKENS[1].value,
