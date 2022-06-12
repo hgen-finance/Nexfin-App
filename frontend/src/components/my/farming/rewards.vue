@@ -68,7 +68,7 @@
             bColor="mcolor-100"
             opacityEffect
             full
-            v-if="dayLeft == 0"
+            v-if="dayLeft <= 0"
             @click="withdrawFarm()"
           >
             Claim
@@ -77,7 +77,7 @@
             color="mcolor-1001"
             bColor="mcolor-1001"
             full
-            v-if="dayLeft != 0"
+            v-if="dayLeft > 0"
             disabled
           >
             Claim
@@ -179,6 +179,7 @@ export default {
       // calculate the time left for the farming date
       let curr_date = new Date();
       let diff_time = new Date(this.endDate).getTime() - curr_date.getTime();
+
       this.dayLeft = Math.ceil(diff_time / (1000 * 3600 * 24)); // set the current date
       this.yourAmount = this.$accessor.farm.depositedLp;
       this.totalAmount = 1389185;
@@ -208,6 +209,10 @@ export default {
             earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
         }
       }
+      console.log(
+        this.dayLeft,
+        "testing...........>>>************************"
+      );
     },
   },
   methods: {
