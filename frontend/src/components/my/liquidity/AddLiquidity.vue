@@ -457,7 +457,7 @@ export default {
           this.from = hgen;
         } else {
           if (hgen.length > 1) {
-            this.to = hgen[0] + "." + hgen[1];
+            this.from = hgen[0] + "." + hgen[1];
           } else {
             this.from = hgen;
           }
