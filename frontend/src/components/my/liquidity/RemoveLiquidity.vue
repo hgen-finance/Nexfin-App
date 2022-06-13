@@ -126,14 +126,14 @@
           REMOVE LIQUIDITY
         </AmButton>
       </div>
-      <div
-        class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
-        v-if="alert"
-      >
-        <span class="f-orange-600">
-          {{ alertMessage }}
-        </span>
-      </div>
+    </div>
+    <div
+      class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+      v-if="alert"
+    >
+      <span class="f-orange-600">
+        {{ alertMessage }}
+      </span>
     </div>
   </div>
 </template>
@@ -258,7 +258,7 @@ export default {
     },
   },
   mounted() {
-    this.$accessor.liquidity.getLPBalance();
+    this.$accessor.wallet.getLPBalance();
     this.$accessor.liquidity.getLpTokens();
     this.$accessor.liquidity.updateLpToken(this.lpTokenType);
     this.tokenLP = LP_TOKENS_HS;
