@@ -439,10 +439,6 @@ export default {
         this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType);
         let supply = Number(this.$accessor.liquidity.lpTotalSupply / 100) || 0;
         let tokenA = this.$accessor.swapPool.tokenAmountHgenHS;
-        console.log(
-          this.$accessor.wallet.balanceHGEN,
-          "_________________________________________________"
-        );
         let tokenB = this.$accessor.swapPool.tokenAmountSOLHS;
 
         let min_lp_token = Math.min(

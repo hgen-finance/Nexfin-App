@@ -149,7 +149,7 @@
 
     <div
       class="w-100 mcolor-800 p-4-S p-15-XS mt-4-S mt-10-XS rad-fix-4 fs-5-S fs-20-XS f-mcolor-500 mb-4-S mb-10-XS"
-      v-if="(disputeDebt > 0 && getTroveAmount) || disputeDebt < 0"
+      v-if="disputeDebt < 0"
     >
       <!-- <div
         class="w-100 pb-2-S pb-10-XS"
