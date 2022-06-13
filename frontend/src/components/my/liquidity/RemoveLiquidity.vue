@@ -126,6 +126,14 @@
           REMOVE LIQUIDITY
         </AmButton>
       </div>
+      <div
+        class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+        v-if="alert"
+      >
+        <span class="f-orange-600">
+          {{ alertMessage }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -184,6 +192,8 @@ export default {
       poolAccA: "",
       poolAccB: "",
       lpTokenType: "HS",
+      alert: false,
+      alertMessage: "",
     };
   },
   computed: {
@@ -200,7 +210,21 @@ export default {
       );
     },
   },
-  watch: {},
+  watch: {
+    from(val) {
+      if (val > this.$accessor.liquidity.lpTokens) {
+        this.alert = true;
+        this.alertMessage =
+          "Input value exceeds the deposited amount. Please adjust your input value.";
+      } else if (val > this.$accessor.liquidity.BalanceLPHS) {
+        this.alert = true;
+        this.alertMessage =
+          "You dont have enough LP tokens for this transaction. Please adjust your input value";
+      } else {
+        this.alert = false;
+      }
+    },
+  },
   methods: {
     changeLiquidityStateToAdd() {
       this.$accessor.swapPool.changeLiquidityState(true);
@@ -234,6 +258,7 @@ export default {
     },
   },
   mounted() {
+    this.$accessor.liquidity.getLPBalance();
     this.$accessor.liquidity.getLpTokens();
     this.$accessor.liquidity.updateLpToken(this.lpTokenType);
     this.tokenLP = LP_TOKENS_HS;

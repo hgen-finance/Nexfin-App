@@ -8,6 +8,7 @@ import { Result } from "ant-design-vue";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { WalletAdapter } from "@solana/wallet-base";
 import { PhantomWalletAdapter } from "@/components/my/wallets";
+import { LP_TOKENS_HS } from "@/utils/layout";
 
 export const TOKEN_GENS = new PublicKey(
     "2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbdfx35jpqwcKz8"
@@ -26,6 +27,7 @@ export const state = () => ({
     balance: 0,
     balanceHGEN: 0,
     balanceGENS: 0,
+    balanceLPHS: 0,
     escrowProgram: "",
 });
 
@@ -63,12 +65,16 @@ export const mutations = mutationTree(state, {
         state.balance = 0;
         state.balanceHGEN = 0;
         state.balanceGENS = 0;
+        state.balanceLPHS = 0;
     },
 
     setEscrowProgram(state, newValue: any) {
         state.escrowProgram = newValue;
     },
 
+    setBalanceLPHS(state, newValue: number | null) {
+        state.balanceLPHS = newValue;
+    }
 });
 
 // Actions
@@ -123,6 +129,26 @@ export const actions = actionTree(
                     .catch((err) => console.log(err));
                 console.log("gens tokena mount:", gensTokenAmount)
                 commit("setBalanceGENS", Number(gensTokenAmount));
+            }
+        },
+
+        async getLPBalance({ commit }) {
+            if (this.$web3 && this.$wallet) {
+                let lpAmount = 0;
+                await this.$web3
+                    .getParsedTokenAccountsByOwner(this.$wallet.publicKey, {
+                        mint: new PublicKey(LP_TOKENS_HS),
+                    })
+                    .then((res) => {
+                        console.log(
+                            res
+                        )
+                        lpAmount = res.value[0]
+                            ? res.value[0].account.data.parsed.info.tokenAmount.uiAmountString
+                            : 0;
+                    })
+                    .catch((err) => console.log(err));
+                commit("setBalanceLPHS", Number(lpAmount));
             }
         },
 
