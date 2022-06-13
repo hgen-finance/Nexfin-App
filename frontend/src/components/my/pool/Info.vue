@@ -21,7 +21,7 @@
           <div
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
           >
-            {{ Number(getTotalStake).toFixed(2) }}
+            {{ getTotalStake }}
             <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default {
   layout: "my",
   computed: {
     getTotalStake() {
-      return this.$accessor.totalDeposit || 0;
+      return Number(this.$accessor.totalDeposit).toFixed(2) || "0.00";
     },
     getPercent() {
       return this.$accessor.pool.depositAmount
