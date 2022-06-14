@@ -33,6 +33,7 @@ export const state = () => ({
     depositedHgen: 0,
     dayLength: 0,
     dayLeft: 0,
+    hasFarm: false,
 });
 
 // Getters
@@ -63,6 +64,9 @@ export const mutations = mutationTree(state, {
     },
     setDepositedLp(state, newValue: any) {
         state.depositedLp = newValue;
+    },
+    setHasFarm(state, newValue: boolean) {
+        state.hasFarm = newValue;
     }
 });
 
@@ -90,6 +94,37 @@ export const actions = actionTree(
             }
             commit("setTotal", total);
         },
+
+        async farmState({ commit }, value) {
+            commit("setHasFarm", value);
+        },
+
+        async clearFarmDetails({ commit }) {
+            commit("setStartDate", null);
+            commit("setEndDate", null);
+            commit("setDepositedLp", 0);
+            commit("setDepositedSol", 0);
+            commit("setDepositedHgen", 0);
+            commit("setDayLength", 0);
+            commit("setDayLeft", 0);
+        },
+
+        async onFarmingAccountChange({ commit, dispatch }, value) {
+            let farming_account = await PublicKey.createWithSeed(
+                this.$wallet.publicKey,
+                "computer",
+                programId
+            );
+            console.log(farming_account.toBase58(), "waiting ..............................")
+            this.$web3.onProgramAccountChange(
+                (farming_account),
+                () => {
+                    dispatch("getFarmingAccount")
+                },
+            );
+        },
+
+
         async getFarmingAccount({ commit }, value) {
             let farming_account = await PublicKey.createWithSeed(
                 this.$wallet.publicKey,
@@ -123,16 +158,6 @@ export const actions = actionTree(
             commit("setDepositedHgen", depositedHgen);
             commit("setDayLength", dayLength);
             commit("setDayLeft", dayLeft);
-            return {
-                startDate,
-                endDate,
-                depositedLp,
-                depositedSol,
-                depositedHgen,
-                dayLength,
-                dayLeft,
-            };
-
         }
 
         //TODO for withdraw farming dispatch the get farming info first

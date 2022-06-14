@@ -52,6 +52,16 @@
           </div>
         </div>
       </div>
+      <div class="w-100-L w-100-M w-100-S w-100-XS mt-2">
+        <div class="w-100 fs-6-S fs-20-XS fw-600 f-white-200 fd-r">
+          <div class="w-30 fs-6-S fs-20-XS fw-600 f-mcolor-100 fd-r ai-c">
+            LP TOKEN
+          </div>
+          <div class="w-70 fs-5-S fs-20-XS fw-500 f-gray-600 fd-r jc-r">
+            {{ getLPBalance }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -143,6 +153,23 @@ export default {
       }
       return result.toString();
     },
+    getLPBalance() {
+      let result = 0;
+      if (this.$accessor.wallet.balanceLPHS) {
+        result = Number(this.$accessor.wallet.balanceLPHS)
+          .toString()
+          .split(".");
+        if (result.length > 1) {
+          result =
+            result[1].length > 1
+              ? Number(result[0]).toLocaleString() +
+                "." +
+                result[1].substr(0, 2)
+              : Number(result[0].toLocaleString());
+        }
+      }
+      return result.toString();
+    },
     // getHGENBalance() {
     //   let result = 0;
     //   if (this.getBalanceHGEN) {
@@ -165,6 +192,9 @@ export default {
     //   }
     //   return result.toString();
     // }
+  },
+  mounted() {
+    this.$accessor.wallet.getLPBalance();
   },
 };
 </script>

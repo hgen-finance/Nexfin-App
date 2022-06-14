@@ -276,6 +276,14 @@
         {{ alertMessage }}
       </span>
     </div>
+    <div
+      class="w-100 my-2 fs-6-S f-red-500 fs-25-XS mcolor-800 p-3-S rad-fix-5"
+      v-if="alertm"
+    >
+      <span class="f-orange-600">
+        {{ alertmsg }}
+      </span>
+    </div>
     <div class="w-100 h-100 p-a l-0 t-0 fd-r ai-c jc-c" v-if="getLoading">
       <Loading />
     </div>
@@ -299,6 +307,8 @@ export default {
       alert: false,
       alertMessage: "",
       modalSession: "",
+      alertm: false,
+      alertmsg: "",
       from: null,
       to: null,
       repayTo: null, // this.$accessor.borrowing.trove.amountToClose, // TO DO change this later
@@ -489,6 +499,9 @@ export default {
       } else {
         this.alert = false;
       }
+      if (this.to) {
+        this.alertCheck();
+      }
     },
     to(val) {
       if (val) {
@@ -521,7 +534,9 @@ export default {
       } else {
         this.alert = false;
       }
-
+      if (this.from) {
+        this.alertCheck();
+      }
       this.$emit("gens", this.to);
       this.$accessor.borrowing.getDebt({ from: this.from, to: this.to });
     },
@@ -545,6 +560,25 @@ export default {
     },
   },
   methods: {
+    alertCheck() {
+      let result;
+      if (this.from && this.to) {
+        result = getCollateral(
+          this.to.toString(),
+          (this.from * 1000000000).toString(),
+          parseInt(this.$accessor.usd).toString()
+        );
+      } else {
+        result = 0;
+      }
+      if (result < 130) {
+        this.alertm = true;
+        this.alertmsg =
+          "Your collateral ratio is below 130%. We recommend over 200% CR";
+      } else {
+        this.alertm = false;
+      }
+    },
     setMaxGens() {
       let user_gens_balance = this.getGensBalance; // gens balance in the wallet
       if (user_gens_balance < this.getDebt) {
@@ -657,6 +691,7 @@ export default {
       this.$tours["borrowGuide"].start();
       this.modalSession = this.modal();
     }
+    this.getCr;
   },
 };
 </script>

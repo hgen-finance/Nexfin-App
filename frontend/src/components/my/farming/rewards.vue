@@ -16,7 +16,7 @@
           <div
             class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS"
           >
-            <span class="f-white-200">{{ startDate || "-" }}</span>
+            <span class="f-white-200">{{ getStartDate || "-" }}</span>
           </div>
         </div>
         <div class="w-100 py-1-M py-2-S py-10-XS fd-c">
@@ -26,7 +26,7 @@
           <div
             class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
-            <span class="f-white-200">{{ endDate || "-" }}</span>
+            <span class="f-white-200">{{ getEndDate || "-" }}</span>
           </div>
         </div>
 
@@ -38,9 +38,9 @@
             class="w-a fs-4-S fs-15-XS fsh-0 fw-600 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
             <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">{{
-              yourAmount
+              getYourAmount
             }}</span>
-            ({{ yourPercent }} <span class="f-white-200">%</span>)
+            ({{ getPoolSharePercent }} <span class="f-white-200">%</span>)
           </div>
         </div>
         <div class="w-100 py-1-S py-10-XS fd-c">
@@ -51,7 +51,7 @@
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
             <span class="f-white-200 pr-1-L pr-1-M pr-1-S pr-5-XS">$</span
-            >{{ currentEarn }}
+            >{{ getEarning }}
           </div>
         </div>
         <div class="w-100 py-1-S py-10-XS fd-c">
@@ -59,7 +59,7 @@
           <div
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 f-mcolor-100 py-1-S py-5-XS ai-c"
           >
-            {{ fApr.toFixed(2) }}
+            {{ getApr.toFixed(2) }}
           </div>
         </div>
         <div class="">
@@ -68,7 +68,7 @@
             bColor="mcolor-100"
             opacityEffect
             full
-            v-if="dayLeft <= 0"
+            v-if="dayLeft <= 0 && dayLeft"
             @click="withdrawFarm()"
           >
             Claim
@@ -77,7 +77,7 @@
             color="mcolor-1001"
             bColor="mcolor-1001"
             full
-            v-if="dayLeft > 0"
+            v-if="dayLeft > 0 || dayLeft == null"
             disabled
           >
             Claim
@@ -109,6 +109,7 @@ export default {
       monthly: 0,
       apr: 0,
       fApr: 32.5,
+      constApr: 32.5,
       currentEarn: 0,
       yourAmount: 0,
       yourPercent: 0,
@@ -117,6 +118,7 @@ export default {
   },
   mounted() {
     this.getInfo;
+    this.$accessor.farm.onFarmingAccountChange();
   },
   components: {
     Hint,
@@ -125,10 +127,39 @@ export default {
   layout: "my",
   computed: {
     getPercent() {
-      return Number.parseInt(
-        (this.$accessor.pool.depositAmount / this.$accessor.totalDeposit || 0) *
-          100
-      );
+      let percent;
+      if (this.$accessor.pool.depositAmount) {
+        percent = Number.parseInt(
+          (this.$accessor.pool.depositAmount / this.$accessor.totalDeposit ||
+            0) * 100
+        );
+      } else {
+        percent = 0;
+      }
+      return percent;
+    },
+    getYourAmount() {
+      return this.$accessor.farm.depositedLp;
+    },
+    getApr() {
+      let apr;
+      let outcome;
+
+      let hgen =
+        (Number(this.$accessor.farm.depositedLp) /
+          this.$accessor.liquidity.lpTotalSupply) *
+        this.$accessor.swapPool.tokenAmountHgenHS *
+        100;
+      if (hgen > 0) {
+        let penalty = Math.pow(12 / 30, Math.log10(hgen));
+        let advantage = Math.pow(1.075, this.day / 30);
+
+        outcome = penalty * advantage;
+        apr = outcome * this.constApr;
+      } else {
+        apr = 0;
+      }
+      return apr;
     },
     getCoin() {
       return this.$accessor.pool.rewardCoinAmount;
@@ -144,6 +175,38 @@ export default {
       const time = today.getHours() + ":" + today.getMinutes();
       const dateTime = date + " " + time;
       return dateTime;
+    },
+    getEndDate() {
+      return this.$accessor.farm.endDate;
+    },
+    getStartDate() {
+      return this.$accessor.farm.startDate;
+    },
+    getEarning() {
+      let penalty = Math.pow(12 / 30, Math.log10(this.depositedHgen));
+      let advantage = Math.pow(1.075, this.day / 30);
+      let outcome = penalty * advantage;
+      this.fApr = outcome * this.fApr;
+      this.daily =
+        (((this.depositedSol * outcome * 1.5) / 100) * this.depositedHgen) /
+        234;
+
+      let earn = this.daily * (this.day - this.dayLeft);
+      if (earn) {
+        earn = earn.toString().split(".");
+        if (earn.length > 1 && earn[1].length > 6) {
+          earn = earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
+        }
+      } else {
+        earn = "0.00";
+      }
+      return earn;
+    },
+    getPoolSharePercent() {
+      return (
+        (this.$accessor.farm.depositedLp / this.totalAmount) *
+        100
+      ).toFixed(4);
     },
     async getInfo() {
       await this.$accessor.farm.getFarmingAccount();
@@ -209,15 +272,16 @@ export default {
             earn[0].toLocaleString() + "." + earn[1].substr(0, 6);
         }
       }
-      console.log(
-        this.dayLeft,
-        "testing...........>>>************************"
-      );
     },
   },
   methods: {
-    withdrawFarm() {
-      farming.withdrawFarm();
+    async withdrawFarm() {
+      await farming.withdrawFarm();
+      let scope = this;
+      setInterval(async function () {
+        scope.$accessor.farm.getFarmingAccount();
+        scope.$accessor.wallet.getLPBalance();
+      }, 5000);
     },
   },
 };
