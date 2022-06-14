@@ -562,30 +562,28 @@ export default {
   methods: {
     alertCheck() {
       let result;
-      if (this.$accessor.borrowing.trove.amountToClose > 0) {
-        console.log(this.$accessor.borrowing.trove.amountToClose, "|", this.to);
-        console.log(this.$accessor.borrowing.trove.lamports, "|", this.from);
-        totalColl = getCollateral(
-          (
-            Number(this.$accessor.borrowing.trove.amountToClose) +
-            parseInt(this.to)
-          ).toString(),
-          (
-            Number(this.$accessor.borrowing.trove.lamports) +
-            parseInt(this.from) * 1000000000
-          ).toString(),
-          parseInt(this.$accessor.usd).toString()
-        );
-      } else {
-        if (this.from && this.to) {
+      if (this.from && this.to) {
+        if (this.$accessor.borrowing.trove.amountToClose > 0) {
+          totalColl = getCollateral(
+            (
+              Number(this.$accessor.borrowing.trove.amountToClose) +
+              parseInt(this.to)
+            ).toString(),
+            (
+              Number(this.$accessor.borrowing.trove.lamports) +
+              parseInt(this.from) * 1000000000
+            ).toString(),
+            parseInt(this.$accessor.usd).toString()
+          );
+        } else {
           result = getCollateral(
             this.to.toString(),
             (this.from * 1000000000).toString(),
             parseInt(this.$accessor.usd).toString()
           );
-        } else {
-          result = 0;
         }
+      } else {
+        result = 0;
       }
 
       if (result < 130) {
