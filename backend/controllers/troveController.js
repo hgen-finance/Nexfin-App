@@ -10,6 +10,9 @@ const { getCollateral } = require("../utils/helpers");
 const { claimReward } = require("../commands/claimReward");
 const axios = require('axios')
 
+// import { Cluster, clusterApiUrl, Connection } from '@solana/web3.js'
+// import { PythHttpClient } from '@pythnetwork/client';
+
 
 const MIN_DEPOSIT_FEES = 4;
 const MIN_TEAM_FEES = 1;
@@ -152,6 +155,16 @@ class troveController {
         } catch (err) {
             console.log("Data fetch error", err);
         }
+
+        // const pythClient = new PythHttpClient(connection, pythPublicKey);
+        // const data = await pythClient.getData();
+
+        // for (let symbol of data.symbols) {
+        //   const price = data.productPrice.get(symbol)!;
+        //   // Sample output:
+        //   // Crypto.SRM/USD: $8.68725 ±$0.0131 Status: Trading
+        //   console.log(`${symbol}: $${price.price} \xB1$${price.confidence} Status: ${PriceStatus[price.status]}`)
+        // }
 
         try {
             const pageCount = troveModel.pageCount;
