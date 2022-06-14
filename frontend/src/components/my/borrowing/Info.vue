@@ -21,7 +21,7 @@
           <div
             class="w-a fs-5-M fs-8-S fs-25-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c"
           >
-            {{ Number(getTotalBorrow).toLocaleString().slice(0, 16) }}
+            {{ getTotalBorrow }}
             <span class="f-white-200 pl-1-S pl-5-XS">GENS</span>
           </div>
         </div>
@@ -214,11 +214,6 @@ export default {
   },
   computed: {
     getCurrentRatio() {
-      console.log(this.repayCr, "info cr");
-      console.log(
-        this.$accessor.borrowing.currentCr,
-        "Getting the current cr from the utils"
-      );
       return this.repayCr;
     },
     getMaxRatio() {
@@ -235,7 +230,7 @@ export default {
       return this.$accessor.wallet.balanceGENS || 0;
     },
     getTotalBorrow() {
-      return this.$accessor.troveTotal || 0;
+      return this.$accessor.troveTotal.toFixed(2) || "0.00";
     },
     getFee() {
       let fee = 0;

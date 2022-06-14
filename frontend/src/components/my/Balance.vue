@@ -94,7 +94,6 @@ export default {
         result = Number(this.$accessor.wallet.balanceHGEN)
           .toString()
           .split(".");
-        console.log("the gens is", result);
         if (result.length > 1) {
           result =
             result[1].length > 1

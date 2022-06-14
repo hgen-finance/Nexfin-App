@@ -45,7 +45,6 @@ export const actions = actionTree(
                 params += "&sort_field=" + value.sort + "&sort_direction=desc";
             }
             commit("setLoading", true);
-            console.log("the loading status atm is ", this.$accessor.loading);
             await this.$axios.get("/api/trove/list" + params).then(({ data }) => {
                 commit("setTroveTotal", data.total_count || 0);
                 commit("setLoading", false);

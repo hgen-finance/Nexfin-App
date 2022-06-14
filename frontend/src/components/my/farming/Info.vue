@@ -73,11 +73,11 @@ export default {
     return {
       timestamp: "",
       endDate: "",
-      depositedLp: 0,
+      //   depositedLp: 0,
       depositedSol: 0,
       depositedHgen: 0,
       totalAmount: 1389185,
-      day: 0,
+      //   day: 0,
       dayLeft: 0,
       daily: 0,
       monthly: 0,
@@ -135,13 +135,13 @@ export default {
         let outcome = penalty * advantage;
         this.daily =
           (((this.depositedSol * outcome * 1.5) / 100) * this.depositedHgen) /
-          234;
+            234 || 0;
         this.monthly =
           (((this.depositedSol * outcome * 8.5) / 100) * this.depositedHgen) /
-          234;
+            234 || 0;
         this.apr =
           (((this.depositedSol * outcome * 32.5) / 100) * this.depositedHgen) /
-          234;
+            234 || 0;
       }
     },
     day(val) {

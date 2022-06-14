@@ -34,7 +34,7 @@
         data-tour-step="1"
       >
         <span class="fs-7-S fs-25-XS f-mcolor-100 fw-800">{{
-          depositedLp
+          getDepsoitedLpToken
         }}</span>
         <span class="mr-1"> LP Tokens </span>(<span class="fw-800 f-mcolor-100">
           {{ getPoolShare }}
@@ -112,7 +112,7 @@
             <input
               type="text"
               class="w-100 mx-1 white-100 br-0 oul-n fs-6-S fs-20-XS fw-600 f-mcolor-300"
-              placeholder="0.00"
+              placeholder="0"
               v-model="day"
             />
             <!-- <span class="fs-6 f-mcolor-100 ts-3 hv d-n-XS fsh-0">Day</span> -->
@@ -243,7 +243,6 @@ export default {
       advantage: 0,
       poolShare: 0,
       depositedLp: 0,
-      hasFarm: false,
       showFarmWarning: false,
       updateReward: false,
     };
@@ -251,6 +250,12 @@ export default {
   computed: {
     getFarmWarning() {
       return this.showFarmWarning;
+    },
+    getDepsoitedLpToken() {
+      return Number(this.$accessor.farm.depositedLp);
+    },
+    getFarmStatus() {
+      return this.$accessor.farm.hasFarm;
     },
     getUsd() {
       return this.$accessor.usd || 0;
@@ -295,13 +300,13 @@ export default {
     getAdvantage() {
       return this.advantage;
     },
-    getLpTokens() {
+    getInputLpTokens() {
       return this.lp || 0;
     },
     getPoolShare() {
       let share = 0;
 
-      share = (this.depositedLp / this.totalAmount) * 100 || 0;
+      share = (this.getDepsoitedLpToken / this.totalAmount) * 100 || 0;
 
       share = share.toString().split(".");
       if (share.length > 1 && share[1].length > 2) {
@@ -313,6 +318,9 @@ export default {
         share = share[0];
       }
       return share;
+    },
+    getLpTokens() {
+      return this.$accessor.liquidity.lpTokens;
     },
   },
   watch: {
@@ -365,7 +373,12 @@ export default {
         .then((res) => {
           this.depositedLp = Number(res.depositedLp);
           this.$accessor.liquidity.getLPsupplyInfo(this.lpTokenType); // TODO: make it refresh after 30 secs
-          this.hasFarm = true;
+          //   if (this.$accessor.farm.depositedLp > 0) {
+          //     console.log("this was called **************************");
+          //     this.hasFarm = true;
+          //   } else {
+          //     this.hasFarm = false;
+          //   }
         })
         .catch((err) => console.log(err));
     },
@@ -384,20 +397,22 @@ export default {
     setFarmingData() {
       console.log(this.from, this.to, this.day, "without computed");
       console.log(this.getFrom, this.getTo, this.getDay, "with computed");
+      this.getInfo();
       if (
         this.getFrom !== null &&
         this.getTo !== null &&
         this.getDay !== null &&
         Number(this.lp) > 0 &&
-        !this.hasFarm
+        this.$accessor.farm.depositedLp == 0
       ) {
-        if (this.lp <= Number(this.getLpTokens())) {
-          console.log(this.lp, this.getFrom, this.getTo, "testing............");
+        this.showFarmWarning = false;
+        if (this.lp <= Number(this.getLpTokens)) {
           const farming = new Farming();
           farming.setFarmingAccount(this.lp, this.from, this.to, this.getDay);
           this.$accessor.wallet.getBalance();
           this.$accessor.wallet.getGENSBalance();
           this.$accessor.wallet.getHGENBalance();
+          this.$accessor.wallet.getLPBalance();
         }
       } else {
         this.showFarmWarning = true;
@@ -407,6 +422,13 @@ export default {
       this.to = null;
       this.day = null;
       this.$accessor.farm.getFarmingAccount();
+
+      let scope = this;
+      //TODO change the wallet lp balance update on account change
+      setInterval(async function () {
+        scope.$accessor.wallet.getLPBalance();
+        scope.$accessor.farm.getFarmingAccount();
+      }, 5000);
       //   else alert("Enter the values correctly");
     },
     convertToHgen() {
@@ -417,9 +439,7 @@ export default {
       // converting to sol when hgen is entered
       this.to = CONVERT_SOL * Number(this.to);
     },
-    getLpTokens() {
-      return this.$accessor.liquidity.lpTokens;
-    },
+
     setMax() {
       //   this.from = this.$accessor.wallet.balance
       //     ? Number(this.$accessor.wallet.balanceHGEN) / this.$accessor.usd

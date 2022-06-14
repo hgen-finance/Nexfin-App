@@ -36,12 +36,17 @@ export default {
   },
   data() {
     return {
-      depositedLp: null,
-      day: null,
+      depositedLp: { type: Number, default: 0 },
+      day: { type: Number, default: 0 },
     };
   },
+  computed: {
+    async farmChange() {},
+  },
+
   methods: {
     confirmFunc(value) {},
   },
+  mounted() {},
 };
 </script>

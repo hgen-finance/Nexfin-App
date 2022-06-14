@@ -183,12 +183,10 @@ export default {
     togglemenu() {
       if (this.mobile) {
         this.open = !open;
-        console.log(this.open);
       }
     },
     turnOnLogo() {
       this.$accessor.dashboard.changeLogoVis(true);
-      console.log(this.$accessor.dashboard.logo);
     },
     turnOffLogo() {
       this.$accessor.dashboard.changeLogoVis(false);

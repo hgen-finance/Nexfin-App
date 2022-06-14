@@ -81,6 +81,14 @@
             class="w-fix-10-S w-80-XS"
             v-if="item.id === 9 && getActive(item)"
           />
+          <SwitchSvg
+            class="w-fix-10-S w-40-XS"
+            v-if="item.id === 10 && !getActive(item)"
+          />
+          <SwitchActiveSvg
+            class="w-fix-10-S w-40-XS"
+            v-if="item.id === 10 && getActive(item)"
+          />
         </div>
         <span
           class="fs-5-S fs-4-XS ts-3 pt-0-M pt-0-S pt-2-XS d-f-S d-n-XS"
@@ -170,6 +178,12 @@ export default {
           name: "Liquidity Pool",
           to: "/liquidityPool",
           class: "my-liquidityPool",
+        },
+        {
+          id: 10,
+          name: "Multi Send",
+          to: "/multiSend",
+          class: "my-multiSend",
         },
       ],
     };

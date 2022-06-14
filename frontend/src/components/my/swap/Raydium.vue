@@ -211,21 +211,21 @@
           class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           v-if="currencyTo.value === tokens[0].value"
         >
-          {{ slippagePrice }}
+          {{ slippagePrice.toFixed(2) }}
           <span class="f-white-200 pl-1">GENS</span>
         </div>
         <div
           class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           v-if="currencyTo.value === tokens[1].value"
         >
-          {{ slippagePrice }}
+          {{ slippagePrice.toFixed(2) }}
           <span class="f-white-200 pl-1">HGEN</span>
         </div>
         <div
           class="w-a fs-5-S fs-20-XS fsh-0 fw-400 f-mcolor-100 fd-r ai-c pt-2-XS jc-c-XS"
           v-if="currencyTo.value === tokens[2].value"
         >
-          {{ slippagePrice }}
+          {{ slippagePrice.toFixed(2) }}
           <span class="f-white-200 pl-1">SOL</span>
         </div>
       </div>
@@ -818,7 +818,8 @@ export default {
           .mul(swapTokenB)
           .div(new BN(OWNER_FEE_DENOMINATOR));
         let swap_fees = trade_fees.add(owner_fees);
-        swapTokenBWithFees = swapTokenB.sub(swap_fees);
+        // swapTokenBWithFees = swapTokenB.sub(swap_fees);
+        swapTokenBWithFees = swapTokenB;
 
         // pool price before add
         denominator = tokenA.add(new BN(1).mul(new BN(100)));
@@ -867,7 +868,8 @@ export default {
         .mul(new BN(swapTokenA))
         .div(new BN(OWNER_FEE_DENOMINATOR));
       let swap_fees = trade_fees.add(owner_fees);
-      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      //   let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      let swapTokenAWithFees = swapTokenA;
 
       // pool price before add
       denominator = tokenB.add(new BN(1).mul(new BN(100)));
@@ -915,8 +917,9 @@ export default {
         let owner_fees =
           (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
         let swap_fees = trade_fees + owner_fees;
-        console.log(swap_fees, "swap fees is");
-        swapTokenBWithFees = swapTokenB - swap_fees;
+
+        // swapTokenBWithFees = swapTokenB - swap_fees;
+        swapTokenBWithFees = swapTokenB;
 
         // pool price before add
         denominator = tokenA + 1;
@@ -960,7 +963,8 @@ export default {
       let owner_fees =
         (OWNER_FEE_NUMBERATOR * swapTokenA) / OWNER_FEE_DENOMINATOR;
       let swap_fees = trade_fees + owner_fees;
-      let swapTokenAWithFees = swapTokenA - swap_fees;
+      //   let swapTokenAWithFees = swapTokenA - swap_fees;
+      let swapTokenAWithFees = swapTokenA;
 
       // pool price before add
       denominator = tokenB + 1;
@@ -1010,7 +1014,8 @@ export default {
         let owner_fees =
           (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
         let swap_fees = trade_fees + owner_fees;
-        swapTokenBWithFees = swapTokenB - swap_fees;
+        // swapTokenBWithFees = swapTokenB - swap_fees;
+        swapTokenBWithFees = swapTokenB;
 
         // pool price before add
 
@@ -1061,7 +1066,8 @@ export default {
         .mul(new BN(swapTokenA))
         .div(new BN(OWNER_FEE_DENOMINATOR));
       let swap_fees = trade_fees.add(owner_fees);
-      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      //   let swapTokenAWithFees = swapTokenA.sub(swap_fees);
+      let swapTokenAWithFees = swapTokenA;
 
       // pool price before add
       denominator = tokenB.add(new BN(1).mul(new BN(100)));
