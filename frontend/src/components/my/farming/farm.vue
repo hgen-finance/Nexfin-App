@@ -384,6 +384,7 @@ export default {
     },
     reset() {
       this.from = null;
+      this.lp = null;
       this.to = null;
       this.day = null;
     },
