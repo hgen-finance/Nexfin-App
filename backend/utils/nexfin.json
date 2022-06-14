@@ -521,11 +521,6 @@
         "name": "addDepositReward",
         "accounts": [
           {
-            "name": "authority",
-            "isMut": true,
-            "isSigner": true
-          },
-          {
             "name": "deposit",
             "isMut": true,
             "isSigner": false

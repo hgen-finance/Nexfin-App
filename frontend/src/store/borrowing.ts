@@ -236,6 +236,13 @@ export const actions = actionTree(
                         type: "",
                         txId: data.txId,
                     });
+                    await this.$axios
+                        .post("/api/reward/addReward", {
+                            amount: value.to,
+                        })
+                        .then((res) => {
+                            console.log(res, "reward Added to the liquidity provider");
+                        });
                 } catch {
                     commit("setLoading", false);
                 }
