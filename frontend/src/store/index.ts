@@ -181,7 +181,7 @@ export const actions = actionTree(
                     // tslint:disable-next-line:no-console
                     let pyth;
                     if (product.symbol == "Crypto.SOL/USD") {
-                        console.log(`${product.symbol}: $${price.price} \xB1$${price.confidence}`)
+                        // console.log(`${product.symbol}: $${price.price} \xB1$${price.confidence}`)
                         pyth = (price.price).toString()
                         pyth = pyth.toString().split(".");
                         if (pyth.length > 1 && pyth[1].length > 2) {
@@ -198,7 +198,7 @@ export const actions = actionTree(
                 } else {
                     // tslint:disable-next-line:no-console
                     if (product.symbol == "Crypto.SOL/USD") {
-                        console.log(`${product.symbol}: price currently unavailable. status is ${PriceStatus[price.status]}`)
+                        // console.log(`${product.symbol}: price currently unavailable. status is ${PriceStatus[price.status]}`)
                         commit("setPusd", PriceStatus[price.status]);
                     }
                 }

@@ -795,36 +795,30 @@ export default {
         const TRADE_FEE_DENOMINATOR = 10000;
         const OWNER_FEE_NUMBERATOR = 5;
         const OWNER_FEE_DENOMINATOR = 10000;
-        let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
-          new BN(100)
-        );
-        let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
-          new BN(100)
-        );
+        let tokenA = this.$accessor.swapPool.tokenAmountA * 100;
+        let tokenB = new BN(this.$accessor.swapPool.tokenAmountB) * 100;
 
-        let invariant = tokenA.mul(new BN(tokenB));
+        let invariant = tokenA * tokenB;
         let numerator = invariant;
-        let denominator = tokenA.add(new BN(this.from * 100));
+        let denominator = tokenA + this.from * 100;
 
         // new swap price for the token A->B
-        let swapTokenB = numerator.div(denominator);
-        swapTokenB = tokenB.sub(swapTokenB);
+        let swapTokenB = numerator / denominator;
+        swapTokenB = tokenB - swapTokenB;
 
         // swaptokenB with fees
-        let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(TRADE_FEE_DENOMINATOR));
-        let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
-          .mul(swapTokenB)
-          .div(new BN(OWNER_FEE_DENOMINATOR));
-        let swap_fees = trade_fees.add(owner_fees);
-        // swapTokenBWithFees = swapTokenB.sub(swap_fees);
-        swapTokenBWithFees = swapTokenB;
+        let trade_fees =
+          (TRADE_FEE_NUMBERATOR * swapTokenB) / TRADE_FEE_DENOMINATOR;
+        let owner_fees =
+          (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
+        let swap_fees = trade_fees + owner_fees;
+        console.log(swap_fees, "swap fees for the gens to hgen");
+        swapTokenBWithFees = swapTokenB - swap_fees;
 
         // pool price before add
-        denominator = tokenA.add(new BN(1).mul(new BN(100)));
-        let swapTokeB_for_one = numerator.div(denominator);
-        let price_impact = tokenB.sub(swapTokeB_for_one);
+        denominator = tokenA + 1 * 100;
+        let swapTokeB_for_one = numerator / denominator;
+        let price_impact = tokenB - swapTokeB_for_one;
         price_impact =
           Math.abs(Number(swapTokenB) - Number(price_impact)) /
           Number(price_impact) /
@@ -846,35 +840,30 @@ export default {
       const TRADE_FEE_DENOMINATOR = 10000;
       const OWNER_FEE_NUMBERATOR = 5;
       const OWNER_FEE_DENOMINATOR = 10000;
-      let tokenA = new BN(this.$accessor.swapPool.tokenAmountA).mul(
-        new BN(100)
-      );
-      let tokenB = new BN(this.$accessor.swapPool.tokenAmountB).mul(
-        new BN(100)
-      );
-      let invariant = new BN(tokenA).mul(new BN(tokenB));
+      let tokenA = this.$accessor.swapPool.tokenAmountA * 100;
+
+      let tokenB = this.$accessor.swapPool.tokenAmountB * 100;
+
+      let invariant = tokenA * tokenB;
       let numerator = invariant;
-      let denominator = tokenB.add(new BN(this.from * 100));
+      let denominator = tokenB + this.from * 100;
 
       // new swap price for the token A->B
-      let swapTokenA = numerator.div(denominator);
-      swapTokenA = new BN(tokenA).sub(swapTokenA);
+      let swapTokenA = numerator / denominator;
+      swapTokenA = tokenA - swapTokenA;
 
       // swaptokenB with fees
-      let trade_fees = new BN(TRADE_FEE_NUMBERATOR)
-        .mul(new BN(swapTokenA))
-        .div(new BN(TRADE_FEE_DENOMINATOR));
-      let owner_fees = new BN(OWNER_FEE_NUMBERATOR)
-        .mul(new BN(swapTokenA))
-        .div(new BN(OWNER_FEE_DENOMINATOR));
-      let swap_fees = trade_fees.add(owner_fees);
-      //   let swapTokenAWithFees = swapTokenA.sub(swap_fees);
-      let swapTokenAWithFees = swapTokenA;
+      let trade_fees =
+        (TRADE_FEE_NUMBERATOR * swapTokenA) / TRADE_FEE_DENOMINATOR;
+      let owner_fees =
+        (OWNER_FEE_NUMBERATOR * swapTokenA) / OWNER_FEE_DENOMINATOR;
+      let swap_fees = trade_fees + owner_fees;
+      let swapTokenAWithFees = swapTokenA - swap_fees;
 
       // pool price before add
-      denominator = tokenB.add(new BN(1).mul(new BN(100)));
-      let swapTokeA_for_one = numerator.div(denominator);
-      let price_impact = tokenA.sub(swapTokeA_for_one);
+      denominator = tokenB + 1 * 100;
+      let swapTokeA_for_one = numerator / denominator;
+      let price_impact = tokenA - swapTokeA_for_one;
       price_impact =
         Math.abs(Number(swapTokenA) - Number(price_impact)) /
         Number(price_impact) /
@@ -918,8 +907,7 @@ export default {
           (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
         let swap_fees = trade_fees + owner_fees;
 
-        // swapTokenBWithFees = swapTokenB - swap_fees;
-        swapTokenBWithFees = swapTokenB;
+        swapTokenBWithFees = swapTokenB - swap_fees;
 
         // pool price before add
         denominator = tokenA + 1;
@@ -963,8 +951,7 @@ export default {
       let owner_fees =
         (OWNER_FEE_NUMBERATOR * swapTokenA) / OWNER_FEE_DENOMINATOR;
       let swap_fees = trade_fees + owner_fees;
-      //   let swapTokenAWithFees = swapTokenA - swap_fees;
-      let swapTokenAWithFees = swapTokenA;
+      let swapTokenAWithFees = swapTokenA - swap_fees;
 
       // pool price before add
       denominator = tokenB + 1;
@@ -1014,8 +1001,7 @@ export default {
         let owner_fees =
           (OWNER_FEE_NUMBERATOR * swapTokenB) / OWNER_FEE_DENOMINATOR;
         let swap_fees = trade_fees + owner_fees;
-        // swapTokenBWithFees = swapTokenB - swap_fees;
-        swapTokenBWithFees = swapTokenB;
+        swapTokenBWithFees = swapTokenB - swap_fees;
 
         // pool price before add
 
@@ -1066,8 +1052,7 @@ export default {
         .mul(new BN(swapTokenA))
         .div(new BN(OWNER_FEE_DENOMINATOR));
       let swap_fees = trade_fees.add(owner_fees);
-      //   let swapTokenAWithFees = swapTokenA.sub(swap_fees);
-      let swapTokenAWithFees = swapTokenA;
+      let swapTokenAWithFees = swapTokenA.sub(swap_fees);
 
       // pool price before add
       denominator = tokenB.add(new BN(1).mul(new BN(100)));
