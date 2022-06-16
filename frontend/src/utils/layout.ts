@@ -167,14 +167,14 @@ export const TOKEN_A_MINT_ADDR = new PublicKey("2aNEZTF7Lw9nfYv6qQEuWDyngSrB5hbd
 export const TOKEN_B_MINT_ADDR = new PublicKey("E2UTFZCt7iCAgaCMC3Qf7MQB73Zwjc6J1avz298tn6UC");
 
 //for gens-hgen pool
-export const TOKEN_ACC_A = new PublicKey("HqESSnK1XaQ33Ww4YecraNxEXJEs6zVwxDgQ5vWkSutX");
-export const TOKEN_ACC_B = new PublicKey("CDAhGN7AoMzEmnfPKnAmpaH2HBKxg27MHwBrNmxMaQ8W");
+export const TOKEN_ACC_A = new PublicKey("5etMNHVBgVRXxPKXiuqt4GAMSk3K4oqHoZ7FcsghHSg6");
+export const TOKEN_ACC_B = new PublicKey("FG9tYQWdukBL5iBQ7G5UrKqHDDszxbgxQwsnjYa9JYgC");
 
-export const TOKEN_SWAP_ACCOUNT = new PublicKey("4Xjce6j7YAR9Rz1321oWJndxDWkh3vemUzzwT3XPW3yC");
+export const TOKEN_SWAP_ACCOUNT = new PublicKey("FDgib3oNr1dipJbju236c7fkNYmb65duGe1MFuSoStew");
 
-export const POOL_AUTHORITY = new PublicKey("AiaMQPdxqxjNvJm4MAW3yAjp3kJRqyrE9gUrRgRAPXu4");
+export const POOL_AUTHORITY = new PublicKey("3fzxHa3ugMuqvsqgVL9TpusxnoxqdHBok7RSchAYrPHv");
 
-export const LP_TOKENS_HGEN_GENS = new PublicKey("3nHK28wsZvGpVj99XvEL5FgVUzh4dUcoP3MsN3pA38aV");
+export const LP_TOKENS_HGEN_GENS = new PublicKey("6NeC6rBQH9RDyW3cwJ9Lp93DRPUr7DWmeVLYJP7ZGX7K");
 export const LP_POOL_OWNER = new PublicKey("424v2hHJtDA879UfMikVWr7VTvJsFqE9XaZkkbe6Uv2J");
 
 

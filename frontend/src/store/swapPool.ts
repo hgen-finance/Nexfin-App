@@ -610,7 +610,7 @@ export const actions = actionTree(
             let hostFeeAccount;
             let swapTx;
             if (value.tokenType == "GH") {
-                tokenSwapAccount = new Account([71, 29, 9, 134, 253, 202, 211, 116, 196, 165, 151, 138, 46, 7, 99, 248, 233, 247, 175, 85, 236, 46, 230, 12, 88, 81, 175, 18, 236, 220, 192, 244, 52, 114, 171, 93, 94, 29, 33, 249, 39, 180, 91, 249, 67, 223, 69, 72, 155, 180, 170, 127, 88, 137, 220, 75, 29, 191, 203, 35, 176, 62, 63, 43]);
+                tokenSwapAccount = TOKEN_SWAP_ACCOUNT
 
                 try {
 
@@ -629,7 +629,7 @@ export const actions = actionTree(
                     hostFeeAccount = new PublicKey(tokenATAFee);
 
 
-                    swapTx = await swap(this.$wallet, this.$web3, tokenSwapAccount.publicKey, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
+                    swapTx = await swap(this.$wallet, this.$web3, tokenSwapAccount, value.tokenLP, ownerTokenPoolAccount, value.tokenAacc, value.tokenBacc, value.tokenAMintAddr, value.tokenBMintAddr, hostFeeAccount, value.from, value.slippagePrice);
                     this.$accessor.wallet.getBalance();
                     this.$accessor.wallet.getGENSBalance();
                     this.$accessor.wallet.getHGENBalance();
