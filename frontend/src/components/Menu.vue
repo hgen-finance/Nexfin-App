@@ -1,7 +1,7 @@
 <template>
   <div class="w-100 fd-c jc-c">
     <div
-      class="w-100 gradient-5002 f-orange-400 fw-600 py-3-S py-10-XS jc-c ai-c ta-c"
+      class="w-100 gradient-5002 f-white-400 fw-600 py-3-S py-10-XS jc-c ai-c ta-c"
       v-if="getPriceStatus"
     >
       {{ warningMsg }}
@@ -21,12 +21,11 @@
           <div
             class="w-a-S w-100-XS fsh-0 px-0-S px-20-XS mr-4 fd-r jc-c mb-5-XS"
           >
-            <nuxt-link to="/" @click.native="turnOffLogo">
+            <a href="https://hgen.finance/">
               <img
                 src="@/assets/svg/HGEN_logo.svg"
                 class="h-fix-15-S h-fix-55-XS"
-                v-if="getLogo"
-            /></nuxt-link>
+            /></a>
           </div>
           <!-- <nuxt-link
             class="w-a f-gray-600 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"

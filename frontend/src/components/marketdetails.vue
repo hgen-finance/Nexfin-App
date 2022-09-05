@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 fd-r ai-c">
+  <div class="w-100 fd-r ai-c d-n-XS my-2-S">
     <div class="fd-r ai-c my-2 mx-3 f-white-200">
       <img
         alt=""
