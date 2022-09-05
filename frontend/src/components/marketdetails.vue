@@ -40,6 +40,18 @@
         <div class="ml-3 fs-8 fw-600 f-white-200">${{ getPythPrice }}</div>
       </div>
     </div>
+    <div class="fd-r my-2 pl-3 w-25">
+      <div class="fd-c">
+        <div class="fs-4 fw-800 f-gray-600">Price Change</div>
+        <div class="fs-4 fw-600 f-white-200">for 24hrs</div>
+      </div>
+      <div class="">
+        <div class="ml-3 fs-8 fw-600 f-white-200">
+          <span v-if="getPriceChange > 0"> +</span>
+          {{ getPriceChange }}%
+        </div>
+      </div>
+    </div>
     <!-- <div class="fd-c my-2 mx-3">
       <div class="fs-4 fw-400 f-gray-600">Daily Change</div>
       <div
@@ -99,6 +111,9 @@ export default {
     },
     getPythPrice() {
       return this.$store.state.pusd;
+    },
+    getPriceChange() {
+      return this.$accessor.priceChange;
     },
   },
   watch: {},

@@ -1,12 +1,18 @@
 <template>
-  <div class="w-100 fd-r jc-c">
+  <div class="w-100 fd-c jc-c">
+    <div
+      class="w-100 gradient-5002 f-orange-400 fw-600 py-3-S py-10-XS jc-c ai-c ta-c"
+      v-if="getPriceStatus"
+    >
+      {{ warningMsg }}
+    </div>
     <div
       class="w-100 w-100-XS h-a-S h-100-XS fd-r py-3-S py-5-XS px-10 z-10 bs-menu"
     >
       <span
         class="w-100 h-100 p-f t-0 gradient-400 d-n-S ts-3"
         :class="{ 'l-100': !open, 'l-0': open }"
-      />
+      ></span>
       <div
         class="w-100 h-a-S h-100-XS fd-r-S fd-c-XS ai-c p-r-S p-f-XS l-0 t-0 ts-3 ovh-y-v-S ovh-y-a-XS"
         :class="{ 'l-100': !open, 'l-0': open }"
@@ -17,7 +23,7 @@
           >
             <nuxt-link to="/" @click.native="turnOffLogo">
               <img
-                src="@/assets/svg/symbol-hgen.png"
+                src="@/assets/svg/HGEN_logo.svg"
                 class="h-fix-15-S h-fix-55-XS"
                 v-if="getLogo"
             /></nuxt-link>
@@ -33,7 +39,7 @@
             Dashboard
           </nuxt-link> -->
           <a
-            class="w-a f-gray-600 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
+            class="w-a f-cyan-1500 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
             v-for="(item, i) in items"
             :key="i"
             :href="item.to"
@@ -42,14 +48,14 @@
             {{ item.title }}
           </a>
           <nuxt-link
-            class="w-a f-gray-600 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
+            class="w-a f-cyan-1500 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
             :to="{ path: '/', hash: '#tokenomics' }"
             @click.native="togglemenu"
           >
             Tokenomics
           </nuxt-link>
           <a
-            class="w-a f-gray-600 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
+            class="w-a f-cyan-1500 fw-500 fs-5-M fs-7-S fs-25-XS link hv ts-3 mr-4 my-0-S my-10-XS"
             href="https://drive.google.com/file/d/1BFL66WIzFpEjyrLbBtPUEx9vV7Si0RDp/view?usp=sharing"
             @click="togglemenu"
             target="_blank"
@@ -59,17 +65,17 @@
         </div>
         <div class="w-a-S w-100-XS fsh-0 px-0-S px-20-XS">
           <AmButton
-            color="mcolor-100"
+            color="gradient-5002 rad-fix-10"
             opacityEffect
             scaleEffect
             :full="mobile"
             @click="$emit('connect', 'connect')"
             v-if="!publicKey"
           >
-            <span class="fw-800 pr-1 f-mcolor-300">SOL</span> Connect Wallet
+            <span class="fw-800 pr-1 f-white-200">SOL</span> Connect Wallet
           </AmButton>
           <div
-            class="w-a-S w-100-XS d-ib rad-fix-2 br-4 brs-s mcolor-100 shadow-purple-100 br-purple-700 f-white-200 px-0-S px-10-XS"
+            class="w-a-S w-100-XS d-ib rad-fix-2 br-4 brs-s gradient-5002 shadow-cyan-200 br-purple-700 f-white-200 px-0-S px-10-XS"
             v-if="publicKey"
           >
             <span
@@ -112,6 +118,8 @@ export default {
   },
   data() {
     return {
+      warningMsg:
+        "SOL price has decreased by more than 7%. Borrowing and lending will be halted in few hours.",
       items: [
         {
           title: "Beginners Guide",
@@ -126,7 +134,7 @@ export default {
           { label: "English", value: 1 },
           { label: "Russian", value: 2 },
         ],
-        colorDefault: "mcolor-100",
+        colorDefault: "gradient-5002",
         colorBackground: "mcolor-200",
         colorTitle: "white-200",
       },
@@ -137,6 +145,9 @@ export default {
   computed: {
     getLogo() {
       return this.$accessor.dashboard.logo;
+    },
+    getPriceStatus() {
+      return this.$accessor.priceStat;
     },
   },
   watch: {
@@ -194,6 +205,7 @@ export default {
   },
   mounted() {
     this.resize();
+    this.getPriceStatus;
     window.addEventListener("resize", this.resize);
   },
 };

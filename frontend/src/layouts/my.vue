@@ -1,10 +1,10 @@
 <template>
   <div class="w-100 h-100min">
-    <div class="w-100 h-100min p-f l-0 t-0 ovh-y-a bg-r" />
+    <div class="w-100 h-100min p-f l-0 t-0 ovh-y-a bg-new" />
     <Menu @connect="setModalFunc" :publicKey="publicKey" @logout="logout" />
     <!-- <div class="w-100 fd-r jc-c pt-0" v-if="publicKey && wallet"> -->
 
-    <MarketDetails />
+    <div class = "d-n-XS"><MarketDetails /></div>
     <div class="w-100 fd-r jc-c pt-0" v-if="true">
       <div class="w-100-L w-100-M w-100-S w-100-XS fd-r jc-c">
         <div class="w-15-L w-15-M w-15-S w-0-XS fsh-0 z-10 pt-0-S pt-5-XS">
@@ -24,7 +24,7 @@
     </div>
     <AmModal
       :show="modal === 'connect'"
-      :shadow="errorConnect ? 'shadow-red-100' : 'shadow-purple-300'"
+      :shadow="errorConnect ? 'shadow-red-100' : 'shadow-cyan-200'"
       max="w-fix-250-S w-90-XS"
       @closed="setModalFunc"
     >
